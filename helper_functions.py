@@ -58,18 +58,8 @@ def get_wall_positions(filename: str):
     complete_path = os.getcwd() + '/logs/' + filename
     with open(complete_path, mode="r") as file:
         for i, line in enumerate(file):
-            #print(line)
-            #for j in enumerate(line):
-            #    print(j)
-            #cut = len(str(i))
-            #content_list = line[cut:-1]
-            print(line)
-            test_dict = ast.literal_eval(line)
-    return test_dict
-
-
-test = get_wall_positions('walls_dict.txt')
-print(len(test))
+            wall_dict = ast.literal_eval(line)
+    return wall_dict
 
 
 def update_environment(obstacles_list, scaling):
@@ -82,9 +72,16 @@ def update_environment(obstacles_list, scaling):
     return obstacles_list
 
 
+def adjust_wall_list(wall_list, scaling):
+    for i in range(1, len(wall_list)+1):
+        wall_list[str(i)][0] = wall_list[str(i)][0]*scaling
+        wall_list[str(i)][1] = (wall_list[str(i)][1] - 1)*scaling
+    return wall_list
+
+
 def adjust_obstacles_list(obstacles_list, scaling):
     for i in obstacles_list:
-        i['x'] = (i['x']-1) * scaling
+        i['x'] = (i['x'] - 1) * scaling
         i['y'] = (i['y'] - 1) * scaling
         i['size'] = i['size'] * scaling
     return obstacles_list

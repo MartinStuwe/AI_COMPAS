@@ -18,7 +18,9 @@ screen = pygame.display.set_mode((observation_space_size_x*scaling, observation_
 clock = pygame.time.Clock()
 
 
-def run_visualization(surface=screen, obstacles_lists_file='obstacles_list.txt', trial=237):
+def run_visualization(surface=screen, wall_list_file='walls_dict.txt', obstacles_lists_file='obstacles_list.txt', trial=237):
+    wall_list = get_wall_positions(wall_list_file)
+    wall_list = adjust_wall_list(wall_list, scaling)
     obstacles_list, flag_multiple_obstacle_lists = get_obstacles_lists(obstacles_lists_file, trial)
     obstacles_list = adjust_obstacles_list(obstacles_list, scaling)
     player_positions_filename = str(trial) + '.csv'
@@ -26,7 +28,7 @@ def run_visualization(surface=screen, obstacles_lists_file='obstacles_list.txt',
     player_starting_position, player_positions = adjust_player_positions(player_starting_position, player_positions,
                                                                          scaling)
     player_positions = iter(player_positions)
-    level = Level(obstacles_list=obstacles_list, player_starting_position=player_starting_position, screen=surface, 
+    level = Level(wall_list=wall_list, obstacles_list=obstacles_list, player_starting_position=player_starting_position, screen=surface,
                   scaling=scaling)
     run_pygame(surface, player_positions, level)
 
@@ -60,4 +62,4 @@ def run_pygame(surface, player_positions, level):
 start_time = time.time()
 time_played = 0
 
-run_visualization(screen, obstacles_lists_file='obstacles_list.txt', trial=237)
+run_visualization(screen, wall_list_file='walls_dict.txt', obstacles_lists_file='obstacles_list.txt', trial=237)
