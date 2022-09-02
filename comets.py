@@ -1,7 +1,6 @@
 import pygame
 import os
 import random
-from config import scaling
 
 
 class Comet(pygame.sprite.Sprite):
@@ -13,5 +12,5 @@ class Comet(pygame.sprite.Sprite):
         self.image = pygame.transform.rotate(pygame.transform.scale(self.image, (size, size)), angle=self.random_angle)
         self.rect = self.image.get_rect(topleft=pos)
 
-    def update(self):
+    def update(self, scaling):
         self.rect.y -= (1*scaling)

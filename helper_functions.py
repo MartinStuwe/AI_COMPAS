@@ -1,7 +1,6 @@
 import os
 import ast
 import csv
-from config import scaling
 
 
 def get_obstacles_lists(filename: str, which_list='all'):
@@ -55,7 +54,25 @@ def get_player_positions(filename: str):
     return player_starting_position, player_positions
 
 
-def update_environment(obstacles_list):
+def get_wall_positions(filename: str):
+    complete_path = os.getcwd() + '/logs/' + filename
+    with open(complete_path, mode="r") as file:
+        for i, line in enumerate(file):
+            #print(line)
+            #for j in enumerate(line):
+            #    print(j)
+            #cut = len(str(i))
+            #content_list = line[cut:-1]
+            print(line)
+            test_dict = ast.literal_eval(line)
+    return test_dict
+
+
+test = get_wall_positions('walls_dict.txt')
+print(len(test))
+
+
+def update_environment(obstacles_list, scaling):
     """
     :param obstacles_list: all obstacles (x,y) which are in environment
     :return: obstacles_list: updated obstacles_list y of all obstacles reduced by 1*scaling
@@ -65,7 +82,7 @@ def update_environment(obstacles_list):
     return obstacles_list
 
 
-def adjust_obstacles_list(obstacles_list):
+def adjust_obstacles_list(obstacles_list, scaling):
     for i in obstacles_list:
         i['x'] = (i['x']-1) * scaling
         i['y'] = (i['y'] - 1) * scaling
@@ -73,9 +90,12 @@ def adjust_obstacles_list(obstacles_list):
     return obstacles_list
 
 
-def adjust_player_positions(player_starting_position, player_positions):
+def adjust_player_positions(player_starting_position, player_positions, scaling, tiny_visualization=False):
     adjusted_player_starting_position = [player_starting_position[0]*scaling, player_starting_position[1]*scaling]
     for i in player_positions:
         i[0] = i[0] * scaling
-        i[1] = adjusted_player_starting_position[1]
+        if tiny_visualization:
+            i[1] = i[1] * scaling
+        else:
+            i[1] = adjusted_player_starting_position[1]
     return adjusted_player_starting_position, player_positions
