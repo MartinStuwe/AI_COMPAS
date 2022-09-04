@@ -29,7 +29,7 @@ def run_tiny_visualization(surface=screen, wall_list_file='walls_dict.txt', obst
                                                                          scaling_tiny_vis, True)
     player_positions = iter(player_positions)
     level = Level(wall_list=wall_list, obstacles_list=obstacles_list, player_starting_position=player_starting_position, screen=surface,
-                  scaling=scaling_tiny_vis)
+                  scaling=scaling_tiny_vis, tiny_vis=True)
     run_pygame(surface, player_positions, level)
 
 
@@ -50,7 +50,7 @@ def run_pygame(surface, player_positions, level):
 
         # update player position
         current_player_position = player_position
-        level.run(current_player_position, scaling_tiny_vis, True)
+        level.run(current_player_position, scaling_tiny_vis, tiny_visualization=True)
 
         pygame.display.update()
         clock.tick(FPS)
