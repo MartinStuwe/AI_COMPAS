@@ -4,13 +4,14 @@ from config import agent_size_x, agent_size_y
 
 
 class Player(pygame.sprite.Sprite):
-    def __init__(self, starting_pos, scaling):
+    def __init__(self, starting_pos, scaling, tiny_vis=False):
         super().__init__()
         # actual image which will be drawn on player rectangle
         self.image = pygame.image.load(os.path.join('Assets/spaceship', 'spaceship_master.png')).convert_alpha()
         self.image = pygame.transform.scale(self.image, (agent_size_x*scaling, agent_size_y*scaling))
-        # self.image = pygame.Surface((agent_size_x, agent_size_y))
-        # self.image.fill('green')
+        if tiny_vis:
+            self.image = pygame.Surface((agent_size_x*scaling, agent_size_y*scaling))
+            self.image.fill('green')
         # rectangular surface of the player
         self.rect = self.image.get_rect(topleft=starting_pos)
 
