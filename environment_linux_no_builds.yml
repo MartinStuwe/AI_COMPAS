@@ -1,0 +1,31 @@
+name: moonlander_visualisation_env
+channels:
+  - https://scs.techfak.uni-bielefeld.de/condapkg/scs
+  - conda-forge
+  - defaults
+dependencies:
+  - _libgcc_mutex=0.1
+  - _openmp_mutex=4.5
+  - bzip2=1.0.8
+  - ca-certificates=2022.6.15
+  - ld_impl_linux-64=2.36.1
+  - libffi=3.4.2
+  - libgcc-ng=12.1.0
+  - libgomp=12.1.0
+  - libnsl=2.0.0
+  - libsqlite=3.39.2
+  - libuuid=2.32.1
+  - libzlib=1.2.12
+  - ncurses=6.3
+  - openssl=3.0.5
+  - pip=22.2.2
+  - python=3.10.6
+  - readline=8.1.2
+  - setuptools=65.3.0
+  - tk=8.6.12
+  - tzdata=2022c
+  - wheel=0.37.1
+  - xz=5.2.6
+  - pip:
+    - pygame==2.1.2
+prefix: /home/annika/miniconda3/envs/moonlander_visualisation_env
