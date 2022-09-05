@@ -35,7 +35,7 @@ def get_obstacles_lists(filename: str, which_list='all'):
 
 def get_player_positions(filename: str):
     """
-    :param filename:
+    :param filename: file must be in logs directory
     :return: player_starting_positions, all positions of the agent within trial
     """
     complete_path = os.getcwd() + '/logs/' + filename
@@ -55,6 +55,10 @@ def get_player_positions(filename: str):
 
 
 def get_wall_positions(filename: str):
+    """
+    :param filename: filename of .txt file containing positions for all wall tiles. file must be in logs directory
+    :return wall_dict: a dict easily accessible to grab individual positions of wall tiles
+    """
     complete_path = os.getcwd() + '/logs/' + filename
     with open(complete_path, mode="r") as file:
         for i, line in enumerate(file):
@@ -65,7 +69,8 @@ def get_wall_positions(filename: str):
 def update_environment(obstacles_list, scaling):
     """
     :param obstacles_list: all obstacles (x,y) which are in environment
-    :return: obstacles_list: updated obstacles_list y of all obstacles reduced by 1*scaling
+    :param scaling: int to scale up on-screen visualization
+    :return obstacles_list: updated obstacles_list y of all obstacles reduced by 1*scaling
     """
     for i in obstacles_list:
         i['y'] = i['y'] - (1 * scaling)
@@ -73,6 +78,11 @@ def update_environment(obstacles_list, scaling):
 
 
 def adjust_wall_list(wall_list, scaling):
+    """
+    :param wall_list:
+    :param scaling: int to scale up on-screen visualization
+    :return updated wall_list
+    """
     for i in range(1, len(wall_list)+1):
         wall_list[str(i)][0] = wall_list[str(i)][0]*scaling
         wall_list[str(i)][1] = (wall_list[str(i)][1] - 1)*scaling
@@ -80,6 +90,10 @@ def adjust_wall_list(wall_list, scaling):
 
 
 def adjust_obstacles_list(obstacles_list, scaling):
+    """
+    :param
+    :return
+    """
     for i in obstacles_list:
         i['x'] = (i['x'] - 1) * scaling
         i['y'] = (i['y'] - 1) * scaling
@@ -88,11 +102,15 @@ def adjust_obstacles_list(obstacles_list, scaling):
 
 
 def adjust_player_positions(player_starting_position, player_positions, scaling, tiny_visualization=False):
+    """
+    param
+    return
+    """
     adjusted_player_starting_position = [player_starting_position[0]*scaling, player_starting_position[1]*scaling]
     for i in player_positions:
-        i[0] = i[0] * scaling
+        i[0] = (i[0] - 1) * scaling
         if tiny_visualization:
-            i[1] = i[1] * scaling
+            i[1] = (i[1] - 1) * scaling
         else:
-            i[1] = adjusted_player_starting_position[1]
+            i[1] = adjusted_player_starting_position[1] - 1
     return adjusted_player_starting_position, player_positions
