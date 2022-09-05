@@ -21,6 +21,7 @@ clock = pygame.time.Clock()
 def run_visualization(surface=screen, wall_list_file='walls_dict.txt', obstacles_lists_file='obstacles_list.txt', trial=237):
     wall_list = get_wall_positions(wall_list_file)
     wall_list = adjust_wall_list(wall_list, scaling)
+    print(wall_list)
     obstacles_list, flag_multiple_obstacle_lists = get_obstacles_lists(obstacles_lists_file, trial)
     obstacles_list = adjust_obstacles_list(obstacles_list, scaling)
     player_positions_filename = str(trial) + '.csv'

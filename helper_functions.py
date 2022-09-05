@@ -12,6 +12,7 @@ def get_obstacles_lists(filename: str, which_list='all'):
     The function will get the path itself. The file must be in the logs directory. Otherwise it won't find it.
     The which_list argument can be passed as string with all vs. first vs. last or an integer as string or integer.
     This will determine the list(s) that are actually returned.
+    Lastly this function will return a bool. It is true for when multiple lists are returned and false if a single list is returned
     """
     obstacles_lists = []
     complete_path = os.getcwd() + '/logs/' + filename

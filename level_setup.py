@@ -19,11 +19,12 @@ class Level:
         for i in range(1, len(wall_list)+1):
             # left wall
             left_wall_x_pos = (wall_list[str(i)][0])
-            left_wall = Wall((left_wall_x_pos, i), scaling)
+            left_wall = Wall((left_wall_x_pos, i*scaling), scaling)
+            # i*scaling will result in the correct y-coord of the wall
 
             # right wall
             right_wall_x_pos = (wall_list[str(i)][1])
-            right_wall = Wall((right_wall_x_pos, i), scaling)
+            right_wall = Wall((right_wall_x_pos, i*scaling), scaling)
 
             # add both walls to sprite group
             self.walls.add(left_wall, right_wall)
