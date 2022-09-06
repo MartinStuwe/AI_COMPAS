@@ -1,4 +1,5 @@
 import pygame
+import time
 from comets import Comet
 from player import Player
 from walls import Wall
@@ -14,6 +15,7 @@ class Level:
     def setup_level(self, wall_list, obstacles_list, player_starting_position, scaling, tiny_vis):
         self.walls = pygame.sprite.Group()
         self.comets = pygame.sprite.Group()
+        self.drift_tiles = pygame.sprite.Group()
         self.player = pygame.sprite.GroupSingle()
 
         for i in range(1, len(wall_list)+1):
@@ -36,7 +38,34 @@ class Level:
         player_sprite = Player(player_starting_position, scaling, tiny_vis)
         self.player.add(player_sprite)
 
-    def run(self, player_position, scaling, tiny_visualization=False):
+    def check_for_collision(self):
+        player = self.player.sprite
+
+        for sprite in self.comets.sprites():
+            if sprite.rect.colliderect(player.rect):  # check for player-comet collision
+                player.crashed = True
+                time.sleep(10)  # for debugging
+
+    def check_for_drift(self):
+        player = self.player.sprite
+        player.drift.x = 0
+        for sprite in self.drift_tiles.sprites():
+            if sprite.rect.left > player.rect.right:  # if drift.tile is right from player.tile than drift to left
+                if player.rect.top in range(sprite.rect.top, sprite.rect.bottom):
+                    player.drift.x = -1/2  # - imposes drift to the left that is 1/2 of normal movement
+                    # player.image.fill("blue")  # for debugging
+                elif player.rect.bottom in range(sprite.rect.top, sprite.rect.bottom):
+                    player.drift.x = -1/2
+                    # player.image.fill("yellow")  # for debugging
+            elif sprite.rect.right < player.rect.left:  # if drift.tile is left from player.tile than drift to right
+                if player.rect.top in range(sprite.rect.top, sprite.rect.bottom):
+                    player.drift.x = 1/2  # imposes drift to the right that is 1/2 of normal movement
+                    # player.image.fill("blue")  # for debugging
+                elif player.rect.bottom in range(sprite.rect.top, sprite.rect.bottom):
+                    player.drift.x = 1/2
+                    # player.image.fill("yellow")  # for debugging
+        
+    def run(self, player_position, scaling, tiny_visualization=False, keyboard_input=False):
 
         # level tiles
         if not tiny_visualization:
@@ -48,5 +77,5 @@ class Level:
         self.walls.draw(self.display_surface)
 
         # agent
-        self.player.update(player_position)
+        self.player.update(player_position, scaling, keyboard_input)
         self.player.draw(self.display_surface)
