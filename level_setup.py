@@ -50,7 +50,7 @@ class Level:
         for sprite in self.comets.sprites():
             if sprite.rect.colliderect(player.rect):  # check for player-comet collision
                 player.crashed = True
-                player.image.fill('green') # for debugging
+                # player.image.fill('green')  # for debugging
 
     def check_for_drift(self):
         player = self.player.sprite
@@ -73,17 +73,26 @@ class Level:
         
     def run(self, player_position, scaling, tiny_visualization=False, keyboard_input=False):
 
-        # level tiles
+        # update sprite positions
+        # update level tiles
         if not tiny_visualization:
             self.comets.update(scaling)
             self.walls.update(scaling)
             self.drift_tiles.update(scaling)
+        # update player tile
+        self.player.update(player_position, scaling, keyboard_input)
 
+        # check for collision
+        self.check_for_collision()
+
+        # check for drift
+        self.check_for_drift()
+
+        # draw sprites
         # draw comets and tiles
         self.comets.draw(self.display_surface)
         self.walls.draw(self.display_surface)
         self.drift_tiles.draw(self.display_surface)
 
-        # agent
-        self.player.update(player_position, scaling, keyboard_input)
+        # draw agent
         self.player.draw(self.display_surface)
