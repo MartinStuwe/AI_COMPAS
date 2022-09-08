@@ -1,7 +1,7 @@
 import pygame.display
 import time
 from main import run_visualization
-from config import observation_space_size_x, observation_space_size_y, scaling
+from config import observation_space_size_x, observation_space_size_y, scaling, edge
 
 
 # how many frames per second
