@@ -29,13 +29,15 @@ def run_visualization(surface, scaling=1, tiny_visualization=False, FPS=30, keyb
     player_starting_position, player_positions = get_player_positions(player_positions_filename)
     player_starting_position, player_positions = adjust_player_positions(player_starting_position, player_positions,
                                                                          scaling, tiny_visualization=tiny_visualization)
+    drift_ranges = get_drift_ranges("drift_ranges.txt")
+    drift_ranges = adjust_drift_ranges(drift_ranges, scaling)
 
     if not keyboard_input:
         player_positions = iter(player_positions)
 
     # setting up level
-    level = Level(wall_list=wall_list, obstacles_list=obstacles_list, player_starting_position=player_starting_position, 
-                  screen=surface, scaling=scaling)
+    level = Level(wall_list=wall_list, obstacles_list=obstacles_list, player_starting_position=player_starting_position,
+                  drift_ranges=drift_ranges, screen=surface, scaling=scaling)
 
     # running through game loop
     run_pygame(surface=surface, scaling=scaling, FPS=FPS, keyboard_input=keyboard_input,

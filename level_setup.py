@@ -3,16 +3,17 @@ import time
 from comets import Comet
 from player import Player
 from walls import Wall
+from drift_tiles import DriftTile
 
 
 class Level:
-    def __init__(self, wall_list, obstacles_list, player_starting_position, screen, scaling, tiny_vis=False):
+    def __init__(self, wall_list, obstacles_list, player_starting_position, drift_ranges, screen, scaling, tiny_vis=False):
 
         # level_setup
         self.display_surface = screen
-        self.setup_level(wall_list, obstacles_list, player_starting_position, scaling, tiny_vis)
+        self.setup_level(wall_list, obstacles_list, player_starting_position, drift_ranges, scaling, tiny_vis)
 
-    def setup_level(self, wall_list, obstacles_list, player_starting_position, scaling, tiny_vis):
+    def setup_level(self, wall_list, obstacles_list, player_starting_position, drift_ranges, scaling, tiny_vis):
         self.walls = pygame.sprite.Group()
         self.comets = pygame.sprite.Group()
         self.drift_tiles = pygame.sprite.Group()
@@ -38,13 +39,18 @@ class Level:
         player_sprite = Player(player_starting_position, scaling, tiny_vis)
         self.player.add(player_sprite)
 
+        for i in range(len(drift_ranges)):
+            drift_info = drift_ranges[i]  # drift_info[0]: y_start, [1]: y_end, [2]: direction
+            drift_tile = DriftTile(drift_info[0], drift_info[1], drift_info[2])
+            self.drift_tiles.add(drift_tile)
+
     def check_for_collision(self):
         player = self.player.sprite
 
         for sprite in self.comets.sprites():
             if sprite.rect.colliderect(player.rect):  # check for player-comet collision
                 player.crashed = True
-                time.sleep(10)  # for debugging
+                player.image.fill('green') # for debugging
 
     def check_for_drift(self):
         player = self.player.sprite
@@ -71,10 +77,12 @@ class Level:
         if not tiny_visualization:
             self.comets.update(scaling)
             self.walls.update(scaling)
+            self.drift_tiles.update(scaling)
 
         # draw comets and tiles
         self.comets.draw(self.display_surface)
         self.walls.draw(self.display_surface)
+        self.drift_tiles.draw(self.display_surface)
 
         # agent
         self.player.update(player_position, scaling, keyboard_input)
