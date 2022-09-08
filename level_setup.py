@@ -41,7 +41,7 @@ class Level:
 
         for i in range(len(drift_ranges)):
             drift_info = drift_ranges[i]  # drift_info[0]: y_start, [1]: y_end, [2]: direction
-            drift_tile = DriftTile(drift_info[0], drift_info[1], drift_info[2])
+            drift_tile = DriftTile(drift_info[0], drift_info[1], drift_info[2], scaling)
             self.drift_tiles.add(drift_tile)
 
     def check_for_collision(self):
