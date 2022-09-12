@@ -39,3 +39,9 @@ class Player(pygame.sprite.Sprite):
             self.rect.x += player_horizontal_movement * scaling  # apply horizontal drift
         else:
             self.rect = self.image.get_rect(topleft=player_position)
+
+    def approach(self, scaling):
+        """
+        approaching movement of agent at beginning of trial
+        """
+        self.rect.y += 1/2*scaling

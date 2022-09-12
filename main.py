@@ -37,7 +37,7 @@ def run_visualization(surface, scaling=1, tiny_visualization=False, FPS=30, keyb
 
     # setting up level
     level = Level(wall_list=wall_list, obstacles_list=obstacles_list, player_starting_position=player_starting_position,
-                  drift_ranges=drift_ranges, screen=surface, scaling=scaling)
+                  drift_ranges=drift_ranges, screen=surface, scaling=scaling, keyboard_input=keyboard_input)
 
     # running through game loop
     run_pygame(surface=surface, scaling=scaling, FPS=FPS, keyboard_input=keyboard_input,

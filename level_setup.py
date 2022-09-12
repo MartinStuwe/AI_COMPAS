@@ -7,13 +7,16 @@ from drift_tiles import DriftTile
 
 
 class Level:
-    def __init__(self, wall_list, obstacles_list, player_starting_position, drift_ranges, screen, scaling, tiny_vis=False):
+    def __init__(self, wall_list, obstacles_list, player_starting_position, drift_ranges, screen, scaling,
+                 tiny_vis=False, keyboard_input=False):
 
         # level_setup
         self.display_surface = screen
-        self.setup_level(wall_list, obstacles_list, player_starting_position, drift_ranges, scaling, tiny_vis)
+        self.setup_level(wall_list, obstacles_list, player_starting_position, drift_ranges, scaling,
+                         tiny_vis, keyboard_input)
 
-    def setup_level(self, wall_list, obstacles_list, player_starting_position, drift_ranges, scaling, tiny_vis):
+    def setup_level(self, wall_list, obstacles_list, player_starting_position, drift_ranges, scaling,
+                    tiny_vis, keyboard_input):
         self.walls = pygame.sprite.Group()
         self.comets = pygame.sprite.Group()
         self.drift_tiles = pygame.sprite.Group()
@@ -35,9 +38,14 @@ class Level:
         for key in obstacles_list:
             comet_sprite = Comet((key['x'], key['y']), key['size'])  # arguments in Comet(): x-pos, y-pos, tile_size
             self.comets.add(comet_sprite)
-        
-        player_sprite = Player(player_starting_position, scaling, tiny_vis)
-        self.player.add(player_sprite)
+
+        if keyboard_input:
+            player_appearance = [player_starting_position[0], (player_starting_position[1]-25*scaling)]
+            player_sprite = Player(player_appearance, scaling, tiny_vis)
+            self.player.add(player_sprite)
+        else:
+            player_sprite = Player(player_starting_position, scaling, tiny_vis)
+            self.player.add(player_sprite)
 
         for i in range(len(drift_ranges)):
             drift_info = drift_ranges[i]  # drift_info[0]: y_start, [1]: y_end, [2]: direction
@@ -46,6 +54,7 @@ class Level:
 
     def check_for_collision(self):
         player = self.player.sprite
+        # player.image.fill('red')  # for debugging
 
         for sprite in self.comets.sprites():
             if sprite.rect.colliderect(player.rect):  # check for player-comet collision
@@ -73,14 +82,25 @@ class Level:
         
     def run(self, player_position, scaling, tiny_visualization=False, keyboard_input=False):
 
-        # update sprite positions
-        # update level tiles
-        if not tiny_visualization:
-            self.comets.update(scaling)
-            self.walls.update(scaling)
-            self.drift_tiles.update(scaling)
-        # update player tile
-        self.player.update(player_position, scaling, keyboard_input)
+        # if keyboard_input:
+        player = self.player.sprite
+        # print(player.rect.y, player_position[1])
+        if keyboard_input and player.rect.y < player_position[1]:
+            player.approach(scaling)
+
+        #     # approach at beginning of trial
+        #     while player.rect.y < player_position[0] * scaling:
+        #         print('approaching:', player.rect.y)
+        #         player.approach(scaling)
+        else:
+            # update sprite positions
+            # update level tiles
+            if not tiny_visualization:
+                self.comets.update(scaling)
+                self.walls.update(scaling)
+                self.drift_tiles.update(scaling)
+            # update player tile
+            self.player.update(player_position, scaling, keyboard_input)
 
         # check for collision
         self.check_for_collision()
