@@ -14,6 +14,11 @@ class Level:
         self.display_surface = screen
         self.setup_level(wall_list, obstacles_list, player_starting_position, drift_ranges, scaling,
                          tiny_vis, keyboard_input)
+        # environment movement around agent
+        self.direction = pygame.math.Vector2(0, 0)
+        # environmentally imposed drift
+        self.drift = pygame.math.Vector2(0, 0)
+        self.horizontal_movement = 0
 
     def setup_level(self, wall_list, obstacles_list, player_starting_position, drift_ranges, scaling,
                     tiny_vis, keyboard_input):
@@ -52,6 +57,20 @@ class Level:
             drift_tile = DriftTile(drift_info[0], drift_info[1], drift_info[2], scaling)
             self.drift_tiles.add(drift_tile)
 
+    def get_input(self):
+        keys = pygame.key.get_pressed()
+
+        if keys[pygame.K_RIGHT]:
+            self.direction.x = 1
+        elif keys[pygame.K_LEFT]:
+            self.direction.x = -1
+        else:
+            self.direction.x = 0
+
+    def update(self):
+        self.get_input()
+        self.horizontal_movement = self.direction.x + self.drift.x  # compute horizontal movement with drift
+
     def check_for_collision(self):
         player = self.player.sprite
         # player.image.fill('red')  # for debugging
@@ -82,9 +101,11 @@ class Level:
         
     def run(self, player_position, scaling, tiny_visualization=False, keyboard_input=False):
 
-        # if keyboard_input:
         player = self.player.sprite
-        # print(player.rect.y, player_position[1])
+
+        if keyboard_input:
+            self.update()
+
         if keyboard_input and player.rect.y < player_position[1]:
             player.approach(scaling)
 
@@ -96,11 +117,11 @@ class Level:
             # update sprite positions
             # update level tiles
             if not tiny_visualization:
-                self.comets.update(scaling)
-                self.walls.update(scaling)
-                self.drift_tiles.update(scaling)
+                self.comets.update(scaling, self.horizontal_movement)
+                self.walls.update(scaling, self.horizontal_movement)
+                self.drift_tiles.update(scaling, self.horizontal_movement)
             # update player tile
-            self.player.update(player_position, scaling, keyboard_input)
+            # self.player.update(player_position, scaling, keyboard_input)
 
         # check for collision
         self.check_for_collision()

@@ -9,5 +9,8 @@ class Wall(pygame.sprite.Sprite):
         self.image.fill('white')
         self.rect = self.image.get_rect(topleft=pos)
 
-    def update(self, scaling):
+    def update(self, scaling, horizontal_movement):
+        # vertical movement
         self.rect.y -= (1*scaling)
+        # horizontal movement
+        self.rect.x += horizontal_movement * scaling
