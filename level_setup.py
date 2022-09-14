@@ -1,9 +1,14 @@
 import pygame
 import time
+import numpy as np
 from comets import Comet
 from player import Player
 from walls import Wall
 from drift_tiles import DriftTile
+from particles import Particle
+from config import level_size_x, level_size_y, particle_size, edge
+
+N_particles = 1000
 
 
 class Level:
@@ -26,6 +31,7 @@ class Level:
         self.comets = pygame.sprite.Group()
         self.drift_tiles = pygame.sprite.Group()
         self.player = pygame.sprite.GroupSingle()
+        self.particles = pygame.sprite.Group()
 
         for i in range(1, len(wall_list)+1):
             # left wall
@@ -57,13 +63,19 @@ class Level:
             drift_tile = DriftTile(drift_info[0], drift_info[1], drift_info[2], scaling)
             self.drift_tiles.add(drift_tile)
 
+        for i in range(N_particles):
+            x_pos = np.random.uniform(low=edge*scaling, high=level_size_x*scaling, size=1)
+            y_pos = np.random.uniform(low=0, high=level_size_y*scaling, size=1)
+            particle_tile = Particle((x_pos[0], y_pos[0]), particle_size, scaling)
+            self.particles.add(particle_tile)
+
     def get_input(self):
         keys = pygame.key.get_pressed()
 
         if keys[pygame.K_RIGHT]:
-            self.direction.x = 1
-        elif keys[pygame.K_LEFT]:
             self.direction.x = -1
+        elif keys[pygame.K_LEFT]:
+            self.direction.x = 1
         else:
             self.direction.x = 0
 
@@ -73,7 +85,7 @@ class Level:
 
     def check_for_collision(self):
         player = self.player.sprite
-        # player.image.fill('red')  # for debugging
+        # üplayer.image.fill('red')  # for debugging
 
         for sprite in self.comets.sprites():
             if sprite.rect.colliderect(player.rect):  # check for player-comet collision
@@ -82,26 +94,27 @@ class Level:
 
     def check_for_drift(self):
         player = self.player.sprite
-        player.drift.x = 0
+        self.drift.x = 0
         for sprite in self.drift_tiles.sprites():
             if sprite.rect.left > player.rect.right:  # if drift.tile is right from player.tile than drift to left
                 if player.rect.top in range(sprite.rect.top, sprite.rect.bottom):
-                    player.drift.x = -1/2  # - imposes drift to the left that is 1/2 of normal movement
+                    self.drift.x = 1/2  # - imposes drift to the left that is 1/2 of normal movement
                     # player.image.fill("blue")  # for debugging
                 elif player.rect.bottom in range(sprite.rect.top, sprite.rect.bottom):
-                    player.drift.x = -1/2
+                    self.drift.x = 1/2
                     # player.image.fill("yellow")  # for debugging
             elif sprite.rect.right < player.rect.left:  # if drift.tile is left from player.tile than drift to right
                 if player.rect.top in range(sprite.rect.top, sprite.rect.bottom):
-                    player.drift.x = 1/2  # imposes drift to the right that is 1/2 of normal movement
+                    self.drift.x = -1/2  # imposes drift to the right that is 1/2 of normal movement
                     # player.image.fill("blue")  # for debugging
                 elif player.rect.bottom in range(sprite.rect.top, sprite.rect.bottom):
-                    player.drift.x = 1/2
+                    self.drift.x = -1/2
                     # player.image.fill("yellow")  # for debugging
         
     def run(self, player_position, scaling, tiny_visualization=False, keyboard_input=False):
 
         player = self.player.sprite
+        player.animate(self.direction.x)
 
         if keyboard_input:
             self.update()
@@ -120,6 +133,7 @@ class Level:
                 self.comets.update(scaling, self.horizontal_movement)
                 self.walls.update(scaling, self.horizontal_movement)
                 self.drift_tiles.update(scaling, self.horizontal_movement)
+                self.particles.update(scaling, self.horizontal_movement)
             # update player tile
             # self.player.update(player_position, scaling, keyboard_input)
 
@@ -134,6 +148,7 @@ class Level:
         self.comets.draw(self.display_surface)
         self.walls.draw(self.display_surface)
         self.drift_tiles.draw(self.display_surface)
+        self.particles.draw(self.display_surface)
 
         # draw agent
         self.player.draw(self.display_surface)
