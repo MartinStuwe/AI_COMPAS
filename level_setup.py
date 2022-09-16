@@ -6,11 +6,7 @@ from player import Player
 from walls import Wall
 from drift_tiles import DriftTile
 from particles import Particle
-from config import level_size_x, level_size_y, particle_size, edge, N_particles
-
-
-pre_trial_steps = 25  # steps spaceship has to take to reach starting_position in experimental setup
-# can range from 0 - observation_space_y/2
+from config import level_size_x, level_size_y, particle_size, edge, N_particles, pre_trial_steps
 
 
 class Level:
@@ -66,7 +62,7 @@ class Level:
             drift_tile = DriftTile(drift_info[0], drift_info[1], drift_info[2], scaling)
             self.drift_tiles.add(drift_tile)
 
-        for i in range(N_particles):
+        for _ in range(N_particles):
             x_pos = np.random.uniform(low=edge*scaling, high=level_size_x*scaling, size=1)
             y_pos = np.random.uniform(low=0, high=level_size_y*scaling, size=1)
             particle_tile = Particle((x_pos[0], y_pos[0]), particle_size, scaling)
