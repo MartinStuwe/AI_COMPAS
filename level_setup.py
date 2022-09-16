@@ -134,7 +134,7 @@ class Level:
 
         if keyboard_input and player.rect.y < player_position[1]:
             player.approach(scaling)
-        if not tiny_visualization:
+        if not tiny_visualization and player.rect.y >= player_position[1]:
             # update sprite positions
             # update level tiles
             self.comets.update(scaling, self.horizontal_movement)
