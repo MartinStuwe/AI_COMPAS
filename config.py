@@ -8,7 +8,8 @@ fall_velocity = 1
 level_size_x, level_size_y = observation_space_size_x, 400  # 2100
 wall_size = 1
 drift_tile_x_size = 1
-particle_size = 1/16
+particle_size = 4/16
+N_particles = 1000
 
 # drift mapping
 # drift = 0: leftwards drift

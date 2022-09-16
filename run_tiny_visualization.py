@@ -1,5 +1,4 @@
 import pygame.display
-import time
 from main import run_visualization
 from config import level_size_x, level_size_y, scaling_tiny_vis, edge
 
@@ -12,4 +11,4 @@ pygame.init()
 screen = pygame.display.set_mode(((level_size_x+(2*edge))*scaling_tiny_vis, level_size_y*scaling_tiny_vis))
 
 run_visualization(surface=screen, scaling=scaling_tiny_vis, tiny_visualization=True, FPS=FPS, keyboard_input=False,
-                  wall_list_file='walls_dict.txt', obstacles_lists_file='obstacles_list.txt', trial=237)
+                  wall_list_file='walls_dict.txt', obstacles_lists_file='obstacles_list.txt', trial=4)

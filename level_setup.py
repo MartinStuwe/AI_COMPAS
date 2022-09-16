@@ -6,9 +6,11 @@ from player import Player
 from walls import Wall
 from drift_tiles import DriftTile
 from particles import Particle
-from config import level_size_x, level_size_y, particle_size, edge
+from config import level_size_x, level_size_y, particle_size, edge, N_particles
 
-N_particles = 1000
+
+pre_trial_steps = 25  # steps spaceship has to take to reach starting_position in experimental setup
+# can range from 0 - observation_space_y/2
 
 
 class Level:
@@ -23,6 +25,7 @@ class Level:
         self.direction = pygame.math.Vector2(0, 0)
         # environmentally imposed drift
         self.drift = pygame.math.Vector2(0, 0)
+        # total horizontal movement combined of agent imposed direction and environmentally imposed drift
         self.horizontal_movement = 0
 
     def setup_level(self, wall_list, obstacles_list, player_starting_position, drift_ranges, scaling,
@@ -51,7 +54,7 @@ class Level:
             self.comets.add(comet_sprite)
 
         if keyboard_input:
-            player_appearance = [player_starting_position[0], (player_starting_position[1]-25*scaling)]
+            player_appearance = [player_starting_position[0], (player_starting_position[1]-pre_trial_steps*scaling)]
             player_sprite = Player(player_appearance, scaling, tiny_vis)
             self.player.add(player_sprite)
         else:
@@ -85,12 +88,19 @@ class Level:
 
     def check_for_collision(self):
         player = self.player.sprite
-        # üplayer.image.fill('red')  # for debugging
+        # player.image.fill('green')  # for debugging
 
+        # obstacles
         for sprite in self.comets.sprites():
             if sprite.rect.colliderect(player.rect):  # check for player-comet collision
                 player.crashed = True
-                # player.image.fill('green')  # for debugging
+                # player.image.fill('red')  # for debugging
+
+        # walls
+        for sprite in self.walls.sprites():
+            if sprite.rect.colliderect(player.rect):  # check for player-wall collision
+                player.crashed = True
+                # player.image.fill('red')  # for debugging
 
     def check_for_drift(self):
         player = self.player.sprite
@@ -114,34 +124,29 @@ class Level:
     def run(self, player_position, scaling, tiny_visualization=False, keyboard_input=False):
 
         player = self.player.sprite
-        player.animate(self.direction.x)
+        if not tiny_visualization and keyboard_input:
+            player.animate(self.direction.x)
 
         if keyboard_input:
             self.update()
+        else:
+            self.player.update(player_position, scaling, keyboard_input)
 
         if keyboard_input and player.rect.y < player_position[1]:
             player.approach(scaling)
-
-        #     # approach at beginning of trial
-        #     while player.rect.y < player_position[0] * scaling:
-        #         print('approaching:', player.rect.y)
-        #         player.approach(scaling)
-        else:
+        if not tiny_visualization:
             # update sprite positions
             # update level tiles
-            if not tiny_visualization:
-                self.comets.update(scaling, self.horizontal_movement)
-                self.walls.update(scaling, self.horizontal_movement)
-                self.drift_tiles.update(scaling, self.horizontal_movement)
-                self.particles.update(scaling, self.horizontal_movement)
-            # update player tile
-            # self.player.update(player_position, scaling, keyboard_input)
+            self.comets.update(scaling, self.horizontal_movement)
+            self.walls.update(scaling, self.horizontal_movement)
+            self.drift_tiles.update(scaling, self.horizontal_movement)
+            self.particles.update(scaling, self.horizontal_movement)
 
-        # check for collision
-        self.check_for_collision()
-
-        # check for drift
-        self.check_for_drift()
+        if keyboard_input:  # only needed if player is controlling spaceship
+            # check for collision
+            self.check_for_collision()
+            # check for drift
+            self.check_for_drift()
 
         # draw sprites
         # draw comets and tiles
