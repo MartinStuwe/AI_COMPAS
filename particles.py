@@ -1,12 +1,12 @@
 import pygame
-from config import wall_size
 
 
-class Wall(pygame.sprite.Sprite):
-    def __init__(self, pos, scaling):
+class Particle(pygame.sprite.Sprite):
+    def __init__(self, pos, size, scaling):
         super().__init__()
-        self.image = pygame.Surface((wall_size * scaling, wall_size * scaling))
-        self.image.fill('white')
+        # actual comet image which will be drawn on rectangular surface of comet
+        self.image = pygame.Surface((size*scaling, size*scaling))
+        self.image.fill('grey')
         self.rect = self.image.get_rect(topleft=pos)
 
     def update(self, scaling, horizontal_movement):

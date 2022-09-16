@@ -30,5 +30,8 @@ class DriftTile(pygame.sprite.Sprite):
         pos = [self.x_pos, self.y_pos]
         self.rect = self.image.get_rect(topleft=pos)
 
-    def update(self, scaling):
+    def update(self, scaling, horizontal_movement):
+        # vertical movement
         self.rect.y -= (1*scaling)
+        # horizontal movement
+        self.rect.x += horizontal_movement * scaling
