@@ -4,7 +4,7 @@ import sys
 import pygame.display
 from pygame import VIDEORESIZE
 
-from config import level_size_y
+from config import level_size_y, pre_trial_steps
 from helper_functions import *
 from level_setup import *
 
@@ -53,7 +53,7 @@ def run_pygame(surface, scaling, FPS, keyboard_input, player_positions, level, t
     time_played = 0
 
     if keyboard_input:
-        for step in range(level_size_y):
+        for step in range(level_size_y+5):  # due to steps being taken in pre_trial_steps, have to add steps in here
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     pygame.quit()
