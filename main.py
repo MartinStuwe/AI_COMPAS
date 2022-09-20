@@ -25,11 +25,11 @@ def run_visualization(surface, scaling=1, tiny_visualization=False, FPS=30, keyb
     wall_list = adjust_wall_list(wall_list, scaling)
     obstacles_list, flag_multiple_obstacle_lists = get_obstacles_lists(obstacles_lists_file, trial)
     obstacles_list = adjust_obstacles_list(obstacles_list, scaling)
-    player_positions_filename = str(trial) + '.csv'
+    player_positions_filename = str(trial) + '_vis.csv'
     player_starting_position, player_positions = get_player_positions(player_positions_filename)
     player_starting_position, player_positions = adjust_player_positions(player_starting_position, player_positions,
                                                                          scaling, tiny_visualization=tiny_visualization)
-    drift_ranges = get_drift_ranges("drift_ranges.txt")
+    drift_ranges = get_drift_ranges("drift_ranges.txt", level=trial)
     drift_ranges = adjust_drift_ranges(drift_ranges, scaling)
 
     if not keyboard_input:

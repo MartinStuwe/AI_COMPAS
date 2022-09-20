@@ -47,11 +47,11 @@ def get_player_positions(filename: str):
         player_positions = []
         counter = 0
         for line in csv_file:
-            if counter % 2 == 0:
-                if counter == 0:
-                    player_starting_position = ast.literal_eval(line[0])["position_t_minus_1"]
-                position = ast.literal_eval(line[0])["position"]
-                player_positions.append(position)
+            if counter == 1:
+                # convert from str to float to int
+                player_starting_position = [int(float(line[0])), int(float(line[1]))-1]
+            if not counter == 0:
+                player_positions.append([int(float(line[0])), int(float(line[1]))])
             counter += 1
     return player_starting_position, player_positions
 
