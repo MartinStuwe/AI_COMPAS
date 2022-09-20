@@ -10,7 +10,7 @@ from level_setup import *
 
 
 def run_visualization(surface, scaling=1, tiny_visualization=False, FPS=30, keyboard_input=False,
-                      wall_list_file='walls_dict.txt', obstacles_lists_file='obstacles_list.txt', trial=237):
+                      wall_list_file='walls_dict.txt', obstacles_lists_file='obstacles_list.txt', trial=4):
     """
     :param surface: argument for specifying pygame.display object
     :param scaling: int (or float) to scale up on-screen visualization

@@ -1,12 +1,13 @@
 import pygame
 import time
 import numpy as np
+import random
 from comets import Comet
 from player import Player
 from walls import Wall
 from drift_tiles import DriftTile
 from particles import Particle
-from config import level_size_x, level_size_y, particle_size, edge, N_particles, pre_trial_steps
+from config import level_size_x, level_size_y, particle_sizes, edge, N_particles, pre_trial_steps
 
 
 class Level:
@@ -65,16 +66,20 @@ class Level:
         for _ in range(N_particles):
             x_pos = np.random.uniform(low=edge*scaling, high=level_size_x*scaling, size=1)
             y_pos = np.random.uniform(low=0, high=level_size_y*scaling, size=1)
-            particle_tile = Particle((x_pos[0], y_pos[0]), particle_size, scaling)
+            particle_tile = Particle((x_pos[0], y_pos[0]), random.choice(particle_sizes), scaling)
             self.particles.add(particle_tile)
 
     def get_input(self):
+        # input noise
+        # mu, sigma = 0, 0.5  # mean and standard deviation
+        # input_noise = np.random.normal(mu, sigma, 1)
+
         keys = pygame.key.get_pressed()
 
-        if keys[pygame.K_RIGHT]:
-            self.direction.x = -1
-        elif keys[pygame.K_LEFT]:
-            self.direction.x = 1
+        if keys[pygame.K_RIGHT]:  # K_m
+            self.direction.x = -1  # + input_noise
+        elif keys[pygame.K_LEFT]:  # K_y
+            self.direction.x = 1  # + input_noise
         else:
             self.direction.x = 0
 
