@@ -9,6 +9,8 @@ from drift_tiles import DriftTile
 from particles import Particle
 from config import level_size_x, level_size_y, particle_sizes, edge, N_particles, pre_trial_steps
 
+from draw_transparent_shapes import draw_rect_alpha, draw_polygon_alpha
+
 
 class Level:
     def __init__(self, wall_list, obstacles_list, player_starting_position, drift_ranges, screen, scaling,
@@ -24,6 +26,9 @@ class Level:
         self.drift = pygame.math.Vector2(0, 0)
         # total horizontal movement combined of agent imposed direction and environmentally imposed drift
         self.horizontal_movement = 0
+        # transparency for buttons being pressed
+        self.transparency_left = 90
+        self.transparency_right = 90
 
     def setup_level(self, wall_list, obstacles_list, player_starting_position, drift_ranges, scaling,
                     tiny_vis, keyboard_input):
@@ -64,7 +69,7 @@ class Level:
             self.drift_tiles.add(drift_tile)
 
         for _ in range(N_particles):
-            x_pos = np.random.uniform(low=edge*scaling, high=level_size_x*scaling, size=1)
+            x_pos = np.random.uniform(low=edge*scaling, high=level_size_x*scaling + edge*scaling, size=1)
             y_pos = np.random.uniform(low=0, high=level_size_y*scaling, size=1)
             particle_tile = Particle((x_pos[0], y_pos[0]), random.choice(particle_sizes), scaling)
             self.particles.add(particle_tile)
@@ -73,13 +78,17 @@ class Level:
         # input noise
         # mu, sigma = 0, 0.5  # mean and standard deviation
         # input_noise = np.random.normal(mu, sigma, 1)
+        self.transparency_left = 90
+        self.transparency_right = 90
 
         keys = pygame.key.get_pressed()
 
         if keys[pygame.K_RIGHT]:  # K_m
             self.direction.x = -1  # + input_noise
+            self.transparency_right = 150
         elif keys[pygame.K_LEFT]:  # K_y
             self.direction.x = 1  # + input_noise
+            self.transparency_left = 150
         else:
             self.direction.x = 0
 
@@ -151,10 +160,20 @@ class Level:
 
         # draw sprites
         # draw comets and tiles
+        self.particles.draw(self.display_surface)
         self.comets.draw(self.display_surface)
         self.walls.draw(self.display_surface)
         self.drift_tiles.draw(self.display_surface)
-        self.particles.draw(self.display_surface)
 
         # draw agent
         self.player.draw(self.display_surface)
+
+        # draw keys
+        # right key
+        draw_rect_alpha(self.display_surface, (124, 252, 0, self.transparency_right), (160, 60, 90, 90))
+        draw_polygon_alpha(self.display_surface, (255, 255, 255, self.transparency_right),
+                           [(240, 105), (170, 70), (170, 140)])
+        # left key
+        draw_rect_alpha(self.display_surface, (124, 252, 0, self.transparency_left), (60, 60, 90, 90))
+        draw_polygon_alpha(self.display_surface, (255, 255, 255, self.transparency_left),
+                           [(70, 105), (140, 70), (140, 140)])

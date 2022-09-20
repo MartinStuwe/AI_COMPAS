@@ -29,7 +29,7 @@ def run_visualization(surface, scaling=1, tiny_visualization=False, FPS=30, keyb
     player_starting_position, player_positions = get_player_positions(player_positions_filename)
     player_starting_position, player_positions = adjust_player_positions(player_starting_position, player_positions,
                                                                          scaling, tiny_visualization=tiny_visualization)
-    drift_ranges = get_drift_ranges("drift_ranges.txt", level=trial)
+    drift_ranges = get_drift_ranges("list_of_drift_ranges.txt", level=trial)
     drift_ranges = adjust_drift_ranges(drift_ranges, scaling)
 
     if not keyboard_input:
