@@ -8,7 +8,8 @@ from walls import Wall
 from drift_tiles import DriftTile
 from particles import Particle
 from lines import Line
-from config import level_size_x, level_size_y, observation_space_size_y, velocity, particle_sizes, edge, N_particles, pre_trial_steps
+from config import level_size_x, level_size_y, observation_space_size_y, velocity, particle_sizes, edge, N_particles,\
+    pre_trial_steps, agent_size_x, agent_size_y
 
 from draw_transparent_shapes import draw_rect_alpha, draw_polygon_alpha, draw_circle_alpha
 
@@ -30,6 +31,9 @@ class Level:
         # transparency for buttons being pressed
         self.transparency_left = 90
         self.transparency_right = 90
+        # Position of spotlight where eyes are (on spaceship)
+        self.eyes_pos_x = player_starting_position[0] + agent_size_x*scaling/1.9
+        self.eyes_pos_y = player_starting_position[1] + agent_size_y*scaling/2
 
     def setup_level(self, wall_list, obstacles_list, player_starting_position, drift_ranges, scaling,
                     tiny_vis, keyboard_input):
@@ -121,6 +125,12 @@ class Level:
     def update(self):
         self.get_input()
         self.horizontal_movement = self.direction.x + self.drift.x  # compute horizontal movement with drift
+        # update eye position on x and y axis
+        mu, sigma = 0, 0.3  # sigma = 0.3 for high SoC; = 0.6 for low SoC
+        eye_pertubation_x = np.random.normal(mu, sigma)
+        eye_pertubation_y = np.random.normal(mu, sigma)
+        self.eyes_pos_x += eye_pertubation_x
+        self.eyes_pos_y += eye_pertubation_y
 
     def check_for_collision(self):
         player = self.player.sprite
@@ -212,5 +222,9 @@ class Level:
         draw_rect_alpha(self.display_surface, (124, 252, 0, self.transparency_left), (60, 60, 90, 90))
         draw_polygon_alpha(self.display_surface, (255, 255, 255, self.transparency_left),
                            [(70, 105), (140, 70), (140, 140)])
+
+        # draw eye spotlight
+        draw_circle_alpha(self.display_surface, (255, 0, 0, 90), (self.eyes_pos_x, self.eyes_pos_y), 20)
+        draw_circle_alpha(self.display_surface, (255, 0, 0, 140), (self.eyes_pos_x, self.eyes_pos_y), 1)
 
         return level_done
