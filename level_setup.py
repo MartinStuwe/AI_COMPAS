@@ -7,9 +7,10 @@ from player import Player
 from walls import Wall
 from drift_tiles import DriftTile
 from particles import Particle
-from config import level_size_x, level_size_y, particle_sizes, edge, N_particles, pre_trial_steps
+from lines import Line
+from config import level_size_x, level_size_y, observation_space_size_y, velocity, particle_sizes, edge, N_particles, pre_trial_steps
 
-from draw_transparent_shapes import draw_rect_alpha, draw_polygon_alpha
+from draw_transparent_shapes import draw_rect_alpha, draw_polygon_alpha, draw_circle_alpha
 
 
 class Level:
@@ -37,6 +38,7 @@ class Level:
         self.drift_tiles = pygame.sprite.Group()
         self.player = pygame.sprite.GroupSingle()
         self.particles = pygame.sprite.Group()
+        self.boarders = pygame.sprite.Group()
 
         for i in range(1, len(wall_list)+1):
             # left wall
@@ -65,8 +67,9 @@ class Level:
 
         for i in range(len(drift_ranges)):
             drift_info = drift_ranges[i]  # drift_info[0]: y_start, [1]: y_end, [2]: direction
-            drift_tile = DriftTile(drift_info[0], drift_info[1], drift_info[2], scaling)
-            self.drift_tiles.add(drift_tile)
+            if drift_info[0] < (level_size_y*scaling)*2/3:  # have no drift_tiles in the last third of the level
+                drift_tile = DriftTile(drift_info[0], drift_info[1], drift_info[2], scaling)
+                self.drift_tiles.add(drift_tile)
 
         for _ in range(N_particles):
             x_pos = np.random.uniform(low=edge*scaling, high=level_size_x*scaling + edge*scaling, size=1)
@@ -74,20 +77,43 @@ class Level:
             particle_tile = Particle((x_pos[0], y_pos[0]), random.choice(particle_sizes), scaling)
             self.particles.add(particle_tile)
 
+        # first boarder to weak input noise
+        y_pos = 1400 * scaling
+        x_pos = edge*scaling
+        y_size = 1*scaling
+        x_size = level_size_x*scaling
+        boarder_tile_1 = Line((x_pos, y_pos), (x_size, y_size))
+        self.boarders.add(boarder_tile_1)
+
+        # second boarder to strong input noise
+        y_pos = 1750 * scaling
+        x_pos = edge * scaling
+        y_size = 1 * scaling
+        x_size = level_size_x * scaling
+        boarder_tile_2 = Line((x_pos, y_pos), (x_size, y_size))
+        self.boarders.add(boarder_tile_2)
+
     def get_input(self):
         # input noise
-        # mu, sigma = 0, 0.5  # mean and standard deviation
-        # input_noise = np.random.normal(mu, sigma, 1)
+        player = self.player.sprite
+        first_boarder = self.boarders.sprites()[0]
+        second_boarder = self.boarders.sprites()[1]
+        input_noise = 0
+        if player.rect.y > first_boarder.rect.y:
+            mu, sigma = 0, 0.5  # mean and standard deviation
+            if player.rect.y > second_boarder.rect.y:
+                sigma += 0.3
+            input_noise = np.random.normal(mu, sigma, 1)
         self.transparency_left = 90
         self.transparency_right = 90
 
         keys = pygame.key.get_pressed()
 
         if keys[pygame.K_RIGHT]:  # K_m
-            self.direction.x = -1  # + input_noise
+            self.direction.x = -1 + input_noise
             self.transparency_right = 150
         elif keys[pygame.K_LEFT]:  # K_y
-            self.direction.x = 1  # + input_noise
+            self.direction.x = 1 + input_noise
             self.transparency_left = 150
         else:
             self.direction.x = 0
@@ -143,14 +169,22 @@ class Level:
             self.player.update(player_position, scaling, keyboard_input)
 
         if keyboard_input and player.rect.y < player_position[1]:
-            player.approach(scaling)
+            player.approach(velocity, scaling)
         if not tiny_visualization and player.rect.y >= player_position[1]:
             # update sprite positions
             # update level tiles
-            self.comets.update(scaling, self.horizontal_movement)
-            self.walls.update(scaling, self.horizontal_movement)
-            self.drift_tiles.update(scaling, self.horizontal_movement)
-            self.particles.update(scaling, self.horizontal_movement)
+            self.comets.update(velocity, scaling, self.horizontal_movement)
+            self.walls.update(velocity, scaling, self.horizontal_movement)
+            self.drift_tiles.update(velocity, scaling, self.horizontal_movement)
+            self.particles.update(velocity, scaling, self.horizontal_movement)
+            self.boarders.update(velocity, scaling, self.horizontal_movement)
+
+        # check for level done: if last sprite is in observation_space => level_done
+        sprite = self.walls.sprites()[-1]
+        if sprite.rect.bottom < observation_space_size_y*scaling:
+            level_done = True
+        else:
+            level_done = False
 
         if keyboard_input:  # only needed if player is controlling spaceship
             # check for collision
@@ -164,6 +198,7 @@ class Level:
         self.comets.draw(self.display_surface)
         self.walls.draw(self.display_surface)
         self.drift_tiles.draw(self.display_surface)
+        self.boarders.draw(self.display_surface)
 
         # draw agent
         self.player.draw(self.display_surface)
@@ -177,3 +212,5 @@ class Level:
         draw_rect_alpha(self.display_surface, (124, 252, 0, self.transparency_left), (60, 60, 90, 90))
         draw_polygon_alpha(self.display_surface, (255, 255, 255, self.transparency_left),
                            [(70, 105), (140, 70), (140, 140)])
+
+        return level_done

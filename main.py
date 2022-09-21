@@ -53,12 +53,13 @@ def run_pygame(surface, scaling, FPS, keyboard_input, player_positions, level, t
     time_played = 0
 
     if keyboard_input:
-        for step in range(level_size_y+5):  # due to steps being taken in pre_trial_steps, have to add steps in here
+        level_done = False
+        while not level_done:
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     pygame.quit()
                     sys.exit()
-                # FIX ME: resizing not working
+                # FIXME: resizing not working
                 if event.type == VIDEORESIZE:
                     surface = pygame.display.set_mode((event.w, event.h), pygame.RESIZABLE)
 
@@ -69,8 +70,8 @@ def run_pygame(surface, scaling, FPS, keyboard_input, player_positions, level, t
             surface.fill('black')
 
             # update player position
-            current_player_position = player_positions[0]
-            level.run(current_player_position, scaling, tiny_visualization=tiny_visualization, keyboard_input=keyboard_input)
+            current_player_position = player_positions[0]  # not needed but still given in level.run()
+            level_done = level.run(current_player_position, scaling, tiny_visualization=tiny_visualization, keyboard_input=keyboard_input)
 
             pygame.display.update()
             clock.tick(FPS)

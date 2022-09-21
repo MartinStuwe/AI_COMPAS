@@ -4,7 +4,7 @@
 observation_space_size_x, observation_space_size_y = 40, 60  # 80, 60
 
 # environment related parameters
-fall_velocity = 1
+velocity = 2/3
 level_size_x, level_size_y = observation_space_size_x, 2100  # 400
 wall_size = 1
 drift_tile_x_size = 1
@@ -16,7 +16,7 @@ N_particles = 1000
 # drift = 2: rightwards drift
 
 # agent related parameters
-agent_size_x, agent_size_y = 2, 2
+agent_size_x, agent_size_y = 3, 3
 pre_trial_steps = 20  # steps spaceship has to take to reach starting_position in experimental setup
 # can range from 0 - observation_space_y/2
 
