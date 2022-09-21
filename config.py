@@ -21,7 +21,7 @@ pre_trial_steps = 20  # steps spaceship has to take to reach starting_position i
 # can range from 0 - observation_space_y/2
 
 # upscaling for visualization on screen
-scaling = 16
+scaling = 20
 scaling_tiny_vis = 2
 
 # edge size for screen beyond walls
