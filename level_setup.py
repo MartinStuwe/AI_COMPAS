@@ -14,6 +14,11 @@ from config import level_size_x, level_size_y, observation_space_size_y, velocit
 from draw_transparent_shapes import draw_rect_alpha, draw_polygon_alpha, draw_circle_alpha
 
 
+display_keys = False
+input_noise_args = [None, "weak", "strong"]
+input_noise_magnitude = input_noise_args[0]
+
+
 class Level:
     def __init__(self, wall_list, obstacles_list, player_starting_position, drift_ranges, screen, scaling,
                  tiny_vis=False, keyboard_input=False):
@@ -28,12 +33,9 @@ class Level:
         self.drift = pygame.math.Vector2(0, 0)
         # total horizontal movement combined of agent imposed direction and environmentally imposed drift
         self.horizontal_movement = 0
-        # transparency for buttons being pressed
+        # transparency for keys being pressed
         self.transparency_left = 90
         self.transparency_right = 90
-        # Position of spotlight where eyes are (on spaceship)
-        self.eyes_pos_x = player_starting_position[0] + agent_size_x*scaling/1.9
-        self.eyes_pos_y = player_starting_position[1] + agent_size_y*scaling/2
 
     def setup_level(self, wall_list, obstacles_list, player_starting_position, drift_ranges, scaling,
                     tiny_vis, keyboard_input):
@@ -42,7 +44,6 @@ class Level:
         self.drift_tiles = pygame.sprite.Group()
         self.player = pygame.sprite.GroupSingle()
         self.particles = pygame.sprite.Group()
-        self.boarders = pygame.sprite.Group()
 
         for i in range(1, len(wall_list)+1):
             # left wall
@@ -65,6 +66,7 @@ class Level:
             player_appearance = [player_starting_position[0], (player_starting_position[1]-pre_trial_steps*scaling)]
             player_sprite = Player(player_appearance, scaling, tiny_vis)
             self.player.add(player_sprite)
+
         else:
             player_sprite = Player(player_starting_position, scaling, tiny_vis)
             self.player.add(player_sprite)
@@ -81,33 +83,24 @@ class Level:
             particle_tile = Particle((x_pos[0], y_pos[0]), random.choice(particle_sizes), scaling)
             self.particles.add(particle_tile)
 
-        # first boarder to weak input noise
-        y_pos = 1400 * scaling
-        x_pos = edge*scaling
-        y_size = 1*scaling
-        x_size = level_size_x*scaling
-        boarder_tile_1 = Line((x_pos, y_pos), (x_size, y_size))
-        self.boarders.add(boarder_tile_1)
-
-        # second boarder to strong input noise
-        y_pos = 1750 * scaling
-        x_pos = edge * scaling
-        y_size = 1 * scaling
-        x_size = level_size_x * scaling
-        boarder_tile_2 = Line((x_pos, y_pos), (x_size, y_size))
-        self.boarders.add(boarder_tile_2)
-
     def get_input(self):
         # input noise
         player = self.player.sprite
-        first_boarder = self.boarders.sprites()[0]
-        second_boarder = self.boarders.sprites()[1]
         input_noise = 0
-        if player.rect.y > first_boarder.rect.y:
-            mu, sigma = 0, 0.5  # mean and standard deviation
-            if player.rect.y > second_boarder.rect.y:
-                sigma += 0.3
+        # input noise magnitude can be None = 0 vs. weak vs. strong which reflects the magnitude of actual displacement
+        # at the end of the left or right step. The magnitude directly translates to the sd of the normal distribution
+        # the displacement is sampled from.
+        mu = 0
+        if input_noise_magnitude is None:
+            pass
+        elif input_noise_magnitude == "weak":
+            sigma = 0.3  # mean and standard deviation
             input_noise = np.random.normal(mu, sigma, 1)
+        elif input_noise_magnitude == "strong":
+            sigma = 0.8
+            input_noise = np.random.normal(mu, sigma, 1)
+        #############################
+        # reset transparency for keys
         self.transparency_left = 90
         self.transparency_right = 90
 
@@ -125,12 +118,6 @@ class Level:
     def update(self):
         self.get_input()
         self.horizontal_movement = self.direction.x + self.drift.x  # compute horizontal movement with drift
-        # update eye position on x and y axis
-        mu, sigma = 0, 0.3  # sigma = 0.3 for high SoC; = 0.6 for low SoC
-        eye_pertubation_x = np.random.normal(mu, sigma)
-        eye_pertubation_y = np.random.normal(mu, sigma)
-        self.eyes_pos_x += eye_pertubation_x
-        self.eyes_pos_y += eye_pertubation_y
 
     def check_for_collision(self):
         player = self.player.sprite
@@ -166,7 +153,7 @@ class Level:
                 elif player.rect.bottom in range(sprite.rect.top, sprite.rect.bottom):
                     self.drift.x = -1/2
                     # player.image.fill("yellow")  # for debugging
-        
+
     def run(self, player_position, scaling, tiny_visualization=False, keyboard_input=False):
 
         player = self.player.sprite
@@ -180,6 +167,7 @@ class Level:
 
         if keyboard_input and player.rect.y < player_position[1]:
             player.approach(velocity, scaling)
+            pass
         if not tiny_visualization and player.rect.y >= player_position[1]:
             # update sprite positions
             # update level tiles
@@ -187,7 +175,6 @@ class Level:
             self.walls.update(velocity, scaling, self.horizontal_movement)
             self.drift_tiles.update(velocity, scaling, self.horizontal_movement)
             self.particles.update(velocity, scaling, self.horizontal_movement)
-            self.boarders.update(velocity, scaling, self.horizontal_movement)
 
         # check for level done: if last sprite is in observation_space => level_done
         sprite = self.walls.sprites()[-1]
@@ -208,23 +195,19 @@ class Level:
         self.comets.draw(self.display_surface)
         self.walls.draw(self.display_surface)
         self.drift_tiles.draw(self.display_surface)
-        self.boarders.draw(self.display_surface)
 
         # draw agent
         self.player.draw(self.display_surface)
 
         # draw keys
-        # right key
-        draw_rect_alpha(self.display_surface, (124, 252, 0, self.transparency_right), (160, 60, 90, 90))
-        draw_polygon_alpha(self.display_surface, (255, 255, 255, self.transparency_right),
-                           [(240, 105), (170, 70), (170, 140)])
-        # left key
-        draw_rect_alpha(self.display_surface, (124, 252, 0, self.transparency_left), (60, 60, 90, 90))
-        draw_polygon_alpha(self.display_surface, (255, 255, 255, self.transparency_left),
-                           [(70, 105), (140, 70), (140, 140)])
-
-        # draw eye spotlight
-        draw_circle_alpha(self.display_surface, (255, 0, 0, 90), (self.eyes_pos_x, self.eyes_pos_y), 20)
-        draw_circle_alpha(self.display_surface, (255, 0, 0, 140), (self.eyes_pos_x, self.eyes_pos_y), 1)
+        if display_keys:
+            # right key
+            draw_rect_alpha(self.display_surface, (124, 252, 0, self.transparency_right), (160, 60, 90, 90))
+            draw_polygon_alpha(self.display_surface, (255, 255, 255, self.transparency_right),
+                               [(240, 105), (170, 70), (170, 140)])
+            # left key
+            draw_rect_alpha(self.display_surface, (124, 252, 0, self.transparency_left), (60, 60, 90, 90))
+            draw_polygon_alpha(self.display_surface, (255, 255, 255, self.transparency_left),
+                               [(70, 105), (140, 70), (140, 140)])
 
         return level_done
