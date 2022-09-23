@@ -4,32 +4,37 @@ import sys
 import pygame.display
 from pygame import VIDEORESIZE
 
-from config import level_size_y, pre_trial_steps
+from config import level_size_y, pre_trial_steps, observation_space_size_x, observation_space_size_y, scaling
 from helper_functions import *
 from level_setup import *
 
 
 def run_visualization(surface, scaling=1, tiny_visualization=False, FPS=30, keyboard_input=False,
-                      wall_list_file='walls_dict.txt', obstacles_lists_file='obstacles_list.txt', trial=4):
+                      obstacles_lists_file='obstacles_list.txt', drift_ranges_file="list_of_drift_ranges.txt",
+                      trial=4):
     """
     :param surface: argument for specifying pygame.display object
     :param scaling: int (or float) to scale up on-screen visualization
     :param tiny_visualization: bool argument to visualize complete level in tiny
+    :param FPS: frames per second. 30 as default value. For smoother animation choose 60.
     :param keyboard_input: bool argument needed to specify whether vis for human experiment or simple data visualization
-    :param wall_list_file: file for walls_dict. Has to be in logs repository
     :param obstacles_lists_file: file for list of obstacles. Has to be in logs repository
+    :param drift_ranges_file: file for drift ranges. Has to be in logs repository
     :param trial: player movements of which trial (.csv file in logs) to be visualized
     """
     # preparing lists of in-game objects from which to draw said objects on screen
-    wall_list = get_wall_positions(wall_list_file)
+    # walls will be the same across all experimental trials
+    wall_list = get_wall_positions("walls_dict.txt")
     wall_list = adjust_wall_list(wall_list, scaling)
+
     obstacles_list, flag_multiple_obstacle_lists = get_obstacles_lists(obstacles_lists_file, trial)
     obstacles_list = adjust_obstacles_list(obstacles_list, scaling)
+
     player_positions_filename = str(trial) + '_vis.csv'
     player_starting_position, player_positions = get_player_positions(player_positions_filename)
     player_starting_position, player_positions = adjust_player_positions(player_starting_position, player_positions,
-                                                                         scaling, tiny_visualization=tiny_visualization)
-    drift_ranges = get_drift_ranges("list_of_drift_ranges.txt", level=trial)
+                                                                             scaling, tiny_visualization=tiny_visualization)
+    drift_ranges = get_drift_ranges(drift_ranges_file, level=trial)
     drift_ranges = adjust_drift_ranges(drift_ranges, scaling)
 
     if not keyboard_input:
