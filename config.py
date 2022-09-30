@@ -25,4 +25,4 @@ scaling = 20
 scaling_tiny_vis = 2
 
 # edge size for screen beyond walls
-edge = 10
+edge = 10  # 28

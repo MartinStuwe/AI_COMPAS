@@ -16,7 +16,9 @@ from draw_transparent_shapes import draw_rect_alpha, draw_polygon_alpha, draw_ci
 
 display_keys = False
 input_noise_args = [None, "weak", "strong"]
-input_noise_magnitude = input_noise_args[0]
+input_noise_magnitude = random.choice(input_noise_args)
+print(input_noise_magnitude)
+input_noise_threshold = level_size_y / 2
 
 
 class Level:
@@ -90,15 +92,16 @@ class Level:
         # input noise magnitude can be None = 0 vs. weak vs. strong which reflects the magnitude of actual displacement
         # at the end of the left or right step. The magnitude directly translates to the sd of the normal distribution
         # the displacement is sampled from.
-        mu = 0
-        if input_noise_magnitude is None:
-            pass
-        elif input_noise_magnitude == "weak":
-            sigma = 0.3  # mean and standard deviation
-            input_noise = np.random.normal(mu, sigma, 1)
-        elif input_noise_magnitude == "strong":
-            sigma = 0.8
-            input_noise = np.random.normal(mu, sigma, 1)
+        if player.rect.y > input_noise_threshold:
+            mu = 0
+            if input_noise_magnitude is None:
+                pass
+            elif input_noise_magnitude == "weak":
+                sigma = 0.5  # mean and standard deviation
+                input_noise = np.random.normal(mu, sigma, 1)
+            elif input_noise_magnitude == "strong":
+                sigma = 1
+                input_noise = np.random.normal(mu, sigma, 1)
         #############################
         # reset transparency for keys
         self.transparency_left = 90

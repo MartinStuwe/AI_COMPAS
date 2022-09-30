@@ -4,7 +4,7 @@ import sys
 import pygame.display
 from pygame import VIDEORESIZE
 
-from config import level_size_y, pre_trial_steps, observation_space_size_x, observation_space_size_y, scaling
+from config import level_size_y, pre_trial_steps, observation_space_size_x, observation_space_size_y, scaling, edge
 from helper_functions import *
 from level_setup import *
 
@@ -41,12 +41,19 @@ def run_visualization(surface, scaling=1, tiny_visualization=False, FPS=30, keyb
         player_positions = iter(player_positions)
 
     # setting up level
-    level = Level(wall_list=wall_list, obstacles_list=obstacles_list, player_starting_position=player_starting_position,
-                  drift_ranges=drift_ranges, screen=surface, scaling=scaling, keyboard_input=keyboard_input)
+    # level = Level(wall_list=wall_list, obstacles_list=obstacles_list,
+    # player_starting_position=player_starting_position, drift_ranges=drift_ranges, screen=surface, scaling=scaling,
+    # keyboard_input=keyboard_input)
 
     # running through game loop
-    run_pygame(surface=surface, scaling=scaling, FPS=FPS, keyboard_input=keyboard_input,
-               player_positions=player_positions, level=level, tiny_visualization=tiny_visualization)
+    if keyboard_input:
+        main_menu(wall_list=wall_list, obstacles_list=obstacles_list, player_starting_position=player_starting_position,
+                  drift_ranges=drift_ranges, surface=surface, scaling=scaling, FPS=FPS, keyboard_input=keyboard_input,
+                  player_positions=player_positions, tiny_visualization=tiny_visualization)
+
+    else:
+        run_pygame(surface=surface, scaling=scaling, FPS=FPS, keyboard_input=keyboard_input,
+                   player_positions=player_positions, level=level, tiny_visualization=tiny_visualization)
 
 
 def run_pygame(surface, scaling, FPS, keyboard_input, player_positions, level, tiny_visualization):
@@ -102,3 +109,29 @@ def run_pygame(surface, scaling, FPS, keyboard_input, player_positions, level, t
 
             pygame.display.update()
             clock.tick(FPS)
+
+
+def main_menu(wall_list, obstacles_list, player_starting_position, drift_ranges, surface, scaling, FPS, keyboard_input,
+              player_positions, tiny_visualization):
+    title_font = pygame.font.SysFont('comicsans', 70)
+    background_ = pygame.image.load(os.path.join('assets/background', 'background-black.png'))
+    background_ = pygame.transform.scale(background_, (observation_space_size_x*scaling + 2*edge*scaling,
+                                                       observation_space_size_y*scaling))
+    level_done = False
+    while not level_done:
+        surface.blit(background_, (0, 0))
+        title_label = title_font.render('Press any key to start', 1, (255, 255, 255))
+        surface.blit(title_label, ((observation_space_size_x*scaling + 2*edge*scaling) / 2 - title_label.get_width()/2,
+                     observation_space_size_y*scaling / 2))
+        pygame.display.update()
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                level_done = True
+            if event.type == pygame.KEYDOWN:
+                level = Level(wall_list=wall_list, obstacles_list=obstacles_list,
+                              player_starting_position=player_starting_position,
+                              drift_ranges=drift_ranges, screen=surface, scaling=scaling, keyboard_input=keyboard_input)
+
+                run_pygame(surface=surface, scaling=scaling, FPS=FPS, keyboard_input=keyboard_input,
+                           player_positions=player_positions, level=level, tiny_visualization=tiny_visualization)
+    pygame.quit()
