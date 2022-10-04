@@ -3,6 +3,10 @@ import os
 
 
 class Line(pygame.sprite.Sprite):
+    """
+    simple class for visualizing any boarders within the level. A line can be drawn to signal that now input noise will
+    be imposed or that the end of the level is approaching or that the first half is done. Room for imagination
+    """
     def __init__(self, pos, size):
         super().__init__()
         # actual comet image which will be drawn on rectangular surface of comet

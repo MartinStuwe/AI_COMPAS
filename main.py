@@ -83,7 +83,7 @@ def run_pygame(surface, scaling, FPS, keyboard_input, player_positions, level, t
 
             # update player position
             current_player_position = player_positions[0]  # not needed but still given in level.run()
-            level_done = level.run(current_player_position, scaling, tiny_visualization=tiny_visualization, keyboard_input=keyboard_input)
+            level_done = level.run(time_played, current_player_position, scaling, tiny_visualization=tiny_visualization, keyboard_input=keyboard_input)
 
             pygame.display.update()
             clock.tick(FPS)
@@ -105,7 +105,7 @@ def run_pygame(surface, scaling, FPS, keyboard_input, player_positions, level, t
 
             # update player position
             current_player_position = player_position
-            level.run(current_player_position, scaling, tiny_visualization=tiny_visualization, keyboard_input=keyboard_input)
+            level.run(time_played, current_player_position, scaling, tiny_visualization=tiny_visualization, keyboard_input=keyboard_input)
 
             pygame.display.update()
             clock.tick(FPS)

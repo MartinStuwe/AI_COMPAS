@@ -21,8 +21,11 @@ pre_trial_steps = 20  # steps spaceship has to take to reach starting_position i
 # can range from 0 - observation_space_y/2
 
 # upscaling for visualization on screen
-scaling = 20
+scaling = 14  # 20
 scaling_tiny_vis = 2
 
 # edge size for screen beyond walls
-edge = 10  # 28
+edge = 28  # 28 perfect for large screen with scaling = 20
+
+# input noise threshold for piloting
+input_noise_threshold = level_size_y*scaling / 2
