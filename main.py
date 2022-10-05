@@ -65,8 +65,8 @@ def run_pygame(surface, scaling, FPS, keyboard_input, player_positions, level, t
     time_played = 0
 
     if keyboard_input:
-        level_done = False
-        while not level_done:
+        quit = False
+        while not quit:
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     pygame.quit()
@@ -83,7 +83,7 @@ def run_pygame(surface, scaling, FPS, keyboard_input, player_positions, level, t
 
             # update player position
             current_player_position = player_positions[0]  # not needed but still given in level.run()
-            level_done = level.run(time_played, current_player_position, scaling, tiny_visualization=tiny_visualization, keyboard_input=keyboard_input)
+            quit = level.run(time_played, current_player_position, scaling, tiny_visualization=tiny_visualization, keyboard_input=keyboard_input)
 
             pygame.display.update()
             clock.tick(FPS)
@@ -117,8 +117,10 @@ def main_menu(wall_list, obstacles_list, player_starting_position, drift_ranges,
     background_ = pygame.image.load(os.path.join('assets/background', 'background-black.png'))
     background_ = pygame.transform.scale(background_, (observation_space_size_x*scaling + 2*edge*scaling,
                                                        observation_space_size_y*scaling))
-    level_done = False
-    while not level_done:
+    n_run = 0
+    quit = False
+
+    while not quit:
         surface.blit(background_, (0, 0))
         title_label = title_font.render('Press any key to start', 1, (255, 255, 255))
         surface.blit(title_label, ((observation_space_size_x*scaling + 2*edge*scaling) / 2 - title_label.get_width()/2,
@@ -126,12 +128,15 @@ def main_menu(wall_list, obstacles_list, player_starting_position, drift_ranges,
         pygame.display.update()
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
-                level_done = True
+                quit = True
             if event.type == pygame.KEYDOWN:
                 level = Level(wall_list=wall_list, obstacles_list=obstacles_list,
                               player_starting_position=player_starting_position,
-                              drift_ranges=drift_ranges, screen=surface, scaling=scaling, keyboard_input=keyboard_input)
+                              drift_ranges=drift_ranges, screen=surface, scaling=scaling, n_run=n_run,
+                              keyboard_input=keyboard_input)
 
                 run_pygame(surface=surface, scaling=scaling, FPS=FPS, keyboard_input=keyboard_input,
                            player_positions=player_positions, level=level, tiny_visualization=tiny_visualization)
+
+                n_run += 1
     pygame.quit()

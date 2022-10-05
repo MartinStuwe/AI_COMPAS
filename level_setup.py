@@ -17,11 +17,11 @@ from draw_transparent_shapes import draw_rect_alpha, draw_polygon_alpha, draw_ci
 display_keys = False
 input_noise_args = [None, "weak", "strong"]
 input_noise_magnitude = random.choice(input_noise_args)
-print(input_noise_magnitude)  # printing statement to check for drift after piloting
+print(input_noise_magnitude)  # printing statement to check for drift while piloting
 
 
 class Level:
-    def __init__(self, wall_list, obstacles_list, player_starting_position, drift_ranges, screen, scaling,
+    def __init__(self, wall_list, obstacles_list, player_starting_position, drift_ranges, screen, scaling, n_run=0,
                  tiny_vis=False, keyboard_input=False):
 
         # level_setup
@@ -38,10 +38,10 @@ class Level:
         self.transparency_left = 90
         self.transparency_right = 90
 
-        # threshold for imposing input noise on agent (will wander upwards)
+        # threshold for imposing input noise on agent (is updated by subtracting step size)
         self.input_noise_threshold = input_noise_threshold
 
-        self.n_run = 0
+        self.n_run = n_run
         self.time_played = 0
         self.level_done = False
 
@@ -246,7 +246,6 @@ class Level:
             self.level_done = True
             # write data of all frames to csv
             self.data.to_csv(f'data/data_{self.n_run}.csv', decimal=',')
-            self.n_run += 1
         else:
             self.level_done = False
 
@@ -255,6 +254,10 @@ class Level:
             self.check_for_collision()
             # check for drift
             self.check_for_drift()
+
+        if player.crashed:
+            # write data of all frames to csv
+            self.data.to_csv(f'data/data_{self.n_run}.csv', decimal=',')
 
         # draw sprites
         # draw comets and tiles
@@ -279,4 +282,7 @@ class Level:
 
         self.get_data(scaling)
 
-        return self.level_done
+        quit = False
+        if self.level_done or player.crashed:
+            quit = True
+        return quit
