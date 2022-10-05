@@ -47,7 +47,8 @@ class Level:
 
         # pandas Dataframe in which data of each frame will be stored
         self.columns = ['time_played', 'player_pos', 'collision', 'current_direction', 'current_drift', 'level_done',
-                        'input_noise_magnitude', 'input_noise_threshold', 'visible_obstacles', 'visible_drift_tiles']
+                        'input_noise_magnitude', 'input_noise_threshold', 'visible_walls', 'visible_obstacles',
+                        'visible_drift_tiles']
         self.data = pd.DataFrame(columns=self.columns)
 
     def setup_level(self, wall_list, obstacles_list, player_starting_position, drift_ranges, scaling,
@@ -188,12 +189,20 @@ class Level:
         # Rather have one wall tile given and then distance to other wall? Or just distance from agent to wall left
         # and right? - brainstorming
 
-        # visible_walls = []
-        # for sprite in self.walls.sprites():
-        #     # checking for visibility by checking for y of sprite being between 0 and size of observation window
-        #     if 0 <= sprite.rect.y <= observation_space_size_y * scaling:
-        #         visible_walls.append(np.array([sprite.rect.x, sprite.rect.y]))
-        # frame_data.visible_walls = np.array([visible_walls])
+        # wall narrowing start and wall narrowing complete + wall distant again?
+        # These would be the only interesting y coordinates
+
+        # walls_narrow_start = ?  # walls start getting narrow (first step) y coord
+        # walls_narrow_complete = ?  # walls reached narrowest point y coord
+        # walls_wide_again = ?  # based on current_wall_distance='narrow', when walls get wide again
+        # current_wall_distance = ['wide']  # on y coord of agent
+
+        visible_walls = []
+        for sprite in self.walls.sprites():
+            # checking for visibility by checking for y of sprite being between 0 and size of observation window
+            if 0 <= sprite.rect.y <= observation_space_size_y * scaling:
+                visible_walls.append(np.array([sprite.rect.x, sprite.rect.y]))
+        frame_data.at[0, 'visible_walls'] = visible_walls
 
         # obstacles
         visible_obstacles = []

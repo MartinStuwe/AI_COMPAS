@@ -122,7 +122,7 @@ def main_menu(wall_list, obstacles_list, player_starting_position, drift_ranges,
 
     while not quit:
         surface.blit(background_, (0, 0))
-        title_label = title_font.render('Press any key to start', 1, (255, 255, 255))
+        title_label = title_font.render('Press SPACEBAR to start', 1, (255, 255, 255))
         surface.blit(title_label, ((observation_space_size_x*scaling + 2*edge*scaling) / 2 - title_label.get_width()/2,
                      observation_space_size_y*scaling / 2))
         pygame.display.update()
@@ -130,13 +130,14 @@ def main_menu(wall_list, obstacles_list, player_starting_position, drift_ranges,
             if event.type == pygame.QUIT:
                 quit = True
             if event.type == pygame.KEYDOWN:
-                level = Level(wall_list=wall_list, obstacles_list=obstacles_list,
-                              player_starting_position=player_starting_position,
-                              drift_ranges=drift_ranges, screen=surface, scaling=scaling, n_run=n_run,
-                              keyboard_input=keyboard_input)
+                if event.key == pygame.K_SPACE:
+                    level = Level(wall_list=wall_list, obstacles_list=obstacles_list,
+                                  player_starting_position=player_starting_position,
+                                  drift_ranges=drift_ranges, screen=surface, scaling=scaling, n_run=n_run,
+                                  keyboard_input=keyboard_input)
 
-                run_pygame(surface=surface, scaling=scaling, FPS=FPS, keyboard_input=keyboard_input,
-                           player_positions=player_positions, level=level, tiny_visualization=tiny_visualization)
+                    run_pygame(surface=surface, scaling=scaling, FPS=FPS, keyboard_input=keyboard_input,
+                               player_positions=player_positions, level=level, tiny_visualization=tiny_visualization)
 
-                n_run += 1
+                    n_run += 1
     pygame.quit()
