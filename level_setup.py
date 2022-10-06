@@ -41,7 +41,12 @@ class Level:
         # threshold for imposing input noise on agent (is updated by subtracting step size)
         self.input_noise_threshold = input_noise_threshold
 
+        # n_run indicating the number of trials after starting the program (used to differentiate data files)
         self.n_run = n_run
+
+        # frames with player colliding
+        self.frames_with_collision = 0
+
         self.time_played = 0
         self.level_done = False
 
@@ -121,10 +126,10 @@ class Level:
 
         keys = pygame.key.get_pressed()
 
-        if keys[pygame.K_RIGHT]:  # K_m
+        if keys[pygame.K_m]:  # K_m vs. K_RIGHT
             self.direction.x = -1 + input_noise
             self.transparency_right = 150
-        elif keys[pygame.K_LEFT]:  # K_y
+        elif keys[pygame.K_y]:  # K_y vs. K_LEFT
             self.direction.x = 1 + input_noise
             self.transparency_left = 150
         else:
@@ -141,14 +146,21 @@ class Level:
         # obstacles
         for sprite in self.comets.sprites():
             if sprite.rect.colliderect(player.rect):  # check for player-comet collision
-                player.crashed = True
+                self.frames_with_collision += 1
+                # player.crashed = True
                 # player.image.fill('red')  # for debugging
 
         # walls
         for sprite in self.walls.sprites():
             if sprite.rect.colliderect(player.rect):  # check for player-wall collision
-                player.crashed = True
+                self.frames_with_collision += 1
+                # player.crashed = True
                 # player.image.fill('red')  # for debugging
+
+        # Collision threshold; number of frames with player colliding to stop game
+        frames_collision_threshold = 3
+        if self.frames_with_collision > frames_collision_threshold:
+            player.crashed = True
 
     def check_for_drift(self):
         player = self.player.sprite
