@@ -25,7 +25,7 @@ scaling = 14  # 20
 scaling_tiny_vis = 2
 
 # edge size for screen beyond walls
-edge = 28  # 28 perfect for large screen with scaling = 20
+edge = 31  # 28 perfect for large screen with scaling = 20
 
 # input noise threshold for piloting
 input_noise_threshold = level_size_y*scaling / 2

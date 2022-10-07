@@ -49,6 +49,7 @@ class Level:
 
         self.time_played = 0
         self.level_done = False
+        self.quit = False
 
         # pandas Dataframe in which data of each frame will be stored
         self.columns = ['time_played', 'player_pos', 'collision', 'current_direction', 'current_drift', 'level_done',
@@ -161,6 +162,7 @@ class Level:
         frames_collision_threshold = 3
         if self.frames_with_collision > frames_collision_threshold:
             player.crashed = True
+            self.quit = True
 
     def check_for_drift(self):
         player = self.player.sprite
@@ -265,6 +267,7 @@ class Level:
         sprite = self.walls.sprites()[-1]
         if sprite.rect.bottom < observation_space_size_y * scaling:
             self.level_done = True
+            self.quit = True
             # write data of all frames to csv
             self.data.to_csv(f'data/data_{self.n_run}.csv', decimal=',')
         else:
@@ -303,7 +306,4 @@ class Level:
 
         self.get_data(scaling)
 
-        quit = False
-        if self.level_done or player.crashed:
-            quit = True
-        return quit
+        return self.quit
