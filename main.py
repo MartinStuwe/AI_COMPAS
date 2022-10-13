@@ -30,20 +30,18 @@ def run_visualization(surface, scaling=1, tiny_visualization=False, FPS=30, keyb
     obstacles_list, flag_multiple_obstacle_lists = get_obstacles_lists(obstacles_lists_file, trial)
     obstacles_list = adjust_obstacles_list(obstacles_list, scaling)
 
-    player_positions_filename = str(trial) + '_vis.csv'
+    if keyboard_input:
+        player_positions_filename = '0_vis.csv'
+    else:
+        player_positions_filename = str(trial) + '_vis.csv'
     player_starting_position, player_positions = get_player_positions(player_positions_filename)
     player_starting_position, player_positions = adjust_player_positions(player_starting_position, player_positions,
-                                                                             scaling, tiny_visualization=tiny_visualization)
+                                                                         scaling, tiny_visualization=tiny_visualization)
     drift_ranges = get_drift_ranges(drift_ranges_file, level=trial)
     drift_ranges = adjust_drift_ranges(drift_ranges, scaling)
 
     if not keyboard_input:
         player_positions = iter(player_positions)
-
-    # setting up level
-    # level = Level(wall_list=wall_list, obstacles_list=obstacles_list,
-    # player_starting_position=player_starting_position, drift_ranges=drift_ranges, screen=surface, scaling=scaling,
-    # keyboard_input=keyboard_input)
 
     # running through game loop
     if keyboard_input:
@@ -52,6 +50,11 @@ def run_visualization(surface, scaling=1, tiny_visualization=False, FPS=30, keyb
                   player_positions=player_positions, tiny_visualization=tiny_visualization)
 
     else:
+        level = Level(wall_list=wall_list, obstacles_list=obstacles_list,
+                      player_starting_position=player_starting_position,
+                      drift_ranges=drift_ranges, screen=surface, scaling=scaling,
+                      keyboard_input=keyboard_input)
+
         run_pygame(surface=surface, scaling=scaling, FPS=FPS, keyboard_input=keyboard_input,
                    player_positions=player_positions, level=level, tiny_visualization=tiny_visualization)
 
@@ -62,7 +65,7 @@ def run_pygame(surface, scaling, FPS, keyboard_input, player_positions, level, t
 
     # time onset
     start_time = time.time()
-    time_played = 0
+    level_done = False
 
     if keyboard_input:
         quit = False
@@ -83,7 +86,7 @@ def run_pygame(surface, scaling, FPS, keyboard_input, player_positions, level, t
 
             # update player position
             current_player_position = player_positions[0]  # not needed but still given in level.run()
-            quit = level.run(time_played, current_player_position, scaling, tiny_visualization=tiny_visualization, keyboard_input=keyboard_input)
+            quit, level_done = level.run(time_played, current_player_position, scaling, tiny_visualization=tiny_visualization, keyboard_input=keyboard_input)
 
             pygame.display.update()
             clock.tick(FPS)
@@ -109,6 +112,8 @@ def run_pygame(surface, scaling, FPS, keyboard_input, player_positions, level, t
 
             pygame.display.update()
             clock.tick(FPS)
+
+    return level_done
 
 
 def main_menu(wall_list, obstacles_list, player_starting_position, drift_ranges, surface, scaling, FPS, keyboard_input,

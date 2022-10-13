@@ -17,7 +17,7 @@ from draw_transparent_shapes import draw_rect_alpha, draw_polygon_alpha, draw_ci
 display_keys = False
 input_noise_args = [None, "weak", "strong"]
 input_noise_magnitude = random.choice(input_noise_args)
-print(input_noise_magnitude)  # printing statement to check for drift while piloting
+# print(input_noise_magnitude)  # printing statement to check for drift while piloting
 
 
 class Level:
@@ -53,8 +53,8 @@ class Level:
 
         # pandas Dataframe in which data of each frame will be stored
         self.columns = ['time_played', 'player_pos', 'collision', 'current_direction', 'current_drift', 'level_done',
-                        'input_noise_magnitude', 'input_noise_threshold', 'visible_walls', 'visible_obstacles',
-                        'visible_drift_tiles']
+                        'input_noise_magnitude', 'input_noise_threshold', 'visible_obstacles', 'visible_drift_tiles']
+        # 'visible_walls'
         self.data = pd.DataFrame(columns=self.columns)
 
     def setup_level(self, wall_list, obstacles_list, player_starting_position, drift_ranges, scaling,
@@ -93,9 +93,9 @@ class Level:
 
         for i in range(len(drift_ranges)):
             drift_info = drift_ranges[i]  # drift_info[0]: y_start, [1]: y_end, [2]: direction
-            if drift_info[0] < (level_size_y * scaling) * 2 / 3:  # have no drift_tiles in the last third of the level
-                drift_tile = DriftTile(drift_info[0], drift_info[1], drift_info[2], scaling)
-                self.drift_tiles.add(drift_tile)
+            # if drift_info[0] < (level_size_y * scaling) * 2 / 3:  # have no drift_tiles in the last third of the level
+            drift_tile = DriftTile(drift_info[0], drift_info[1], drift_info[2], scaling)
+            self.drift_tiles.add(drift_tile)
 
         for _ in range(N_particles):
             x_pos = np.random.uniform(low=edge * scaling, high=level_size_x * scaling + edge * scaling, size=1)
@@ -211,12 +211,12 @@ class Level:
         # walls_wide_again = ?  # based on current_wall_distance='narrow', when walls get wide again
         # current_wall_distance = ['wide']  # on y coord of agent
 
-        visible_walls = []
-        for sprite in self.walls.sprites():
-            # checking for visibility by checking for y of sprite being between 0 and size of observation window
-            if 0 <= sprite.rect.y <= observation_space_size_y * scaling:
-                visible_walls.append(np.array([sprite.rect.x, sprite.rect.y]))
-        frame_data.at[0, 'visible_walls'] = visible_walls
+        # visible_walls = []
+        # for sprite in self.walls.sprites():
+        #     # checking for visibility by checking for y of sprite being between 0 and size of observation window
+        #     if 0 <= sprite.rect.y <= observation_space_size_y * scaling:
+        #         visible_walls.append(np.array([sprite.rect.x, sprite.rect.y]))
+        # frame_data.at[0, 'visible_walls'] = visible_walls
 
         # obstacles
         visible_obstacles = []
@@ -306,4 +306,4 @@ class Level:
 
         self.get_data(scaling)
 
-        return self.quit
+        return self.quit, self.level_done
