@@ -59,8 +59,8 @@ class Player(pygame.sprite.Sprite):
         elif direction < 0:
             self.image = self.animations['right']
 
-    def approach(self, scaling):
+    def approach(self, speed, scaling):
         """
         approaching movement of agent at beginning of trial
         """
-        self.rect.y += 1/2*scaling
+        self.rect.y += speed*scaling*2/3  # 2/3: artificial decrease in approaching speed

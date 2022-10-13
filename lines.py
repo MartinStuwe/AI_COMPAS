@@ -1,15 +1,17 @@
 import pygame
 import os
-import random
 
 
-class Comet(pygame.sprite.Sprite):
+class Line(pygame.sprite.Sprite):
+    """
+    simple class for visualizing any boarders within the level. A line can be drawn to signal that now input noise will
+    be imposed or that the end of the level is approaching or that the first half is done. Room for imagination
+    """
     def __init__(self, pos, size):
         super().__init__()
         # actual comet image which will be drawn on rectangular surface of comet
-        self.image = pygame.image.load(os.path.join('assets/comets', 'comet_master.png')).convert_alpha()
-        self.random_angle = random.choice([0, 90, 180, 270])  # items of list are random angles in 90 degree steps
-        self.image = pygame.transform.rotate(pygame.transform.scale(self.image, (size, size)), angle=self.random_angle)
+        self.image = pygame.Surface((size[0], size[1]))
+        self.image.fill('Aquamarine')
         self.rect = self.image.get_rect(topleft=pos)
 
     def update(self, speed, scaling, horizontal_movement):
@@ -17,4 +19,3 @@ class Comet(pygame.sprite.Sprite):
         self.rect.y -= (1*scaling) * speed
         # horizontal movement
         self.rect.x += horizontal_movement * scaling * speed
-

@@ -9,8 +9,8 @@ class Particle(pygame.sprite.Sprite):
         self.image.fill('grey')
         self.rect = self.image.get_rect(topleft=pos)
 
-    def update(self, scaling, horizontal_movement):
+    def update(self, speed, scaling, horizontal_movement):
         # vertical movement
-        self.rect.y -= (1*scaling)
+        self.rect.y -= (1*scaling) * speed
         # horizontal movement
-        self.rect.x += horizontal_movement * scaling
+        self.rect.x += horizontal_movement * scaling * speed
