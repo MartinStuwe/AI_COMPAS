@@ -32,6 +32,8 @@ class Level:
         self.direction = pygame.math.Vector2(0, 0)
         # environmentally imposed drift
         self.drift = pygame.math.Vector2(0, 0)
+        # player input
+        self.current_input = None  # None vs. 'Right' vs. 'Left'
         # total horizontal movement combined of agent imposed direction and environmentally imposed drift
         self.horizontal_movement = 0
         # transparency for keys being pressed
@@ -40,6 +42,7 @@ class Level:
 
         # threshold for imposing input noise on agent (is updated by subtracting step size)
         self.input_noise_threshold = input_noise_threshold
+        self.input_noise_on = False
 
         # n_run indicating the number of trials after starting the program (used to differentiate data files)
         self.n_run = n_run
@@ -52,8 +55,8 @@ class Level:
         self.quit = False
 
         # pandas Dataframe in which data of each frame will be stored
-        self.columns = ['time_played', 'player_pos', 'collision', 'current_direction', 'current_drift', 'level_done',
-                        'input_noise_magnitude', 'input_noise_threshold', 'visible_obstacles', 'visible_drift_tiles']
+        self.columns = ['time_played', 'player_pos', 'collision', 'current_input', 'current_drift', 'level_done',
+                        'input_noise_magnitude', 'input_noise_on', 'visible_obstacles', 'visible_drift_tiles']
         # 'visible_walls'
         self.data = pd.DataFrame(columns=self.columns)
 
@@ -111,6 +114,7 @@ class Level:
         # at the end of the left or right step. The magnitude directly translates to the sd of the normal distribution
         # the displacement is sampled from.
         if player.rect.y > self.input_noise_threshold:
+            self.input_noise_on = True
             mu = 0
             if input_noise_magnitude is None:
                 pass
@@ -120,6 +124,8 @@ class Level:
             elif input_noise_magnitude == "strong":
                 sigma = 1
                 input_noise = np.random.normal(mu, sigma, 1)
+        else:
+            self.input_noise_on = False
         #############################
         # reset transparency for keys
         self.transparency_left = 90
@@ -128,12 +134,15 @@ class Level:
         keys = pygame.key.get_pressed()
 
         if keys[pygame.K_m]:  # K_m vs. K_RIGHT
+            self.current_input = 'Right'
             self.direction.x = -1 + input_noise
             self.transparency_right = 150
         elif keys[pygame.K_y]:  # K_y vs. K_LEFT
+            self.current_input = 'Left'
             self.direction.x = 1 + input_noise
             self.transparency_left = 150
         else:
+            self.current_input = None
             self.direction.x = 0
 
     def update(self):
@@ -190,11 +199,11 @@ class Level:
         player = self.player.sprite
         frame_data.at[0, 'player_pos'] = [player.rect.x, player.rect.y]  # player position will stay the same throughout
         frame_data.collision = player.crashed
-        frame_data.at[0, 'current_direction'] = self.direction
-        frame_data.at[0, 'current_drift'] = self.drift
+        frame_data.current_input = self.current_input
+        frame_data.current_drift = self.drift.x
         frame_data.level_done = self.level_done
         frame_data.input_noise_magnitude = input_noise_magnitude
-        frame_data.input_noise_threshold = input_noise_threshold
+        frame_data.input_noise_on = self.input_noise_on
 
         frame_data.time_played = self.time_played
 
@@ -215,25 +224,24 @@ class Level:
         # for sprite in self.walls.sprites():
         #     # checking for visibility by checking for y of sprite being between 0 and size of observation window
         #     if 0 <= sprite.rect.y <= observation_space_size_y * scaling:
-        #         visible_walls.append(np.array([sprite.rect.x, sprite.rect.y]))
+        #         visible_walls.append([sprite.rect.x, sprite.rect.y])
         # frame_data.at[0, 'visible_walls'] = visible_walls
 
         # obstacles
         visible_obstacles = []
         for sprite in self.comets.sprites():
             if 0 <= sprite.rect.y <= observation_space_size_y * scaling:
-                visible_obstacles.append(np.array([sprite.rect.x, sprite.rect.y]))
-        frame_data.at[0, 'visible_obstacles'] = [visible_obstacles]
+                visible_obstacles.append([sprite.rect.x, sprite.rect.y])
+        frame_data.at[0, 'visible_obstacles'] = visible_obstacles
 
         # drift
         visible_drift_tiles = []
         for sprite in self.drift_tiles.sprites():
             if 0 <= sprite.rect.y <= observation_space_size_y * scaling:
-                visible_drift_tiles.append(np.array([sprite.rect.x, sprite.rect.y]))
-        frame_data.at[0, 'visible_drift_tiles'] = [visible_drift_tiles]
+                visible_drift_tiles.append([sprite.rect.x, sprite.rect.y])
+        frame_data.at[0, 'visible_drift_tiles'] = visible_drift_tiles
 
         # append everything to pandas DataFrame
-        # print(frame_data)
         self.data = pd.concat([self.data, frame_data], ignore_index=True)
 
     def run(self, time_played, player_position, scaling, tiny_visualization=False, keyboard_input=False):
@@ -242,7 +250,7 @@ class Level:
         player = self.player.sprite
 
         if not tiny_visualization and keyboard_input:
-            player.animate(self.direction.x)
+            player.animate(self.current_input)
 
         if keyboard_input:
             self.update()
@@ -269,7 +277,7 @@ class Level:
             self.level_done = True
             self.quit = True
             # write data of all frames to csv
-            self.data.to_csv(f'data/data_{self.n_run}.csv', decimal=',')
+            self.data.to_csv(f'data/data_{self.n_run}.csv', sep=',')
         else:
             self.level_done = False
 
@@ -281,7 +289,7 @@ class Level:
 
         if player.crashed:
             # write data of all frames to csv
-            self.data.to_csv(f'data/data_{self.n_run}.csv', decimal=',')
+            self.data.to_csv(f'data/data_{self.n_run}.csv', sep=',')
 
         # draw sprites
         # draw comets and tiles

@@ -52,11 +52,11 @@ class Player(pygame.sprite.Sprite):
             self.rect = self.image.get_rect(topleft=player_position)
 
     def animate(self, direction):
-        if direction == 0:
+        if direction is None:
             self.image = self.animations['idle']
-        elif direction > 0:
+        elif direction == 'Left':
             self.image = self.animations['left']
-        elif direction < 0:
+        elif direction == 'Right':
             self.image = self.animations['right']
 
     def approach(self, speed, scaling):
