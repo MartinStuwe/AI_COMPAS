@@ -22,9 +22,11 @@ input_noise_magnitude = random.choice(input_noise_args)
 
 class Level:
     def __init__(self, wall_list, obstacles_list, player_starting_position, drift_ranges, screen, scaling, n_run=0,
-                 tiny_vis=False, keyboard_input=False):
+                 tiny_vis=False, keyboard_input=False, trial=0, attempt=0):
 
         # level_setup
+        self.trial = trial
+        self.attempt = attempt
         self.display_surface = screen
         self.setup_level(wall_list, obstacles_list, player_starting_position, drift_ranges, scaling,
                          tiny_vis, keyboard_input)
@@ -55,8 +57,9 @@ class Level:
         self.quit = False
 
         # pandas Dataframe in which data of each frame will be stored
-        self.columns = ['time_played', 'player_pos', 'collision', 'current_input', 'current_drift', 'level_done',
-                        'input_noise_magnitude', 'input_noise_on', 'visible_obstacles', 'visible_drift_tiles']
+        self.columns = ['trial', 'attempt', 'time_played', 'player_pos', 'collision', 'current_input', 'current_drift',
+                        'level_done', 'input_noise_magnitude', 'input_noise_on', 'visible_obstacles',
+                        'visible_drift_tiles']
         # 'visible_walls'
         self.data = pd.DataFrame(columns=self.columns)
 
@@ -195,7 +198,7 @@ class Level:
     def get_data(self, scaling):
 
         frame_data = pd.DataFrame(columns=self.columns)
-
+        
         player = self.player.sprite
         frame_data.at[0, 'player_pos'] = [player.rect.x, player.rect.y]  # player position will stay the same throughout
         frame_data.collision = player.crashed
@@ -206,6 +209,8 @@ class Level:
         frame_data.input_noise_on = self.input_noise_on
 
         frame_data.time_played = self.time_played
+        frame_data.trial = self.trial
+        frame_data.attempt = self.attempt
 
         # walls
         # There has to be a better alternative instead of simply inserting all wall tiles into a list.
