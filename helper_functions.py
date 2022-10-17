@@ -4,7 +4,7 @@ import csv
 from config import edge, agent_size_x, agent_size_y
 
 
-def get_obstacles_lists(filename: str, which_list='all'):
+def get_obstacles_lists(filename: str, which_list='first'):
     """
     :param filename: ...
     :param which_list: 'all' vs 'first' vs 'last' vs int

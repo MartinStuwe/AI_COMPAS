@@ -10,8 +10,8 @@ from level_setup import *
 
 
 def run_visualization(surface, scaling=1, tiny_visualization=False, FPS=30, keyboard_input=False,
-                      obstacles_lists_file='obstacles_list.csv', drift_ranges_file="drift_ranges.csv",
-                      trial=4, attempt=0, n_run=0):
+                      obstacles_lists_file='obstacles_list.csv', drift_ranges_file='drift_ranges.csv',
+                      trial=0, attempt=0, n_run=0):
     """
     :param surface: argument for specifying pygame.display object
     :param scaling: int (or float) to scale up on-screen visualization
@@ -22,13 +22,14 @@ def run_visualization(surface, scaling=1, tiny_visualization=False, FPS=30, keyb
     :param drift_ranges_file: file for drift ranges. Has to be in logs repository
     :param trial: player movements of which trial (.csv file in logs) to be visualized
     :param attempt: attempts for this specific trial
+    :param n_run: total number of runs in this specific experiment / visualization
     """
     # preparing lists of in-game objects from which to draw said objects on screen
     # walls will be the same across all experimental trials
-    wall_list = get_wall_positions("walls_dict.txt")
+    wall_list = get_wall_positions('walls_dict.txt')
     wall_list = adjust_wall_list(wall_list, scaling)
 
-    obstacles_list, flag_multiple_obstacle_lists = get_obstacles_lists(obstacles_lists_file, 'first')
+    obstacles_list, flag_multiple_obstacle_lists = get_obstacles_lists(obstacles_lists_file)
     obstacles_list = adjust_obstacles_list(obstacles_list, scaling)
 
     if keyboard_input:
@@ -39,7 +40,7 @@ def run_visualization(surface, scaling=1, tiny_visualization=False, FPS=30, keyb
     player_starting_position, player_positions = adjust_player_positions(player_starting_position, player_positions,
                                                                          scaling, tiny_visualization=tiny_visualization)
 
-    drift_ranges = get_drift_ranges(drift_ranges_file, level=0)
+    drift_ranges = get_drift_ranges(drift_ranges_file)
     drift_ranges = adjust_drift_ranges(drift_ranges, scaling)
 
     if not keyboard_input:
