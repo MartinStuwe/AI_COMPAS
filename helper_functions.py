@@ -8,7 +8,7 @@ def get_obstacles_lists(filename: str, which_list='first'):
     """
     :param filename: ...
     :param which_list: 'all' vs 'first' vs 'last' vs int
-    function read the obstacles lists txts. The function takes two arguments: filename and which_list,
+    function read the obstacles lists csv. The function takes two arguments: filename and which_list,
     whereas the latter is optional. As filename the actual name of the file in the logs directory should be passed.
     The function will get the path itself. The file must be in the logs directory. Otherwise it won't find it.
     The which_list argument can be passed as string with all vs. first vs. last or an integer as string or integer.
@@ -70,8 +70,8 @@ def get_wall_positions(filename: str):
 
 def get_drift_ranges(filename: str, level=0):
     """
-    :param filename: ...
-    :param level: level of which the drift ranges to grab
+    :param filename: .csv file must be in /logs
+    :param level: in case of multiple level drift ranges, indicate level of which the drift ranges to grab
     """
     drift_ranges_dict = []
     complete_path = os.getcwd() + '/logs/' + filename

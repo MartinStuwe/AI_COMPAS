@@ -55,7 +55,6 @@ def run_visualization(surface, scaling=1, tiny_visualization=False, FPS=30, keyb
 
         level_done = run_pygame(surface=surface, scaling=scaling, FPS=FPS, keyboard_input=keyboard_input,
                                 player_positions=player_positions, level=level, tiny_visualization=tiny_visualization)
-        # level_done = main_menu(wall_list=wall_list, obstacles_list=obstacles_list, player_starting_position=player_starting_position, drift_ranges=drift_ranges, surface=surface, scaling=scaling, FPS=FPS, keyboard_input=keyboard_input, player_positions=player_positions, tiny_visualization=tiny_visualization, trial=trial, attempt=attempt)
         return level_done
     else:
         level = Level(wall_list=wall_list, obstacles_list=obstacles_list,
@@ -110,7 +109,6 @@ def run_pygame(surface, scaling, FPS, keyboard_input, player_positions, level, t
 
             # update time
             time_played = time.time() - start_time
-            # print(time_played)
 
             surface.fill('black')
 

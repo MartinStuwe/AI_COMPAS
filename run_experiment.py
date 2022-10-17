@@ -15,18 +15,19 @@ screen = pygame.display.set_mode(((observation_space_size_x+(2*edge))*scaling, o
 
 # initialize experimental procedure
 trials = list(range(1, 7))  # end = 7 due to python stopping before processing 7
-# random.shuffle(trials)  # random shuffling of trials
+# trials list is our loop object. We will remove trials from here when they are attempted 3 times already
+# or have been solved completely
 
 # attempts_dict for monitoring attempts per trial
 attempt_dict = dict.fromkeys(trials, 0)  # every trial at 0 attempts
 max_attempts = 3  # maximum number of attempts given to solve trial
 
-# dict_keys = list(attempt_dict.keys())
-
+# features of displayed text
 title_font = pygame.font.SysFont('comicsans', 70)
 background_ = pygame.image.load(os.path.join('assets/background', 'background-black.png'))
 background_ = pygame.transform.scale(background_, (observation_space_size_x*scaling + 2*edge*scaling, observation_space_size_y*scaling))
 
+# start experimental procedure
 quit = False
 while not quit:
     level_done = False
@@ -52,14 +53,14 @@ while not quit:
                                                trial=trial, n_run=n_run)
                 n_run += 1
 
-                if level_done:
+                if level_done:  # if level was successfully solved, it won't be played again
                     trials.remove(trial)
                 else:
                     attempt_dict[trial] += 1
-                    if attempt_dict[trial] >= 3:
+                    if attempt_dict[trial] >= max_attempts:  # if max_attempts is reached, level won't be played again
                         trials.remove(trial)
 
-                if len(trials) < 1:
+                if len(trials) < 1:  # if no level are left to play -> quit
                     quit = True
 
 # print(attempt_dict)
