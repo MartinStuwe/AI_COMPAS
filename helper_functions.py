@@ -1,7 +1,7 @@
 import os
 import ast
 import csv
-from config import edge
+from config import edge, agent_size_x, agent_size_y
 
 
 def get_obstacles_lists(filename: str, which_list='all'):
@@ -103,8 +103,8 @@ def adjust_wall_list(wall_list, scaling):
     :return updated wall_list
     """
     for i in range(1, len(wall_list)+1):
-        wall_list[str(i)][0] = wall_list[str(i)][0]*scaling + edge * scaling
-        wall_list[str(i)][1] = (wall_list[str(i)][1] - 1)*scaling + edge * scaling
+        wall_list[str(i)][0] = (wall_list[str(i)][0] + edge) * scaling
+        wall_list[str(i)][1] = ((wall_list[str(i)][1] - 1) + edge) * scaling
     return wall_list
 
 
@@ -114,7 +114,7 @@ def adjust_obstacles_list(obstacles_list, scaling):
     :return
     """
     for i in obstacles_list:
-        i['x'] = (i['x'] - 1) * scaling + edge * scaling
+        i['x'] = ((i['x'] - 1) + edge) * scaling
         i['y'] = (i['y'] - 1) * scaling
         i['size'] = i['size'] * scaling
     return obstacles_list
@@ -125,14 +125,14 @@ def adjust_player_positions(player_starting_position, player_positions, scaling,
     param
     return
     """
-    adjusted_player_starting_position = [player_starting_position[0]*scaling + edge * scaling,
+    adjusted_player_starting_position = [(player_starting_position[0] + edge - 0.5*agent_size_x)*scaling,
                                          player_starting_position[1]*scaling]
     for i in player_positions:
-        i[0] = (i[0] - 1) * scaling + edge * scaling
+        i[0] = ((i[0] - agent_size_x) + edge) * scaling
         if tiny_visualization:
-            i[1] = (i[1] - 1) * scaling + edge * scaling
+            i[1] = ((i[1] - agent_size_x) + edge) * scaling
         else:
-            i[1] = adjusted_player_starting_position[1] - 1
+            i[1] = adjusted_player_starting_position[1] - agent_size_y
     return adjusted_player_starting_position, player_positions
 
 

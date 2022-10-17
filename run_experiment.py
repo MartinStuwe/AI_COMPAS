@@ -29,8 +29,6 @@ background_ = pygame.transform.scale(background_, (observation_space_size_x*scal
 
 quit = False
 while not quit:
-    random.shuffle(trials)
-    trial = trials[0]
     level_done = False
     n_run = 0
 
@@ -44,6 +42,9 @@ while not quit:
             quit = True
         if event.type == pygame.KEYDOWN:
             if event.key == pygame.K_SPACE:
+                random.shuffle(trials)
+                trial = trials[0]
+
                 level_done = run_visualization(surface=screen, scaling=scaling, tiny_visualization=False, FPS=FPS,
                                                keyboard_input=True,
                                                obstacles_lists_file=f'obstacles_list_{trial}.csv',
@@ -51,15 +52,15 @@ while not quit:
                                                trial=trial, n_run=n_run)
                 n_run += 1
 
-            if level_done:
-                trials.remove(trial)
-            else:
-                attempt_dict[trial] += 1
-                if attempt_dict[trial] >= 3:
+                if level_done:
                     trials.remove(trial)
+                else:
+                    attempt_dict[trial] += 1
+                    if attempt_dict[trial] >= 3:
+                        trials.remove(trial)
 
-            if len(trials) < 1:
-                quit = True
+                if len(trials) < 1:
+                    quit = True
 
-print(attempt_dict)
+# print(attempt_dict)
 pygame.quit()
