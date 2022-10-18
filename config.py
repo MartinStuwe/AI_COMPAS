@@ -16,7 +16,7 @@ N_particles = 1000
 # drift = 2: rightwards drift
 
 # agent related parameters
-agent_size_x, agent_size_y = 3, 3
+agent_size_x, agent_size_y = 1, 1
 pre_trial_steps = 20  # steps spaceship has to take to reach starting_position in experimental setup
 # can range from 0 - observation_space_y/2
 
