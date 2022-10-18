@@ -11,7 +11,7 @@ from level_setup import *
 
 def run_visualization(surface, scaling=1, tiny_visualization=False, FPS=30, keyboard_input=False,
                       obstacles_lists_file='obstacles_list.csv', drift_ranges_file='drift_ranges.csv',
-                      trial=0, attempt=0, n_run=0):
+                      trial=0, attempt=0, n_run=0, code='test'):
     """
     :param surface: argument for specifying pygame.display object
     :param scaling: int (or float) to scale up on-screen visualization
@@ -23,6 +23,7 @@ def run_visualization(surface, scaling=1, tiny_visualization=False, FPS=30, keyb
     :param trial: player movements of which trial (.csv file in logs) to be visualized
     :param attempt: attempts for this specific trial
     :param n_run: total number of runs in this specific experiment / visualization
+    :param code: individual code for participant in case of experiment
     """
     # preparing lists of in-game objects from which to draw said objects on screen
     # walls will be the same across all experimental trials
@@ -51,7 +52,7 @@ def run_visualization(surface, scaling=1, tiny_visualization=False, FPS=30, keyb
         level = Level(wall_list=wall_list, obstacles_list=obstacles_list,
                       player_starting_position=player_starting_position,
                       drift_ranges=drift_ranges, screen=surface, scaling=scaling, n_run=n_run,
-                      keyboard_input=keyboard_input, trial=trial, attempt=attempt)
+                      keyboard_input=keyboard_input, trial=trial, attempt=attempt, code=code)
 
         level_done = run_pygame(surface=surface, scaling=scaling, FPS=FPS, keyboard_input=keyboard_input,
                                 player_positions=player_positions, level=level, tiny_visualization=tiny_visualization)
@@ -60,7 +61,7 @@ def run_visualization(surface, scaling=1, tiny_visualization=False, FPS=30, keyb
         level = Level(wall_list=wall_list, obstacles_list=obstacles_list,
                       player_starting_position=player_starting_position,
                       drift_ranges=drift_ranges, screen=surface, scaling=scaling,
-                      keyboard_input=keyboard_input)
+                      keyboard_input=keyboard_input, code=code)
 
         run_pygame(surface=surface, scaling=scaling, FPS=FPS, keyboard_input=keyboard_input,
                    player_positions=player_positions, level=level, tiny_visualization=tiny_visualization)
@@ -119,37 +120,4 @@ def run_pygame(surface, scaling, FPS, keyboard_input, player_positions, level, t
             pygame.display.update()
             clock.tick(FPS)
 
-    return level_done
-
-
-def main_menu(wall_list, obstacles_list, player_starting_position, drift_ranges, surface, scaling, FPS, keyboard_input,
-              player_positions, tiny_visualization, trial, attempt):
-    title_font = pygame.font.SysFont('comicsans', 70)
-    background_ = pygame.image.load(os.path.join('assets/background', 'background-black.png'))
-    background_ = pygame.transform.scale(background_, (observation_space_size_x*scaling + 2*edge*scaling,
-                                                       observation_space_size_y*scaling))
-    n_run = 0
-    level_done = False
-    quit = False
-
-    while not quit:
-        surface.blit(background_, (0, 0))
-        title_label = title_font.render('Press SPACEBAR to start', 1, (255, 255, 255))
-        surface.blit(title_label, ((observation_space_size_x*scaling + 2*edge*scaling) / 2 - title_label.get_width()/2,
-                     observation_space_size_y*scaling / 2))
-        pygame.display.update()
-        for event in pygame.event.get():
-            if event.type == pygame.QUIT:
-                quit = True
-            if event.type == pygame.KEYDOWN:
-                if event.key == pygame.K_SPACE:
-                    level = Level(wall_list=wall_list, obstacles_list=obstacles_list,
-                                  player_starting_position=player_starting_position,
-                                  drift_ranges=drift_ranges, screen=surface, scaling=scaling, n_run=n_run,
-                                  keyboard_input=keyboard_input, trial=trial, attempt=attempt)
-
-                    level_done = run_pygame(surface=surface, scaling=scaling, FPS=FPS, keyboard_input=keyboard_input, 
-                                            player_positions=player_positions, level=level, tiny_visualization=tiny_visualization)
-                    n_run += 1
-    pygame.quit()
     return level_done

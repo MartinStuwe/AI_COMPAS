@@ -21,8 +21,11 @@ input_noise_magnitude = random.choice(input_noise_args)
 
 
 class Level:
-    def __init__(self, wall_list, obstacles_list, player_starting_position, drift_ranges, screen, scaling, n_run=0,
-                 tiny_vis=False, keyboard_input=False, trial=0, attempt=0):
+    def __init__(self, wall_list, obstacles_list, player_starting_position, drift_ranges, screen, scaling, code,
+                 n_run=0, tiny_vis=False, keyboard_input=False, trial=0, attempt=0):
+
+        # experiment information
+        self.code = code
 
         # level_setup
         self.trial = trial
@@ -282,7 +285,7 @@ class Level:
             self.level_done = True
             self.quit = True
             # write data of all frames to csv
-            self.data.to_csv(f'data/data_{self.n_run}.csv', sep=',')
+            self.data.to_csv(f'data/{self.code}_data_{self.n_run}.csv', sep=',')
         else:
             self.level_done = False
 
@@ -294,7 +297,7 @@ class Level:
 
         if player.crashed:
             # write data of all frames to csv
-            self.data.to_csv(f'data/data_{self.n_run}.csv', sep=',')
+            self.data.to_csv(f'data/{self.code}_data_{self.n_run}.csv', sep=',')
 
         # draw sprites
         # draw comets and tiles

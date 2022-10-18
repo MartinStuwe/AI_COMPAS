@@ -5,6 +5,10 @@ import os
 from main import run_visualization
 from config import observation_space_size_x, observation_space_size_y, scaling, edge
 
+
+# participant code
+code = input('Enter code: ')
+
 # initialize pygame
 # how many frames per second
 FPS = 30
@@ -75,7 +79,7 @@ while not quit:
                                                    keyboard_input=True,
                                                    obstacles_lists_file=f'obstacles_list_0.csv',
                                                    drift_ranges_file=f'drift_ranges_0.csv',
-                                                   trial=0, attempt=0, n_run=n_run)
+                                                   trial=0, attempt=0, n_run=n_run, code=code)
                     if level_done:
                         instructions = False
                 else:
@@ -86,7 +90,7 @@ while not quit:
                                                    keyboard_input=True,
                                                    obstacles_lists_file=f'obstacles_list_{trial}.csv',
                                                    drift_ranges_file=f'drift_ranges_{trial}.csv',
-                                                   trial=trial, attempt=attempt_dict[trial]+1, n_run=n_run)
+                                                   trial=trial, attempt=attempt_dict[trial]+1, n_run=n_run, code=code)
                     n_run += 1
 
                     if level_done:  # if level was successfully solved, it won't be played again
