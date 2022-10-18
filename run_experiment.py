@@ -58,9 +58,9 @@ def display_intertrial_screen(surface):
 # start experimental procedure
 quit = False
 instructions = True
+n_run = 0
 while not quit:
     level_done = False
-    n_run = 0
 
     if instructions:
         display_instructions(screen)

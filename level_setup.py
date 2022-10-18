@@ -285,7 +285,7 @@ class Level:
             self.level_done = True
             self.quit = True
             # write data of all frames to csv
-            self.data.to_csv(f'data/{self.code}_data_{self.n_run}.csv', sep=',')
+            self.data.to_csv(f'data/{self.code}_output_{self.n_run:0>2}.csv', sep=',')
         else:
             self.level_done = False
 
@@ -297,7 +297,7 @@ class Level:
 
         if player.crashed:
             # write data of all frames to csv
-            self.data.to_csv(f'data/{self.code}_data_{self.n_run}.csv', sep=',')
+            self.data.to_csv(f'data/{self.code}_output_{self.n_run:0>2}.csv', sep=',')
 
         # draw sprites
         # draw comets and tiles
