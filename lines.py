@@ -11,7 +11,7 @@ class Line(pygame.sprite.Sprite):
         super().__init__()
         # actual comet image which will be drawn on rectangular surface of comet
         self.image = pygame.Surface((size[0], size[1]))
-        self.image.fill('Aquamarine')
+        self.image.fill('darkgrey')
         self.rect = self.image.get_rect(topleft=pos)
 
     def update(self, speed, scaling, horizontal_movement):

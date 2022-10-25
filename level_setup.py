@@ -9,8 +9,8 @@ from walls import Wall
 from drift_tiles import DriftTile
 from particles import Particle
 from lines import Line
-from config import level_size_x, level_size_y, observation_space_size_y, velocity, particle_sizes, edge, N_particles, \
-    pre_trial_steps, agent_size_x, agent_size_y, input_noise_threshold
+from config import level_size_x, level_size_y, observation_space_size_y, velocity, particle_sizes, edge, bottom_edge, \
+    N_particles, pre_trial_steps, agent_size_x, agent_size_y, input_noise_threshold
 
 from draw_transparent_shapes import draw_rect_alpha, draw_polygon_alpha, draw_circle_alpha
 
@@ -73,6 +73,7 @@ class Level:
         self.drift_tiles = pygame.sprite.Group()
         self.player = pygame.sprite.GroupSingle()
         self.particles = pygame.sprite.Group()
+        self.bottom_edge = pygame.sprite.GroupSingle()
 
         for i in range(1, len(wall_list) + 1):
             # left wall
@@ -111,6 +112,11 @@ class Level:
             y_pos = np.random.uniform(low=0, high=level_size_y * scaling, size=1)
             particle_tile = Particle((x_pos[0], y_pos[0]), random.choice(particle_sizes), scaling)
             self.particles.add(particle_tile)
+
+        # grey edge at bottom of screen limiting observation window
+        bottom_edge_tile = Line([0, (observation_space_size_y - bottom_edge)*scaling],
+                                [(level_size_x + 2*edge) * scaling, bottom_edge*scaling])
+        self.bottom_edge.add(bottom_edge_tile)
 
     def get_input(self):
         # input noise
@@ -305,6 +311,7 @@ class Level:
         self.comets.draw(self.display_surface)
         self.walls.draw(self.display_surface)
         self.drift_tiles.draw(self.display_surface)
+        self.bottom_edge.draw(self.display_surface)
 
         # draw agent
         self.player.draw(self.display_surface)
