@@ -76,6 +76,7 @@ class Level:
         self.player = pygame.sprite.GroupSingle()
         self.particles = pygame.sprite.Group()
         self.bottom_edge = pygame.sprite.GroupSingle()
+        self.finish_line = pygame.sprite.GroupSingle()
 
         for i in range(1, len(wall_list) + 1):
             # left wall
@@ -119,6 +120,12 @@ class Level:
         bottom_edge_tile = Line([0, (observation_space_size_y - bottom_edge)*scaling],
                                 [(level_size_x + 2*edge) * scaling, bottom_edge*scaling])
         self.bottom_edge.add(bottom_edge_tile)
+
+        last_wall_tile = self.walls.sprites()[-1]
+
+        finish_line_tile = Line(pos=[edge*scaling, last_wall_tile.rect.y],
+                                size=[level_size_x * scaling, scaling], col="seagreen")
+        self.finish_line.add(finish_line_tile)
 
     def get_input(self):
         # input noise
@@ -283,13 +290,14 @@ class Level:
             self.walls.update(velocity, scaling, self.horizontal_movement)
             self.drift_tiles.update(velocity, scaling, self.horizontal_movement)
             self.particles.update(velocity, scaling, self.horizontal_movement)
+            self.finish_line.update(velocity, scaling, self.horizontal_movement)
 
             # update input_noise threshold
             self.input_noise_threshold -= 1 * scaling * velocity  # same updating as for all in-game objects
 
         # check for level done: if last sprite is in observation_space => level_done
-        sprite = self.walls.sprites()[-1]
-        if sprite.rect.bottom < observation_space_size_y * scaling:
+        finish_line = self.finish_line.sprites()[-1]
+        if finish_line.rect.bottom < player.rect.top:  # (observation_space_size_y - bottom_edge) * scaling:
             self.level_done = True
             self.quit = True
             # write data of all frames to csv
@@ -314,6 +322,7 @@ class Level:
         self.walls.draw(self.display_surface)
         self.drift_tiles.draw(self.display_surface)
         self.bottom_edge.draw(self.display_surface)
+        self.finish_line.draw(self.display_surface)
 
         # draw agent
         self.player.draw(self.display_surface)

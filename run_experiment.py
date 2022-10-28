@@ -22,8 +22,6 @@ screen = pygame.display.set_mode(((observation_space_size_x + (2 * edge)) * scal
 # initialize experimental procedure
 N_trials = 6  # for each trial there must be a drift_ranges & obstacles_list file in the logs folder
 trials = list(range(1, N_trials + 1))  # end +1 due to python stopping before processing last entry
-# trials list is our loop object. We will remove trials from here when they are attempted 3 times already
-# or have been solved completely
 
 # drift enabled
 drift_enabled_args = [True, False]
@@ -42,6 +40,8 @@ arg_combs = list(itertools.product(*args_list))
 # attempts_dict for monitoring attempts per trial
 attempt_dict = dict.fromkeys(arg_combs, 0)  # every trial at 0 attempts
 list_of_attempt_dict_keys = list(attempt_dict.keys())
+# list_of_attempt_dict_keys is our loop object. We will remove trials from here when they are attempted 3 times already
+# or have been solved completely
 
 max_attempts = 3  # maximum number of attempts given to solve trial
 
@@ -127,11 +127,11 @@ while not quit:
                                                    drift_enabled=trial[1],  # drift_enabled
                                                    trial=trial[0], attempt=attempt_dict[trial]+1, n_run=n_run, code=code)
                     n_run += 1
+                    attempt_dict[trial] += 1
 
                     if level_done:  # if level was successfully solved, it won't be played again
                         list_of_attempt_dict_keys.remove(trial)
                     else:
-                        attempt_dict[trial] += 1
                         if attempt_dict[trial] >= max_attempts:  # if max_attempts reached, level won't be played again
                             list_of_attempt_dict_keys.remove(trial)
 
