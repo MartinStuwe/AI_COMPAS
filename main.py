@@ -70,7 +70,15 @@ def run_visualization(surface, scaling=1, tiny_visualization=False, FPS=30, keyb
 
 
 def run_pygame(surface, scaling, FPS, keyboard_input, player_positions, level, tiny_visualization):
-
+    """
+    :param surface: pygame surface on which objects are drawn
+    :param scaling: integer or float which is used to enlarge visualization
+    :param FPS: how many frames per second should be drawn
+    :param keyboard_input: True when human playing vs. False when only visualization
+    :param player_positions: only used in simple visualization; where player should be drawn
+    :param level: level object which is defined before
+    :param tiny_visualization: True vs. False; when True scaling parameter specific for tiny vis
+    """
     clock = pygame.time.Clock()
 
     # time onset

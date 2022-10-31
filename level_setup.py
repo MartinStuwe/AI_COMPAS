@@ -14,7 +14,7 @@ from config import level_size_x, level_size_y, observation_space_size_y, velocit
 
 from draw_transparent_shapes import draw_rect_alpha, draw_polygon_alpha, draw_circle_alpha
 
-display_keys = False
+display_keys = True
 
 
 class Level:
@@ -62,8 +62,8 @@ class Level:
         self.quit = False
 
         # pandas Dataframe in which data of each frame will be stored
-        self.columns = ['trial', 'attempt', 'time_played', 'player_pos', 'collision', 'current_input', 'current_drift',
-                        'level_done', 'input_noise_magnitude', 'input_noise_on', 'visible_obstacles',
+        self.columns = ['trial', 'attempt', 'time_played', 'player_pos', 'collision', 'current_input', 'drift_enabled',
+                        'current_drift', 'level_done', 'input_noise_magnitude', 'input_noise_on', 'visible_obstacles',
                         'visible_drift_tiles']
         # 'visible_walls'
         self.data = pd.DataFrame(columns=self.columns)
@@ -122,7 +122,6 @@ class Level:
         self.bottom_edge.add(bottom_edge_tile)
 
         last_wall_tile = self.walls.sprites()[-1]
-
         finish_line_tile = Line(pos=[edge*scaling, last_wall_tile.rect.y],
                                 size=[level_size_x * scaling, scaling], col="seagreen")
         self.finish_line.add(finish_line_tile)
@@ -221,6 +220,7 @@ class Level:
         frame_data.at[0, 'player_pos'] = [player.rect.x, player.rect.y]  # player position will stay the same throughout
         frame_data.collision = player.crashed
         frame_data.current_input = self.current_input
+        frame_data.drift_enabled = self.drift_enabled
         frame_data.current_drift = self.drift.x
         frame_data.level_done = self.level_done
         frame_data.input_noise_magnitude = self.input_noise_magnitude
@@ -243,6 +243,7 @@ class Level:
         # walls_wide_again = ?  # based on current_wall_distance='narrow', when walls get wide again
         # current_wall_distance = ['wide']  # on y coord of agent
 
+        # stupidly inserting all visible wall tiles in a list into frame_data
         # visible_walls = []
         # for sprite in self.walls.sprites():
         #     # checking for visibility by checking for y of sprite being between 0 and size of observation window
