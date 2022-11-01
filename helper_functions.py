@@ -1,14 +1,14 @@
 import os
 import ast
 import csv
-from config import edge
+from config import edge, agent_size_x, agent_size_y
 
 
-def get_obstacles_lists(filename: str, which_list='all'):
+def get_obstacles_lists(filename: str, which_list='first'):
     """
     :param filename: ...
     :param which_list: 'all' vs 'first' vs 'last' vs int
-    function read the obstacles lists txts. The function takes two arguments: filename and which_list,
+    function read the obstacles lists csv. The function takes two arguments: filename and which_list,
     whereas the latter is optional. As filename the actual name of the file in the logs directory should be passed.
     The function will get the path itself. The file must be in the logs directory. Otherwise it won't find it.
     The which_list argument can be passed as string with all vs. first vs. last or an integer as string or integer.
@@ -70,8 +70,8 @@ def get_wall_positions(filename: str):
 
 def get_drift_ranges(filename: str, level=0):
     """
-    :param filename: ...
-    :param level: level of which the drift ranges to grab
+    :param filename: .csv file must be in /logs
+    :param level: in case of multiple level drift ranges, indicate level of which the drift ranges to grab
     """
     drift_ranges_dict = []
     complete_path = os.getcwd() + '/logs/' + filename
@@ -103,8 +103,8 @@ def adjust_wall_list(wall_list, scaling):
     :return updated wall_list
     """
     for i in range(1, len(wall_list)+1):
-        wall_list[str(i)][0] = wall_list[str(i)][0]*scaling + edge * scaling
-        wall_list[str(i)][1] = (wall_list[str(i)][1] - 1)*scaling + edge * scaling
+        wall_list[str(i)][0] = (wall_list[str(i)][0] + edge) * scaling
+        wall_list[str(i)][1] = ((wall_list[str(i)][1] - 1) + edge) * scaling
     return wall_list
 
 
@@ -114,7 +114,7 @@ def adjust_obstacles_list(obstacles_list, scaling):
     :return
     """
     for i in obstacles_list:
-        i['x'] = (i['x'] - 1) * scaling + edge * scaling
+        i['x'] = ((i['x'] - 1) + edge) * scaling
         i['y'] = (i['y'] - 1) * scaling
         i['size'] = i['size'] * scaling
     return obstacles_list
@@ -125,14 +125,14 @@ def adjust_player_positions(player_starting_position, player_positions, scaling,
     param
     return
     """
-    adjusted_player_starting_position = [player_starting_position[0]*scaling + edge * scaling,
+    adjusted_player_starting_position = [(player_starting_position[0] + edge - 0.5*agent_size_x)*scaling,
                                          player_starting_position[1]*scaling]
     for i in player_positions:
-        i[0] = (i[0] - 1) * scaling + edge * scaling
+        i[0] = ((i[0] - agent_size_x) + edge) * scaling
         if tiny_visualization:
-            i[1] = (i[1] - 1) * scaling + edge * scaling
+            i[1] = ((i[1] - agent_size_x) + edge) * scaling
         else:
-            i[1] = adjusted_player_starting_position[1] - 1
+            i[1] = adjusted_player_starting_position[1] - agent_size_y
     return adjusted_player_starting_position, player_positions
 
 

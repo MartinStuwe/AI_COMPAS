@@ -9,24 +9,27 @@ from walls import Wall
 from drift_tiles import DriftTile
 from particles import Particle
 from lines import Line
-from config import level_size_x, level_size_y, observation_space_size_y, velocity, particle_sizes, edge, N_particles, \
-    pre_trial_steps, agent_size_x, agent_size_y, input_noise_threshold
+from config import level_size_x, level_size_y, observation_space_size_y, velocity, particle_sizes, edge, bottom_edge, \
+    N_particles, pre_trial_steps, agent_size_x, agent_size_y, input_noise_threshold
 
 from draw_transparent_shapes import draw_rect_alpha, draw_polygon_alpha, draw_circle_alpha
 
-display_keys = False
-input_noise_args = [None, "weak", "strong"]
-input_noise_magnitude = random.choice(input_noise_args)
-# print(input_noise_magnitude)  # printing statement to check for drift while piloting
+display_keys = True
 
 
 class Level:
-    def __init__(self, wall_list, obstacles_list, player_starting_position, drift_ranges, screen, scaling, n_run=0,
-                 tiny_vis=False, keyboard_input=False):
+    def __init__(self, wall_list, obstacles_list, player_starting_position, drift_ranges, screen, scaling, code,
+                 n_run=0, tiny_vis=False, keyboard_input=False, trial=0, attempt=0, input_noise_magnitude=None,
+                 drift_enabled=False):
+
+        # experiment information
+        self.code = code
 
         # level_setup
+        self.trial = trial
+        self.attempt = attempt
         self.display_surface = screen
-        self.setup_level(wall_list, obstacles_list, player_starting_position, drift_ranges, scaling,
+        self.setup_level(wall_list, obstacles_list, player_starting_position, drift_ranges, drift_enabled, scaling,
                          tiny_vis, keyboard_input)
         # environment movement around agent
         self.direction = pygame.math.Vector2(0, 0)
@@ -40,8 +43,12 @@ class Level:
         self.transparency_left = 90
         self.transparency_right = 90
 
-        # threshold for imposing input noise on agent (is updated by subtracting step size)
+        # Whether drift tiles appear and actually impose drift depends on this variable
+        self.drift_enabled = drift_enabled
+
+        # threshold and magnitude for imposing input noise on agent (is updated by subtracting step size)
         self.input_noise_threshold = input_noise_threshold
+        self.input_noise_magnitude = input_noise_magnitude
         self.input_noise_on = False
 
         # n_run indicating the number of trials after starting the program (used to differentiate data files)
@@ -55,18 +62,21 @@ class Level:
         self.quit = False
 
         # pandas Dataframe in which data of each frame will be stored
-        self.columns = ['time_played', 'player_pos', 'collision', 'current_input', 'current_drift', 'level_done',
-                        'input_noise_magnitude', 'input_noise_on', 'visible_obstacles', 'visible_drift_tiles']
+        self.columns = ['trial', 'attempt', 'time_played', 'player_pos', 'collision', 'current_input', 'drift_enabled',
+                        'current_drift', 'level_done', 'input_noise_magnitude', 'input_noise_on', 'visible_obstacles',
+                        'visible_drift_tiles']
         # 'visible_walls'
         self.data = pd.DataFrame(columns=self.columns)
 
-    def setup_level(self, wall_list, obstacles_list, player_starting_position, drift_ranges, scaling,
+    def setup_level(self, wall_list, obstacles_list, player_starting_position, drift_ranges, drift_enabled, scaling,
                     tiny_vis, keyboard_input):
         self.walls = pygame.sprite.Group()
         self.comets = pygame.sprite.Group()
         self.drift_tiles = pygame.sprite.Group()
         self.player = pygame.sprite.GroupSingle()
         self.particles = pygame.sprite.Group()
+        self.bottom_edge = pygame.sprite.GroupSingle()
+        self.finish_line = pygame.sprite.GroupSingle()
 
         for i in range(1, len(wall_list) + 1):
             # left wall
@@ -94,17 +104,27 @@ class Level:
             player_sprite = Player(player_starting_position, scaling, tiny_vis)
             self.player.add(player_sprite)
 
-        for i in range(len(drift_ranges)):
-            drift_info = drift_ranges[i]  # drift_info[0]: y_start, [1]: y_end, [2]: direction
-            # if drift_info[0] < (level_size_y * scaling) * 2 / 3:  # have no drift_tiles in the last third of the level
-            drift_tile = DriftTile(drift_info[0], drift_info[1], drift_info[2], scaling)
-            self.drift_tiles.add(drift_tile)
+        if drift_enabled:
+            for i in range(len(drift_ranges)):
+                drift_info = drift_ranges[i]  # drift_info[0]: y_start, [1]: y_end, [2]: direction
+                drift_tile = DriftTile(drift_info[0], drift_info[1], drift_info[2], scaling)
+                self.drift_tiles.add(drift_tile)
 
         for _ in range(N_particles):
             x_pos = np.random.uniform(low=edge * scaling, high=level_size_x * scaling + edge * scaling, size=1)
             y_pos = np.random.uniform(low=0, high=level_size_y * scaling, size=1)
             particle_tile = Particle((x_pos[0], y_pos[0]), random.choice(particle_sizes), scaling)
             self.particles.add(particle_tile)
+
+        # grey edge at bottom of screen limiting observation window (do NOT update in .run)
+        bottom_edge_tile = Line([0, (observation_space_size_y - bottom_edge)*scaling],
+                                [(level_size_x + 2*edge) * scaling, bottom_edge*scaling])
+        self.bottom_edge.add(bottom_edge_tile)
+
+        last_wall_tile = self.walls.sprites()[-1]
+        finish_line_tile = Line(pos=[edge*scaling, last_wall_tile.rect.y],
+                                size=[level_size_x * scaling, scaling], col="seagreen")
+        self.finish_line.add(finish_line_tile)
 
     def get_input(self):
         # input noise
@@ -116,12 +136,12 @@ class Level:
         if player.rect.y > self.input_noise_threshold:
             self.input_noise_on = True
             mu = 0
-            if input_noise_magnitude is None:
+            if self.input_noise_magnitude is None:
                 pass
-            elif input_noise_magnitude == "weak":
+            elif self.input_noise_magnitude == "weak":
                 sigma = 0.5  # mean and standard deviation
                 input_noise = np.random.normal(mu, sigma, 1)
-            elif input_noise_magnitude == "strong":
+            elif self.input_noise_magnitude == "strong":
                 sigma = 1
                 input_noise = np.random.normal(mu, sigma, 1)
         else:
@@ -195,17 +215,20 @@ class Level:
     def get_data(self, scaling):
 
         frame_data = pd.DataFrame(columns=self.columns)
-
+        
         player = self.player.sprite
         frame_data.at[0, 'player_pos'] = [player.rect.x, player.rect.y]  # player position will stay the same throughout
         frame_data.collision = player.crashed
         frame_data.current_input = self.current_input
+        frame_data.drift_enabled = self.drift_enabled
         frame_data.current_drift = self.drift.x
         frame_data.level_done = self.level_done
-        frame_data.input_noise_magnitude = input_noise_magnitude
+        frame_data.input_noise_magnitude = self.input_noise_magnitude
         frame_data.input_noise_on = self.input_noise_on
 
         frame_data.time_played = self.time_played
+        frame_data.trial = self.trial
+        frame_data.attempt = self.attempt
 
         # walls
         # There has to be a better alternative instead of simply inserting all wall tiles into a list.
@@ -220,6 +243,7 @@ class Level:
         # walls_wide_again = ?  # based on current_wall_distance='narrow', when walls get wide again
         # current_wall_distance = ['wide']  # on y coord of agent
 
+        # stupidly inserting all visible wall tiles in a list into frame_data
         # visible_walls = []
         # for sprite in self.walls.sprites():
         #     # checking for visibility by checking for y of sprite being between 0 and size of observation window
@@ -267,17 +291,18 @@ class Level:
             self.walls.update(velocity, scaling, self.horizontal_movement)
             self.drift_tiles.update(velocity, scaling, self.horizontal_movement)
             self.particles.update(velocity, scaling, self.horizontal_movement)
+            self.finish_line.update(velocity, scaling, self.horizontal_movement)
 
             # update input_noise threshold
             self.input_noise_threshold -= 1 * scaling * velocity  # same updating as for all in-game objects
 
         # check for level done: if last sprite is in observation_space => level_done
-        sprite = self.walls.sprites()[-1]
-        if sprite.rect.bottom < observation_space_size_y * scaling:
+        finish_line = self.finish_line.sprites()[-1]
+        if finish_line.rect.bottom < player.rect.top:  # (observation_space_size_y - bottom_edge) * scaling:
             self.level_done = True
             self.quit = True
             # write data of all frames to csv
-            self.data.to_csv(f'data/data_{self.n_run}.csv', sep=',')
+            self.data.to_csv(f'data/{self.code}_output_{self.n_run:0>2}.csv', sep=',')
         else:
             self.level_done = False
 
@@ -289,7 +314,7 @@ class Level:
 
         if player.crashed:
             # write data of all frames to csv
-            self.data.to_csv(f'data/data_{self.n_run}.csv', sep=',')
+            self.data.to_csv(f'data/{self.code}_output_{self.n_run:0>2}.csv', sep=',')
 
         # draw sprites
         # draw comets and tiles
@@ -297,6 +322,8 @@ class Level:
         self.comets.draw(self.display_surface)
         self.walls.draw(self.display_surface)
         self.drift_tiles.draw(self.display_surface)
+        self.bottom_edge.draw(self.display_surface)
+        self.finish_line.draw(self.display_surface)
 
         # draw agent
         self.player.draw(self.display_surface)
