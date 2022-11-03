@@ -4,7 +4,7 @@ import sys
 import pygame.display
 from pygame import VIDEORESIZE
 
-from config import level_size_y, pre_trial_steps, observation_space_size_x, observation_space_size_y, scaling, edge
+from config import pre_trial_steps, observation_space_size_x, observation_space_size_y, scaling, edge
 from helper_functions import *
 from level_setup import *
 
@@ -29,7 +29,7 @@ def run_visualization(surface, scaling=1, tiny_visualization=False, FPS=30, keyb
     """
     # preparing lists of in-game objects from which to draw said objects on screen
     # walls will be the same across all experimental trials
-    wall_list = get_wall_positions('walls_dict.txt')
+    wall_list = get_wall_positions('walls_dict.csv')
     wall_list = adjust_wall_list(wall_list, scaling)
 
     obstacles_list, flag_multiple_obstacle_lists = get_obstacles_lists(obstacles_lists_file)

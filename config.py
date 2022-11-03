@@ -5,7 +5,7 @@ observation_space_size_x, observation_space_size_y = 40, 60  # other possible si
 
 # environment related parameters
 velocity = 2/3
-level_size_x, level_size_y = observation_space_size_x, 400  # 2100
+level_size_x = observation_space_size_x  # level_size_y determined by walls (last wall ends level)
 wall_size = 1
 drift_tile_x_size = 1
 particle_sizes = (2/16, 3/16, 4/16)

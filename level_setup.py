@@ -9,8 +9,7 @@ from walls import Wall
 from drift_tiles import DriftTile
 from particles import Particle
 from lines import Line
-from config import level_size_x, level_size_y, observation_space_size_y, velocity, particle_sizes, edge, bottom_edge, \
-    N_particles, pre_trial_steps, agent_size_x, agent_size_y, input_noise_threshold
+from config import *
 
 from draw_transparent_shapes import draw_rect_alpha, draw_polygon_alpha, draw_circle_alpha
 
@@ -29,6 +28,7 @@ class Level:
         self.trial = trial
         self.attempt = attempt
         self.display_surface = screen
+        self.level_size_y = 'undetermined'
         self.setup_level(wall_list, obstacles_list, player_starting_position, drift_ranges, drift_enabled, scaling,
                          tiny_vis, keyboard_input)
         # environment movement around agent
@@ -62,9 +62,9 @@ class Level:
         self.quit = False
 
         # pandas Dataframe in which data of each frame will be stored
-        self.columns = ['trial', 'attempt', 'time_played', 'player_pos', 'collision', 'current_input', 'drift_enabled',
-                        'current_drift', 'level_done', 'input_noise_magnitude', 'input_noise_on', 'visible_obstacles',
-                        'visible_drift_tiles']
+        self.columns = ['trial', 'attempt', 'time_played', 'level_size_y', 'player_pos', 'collision', 'current_input',
+                        'drift_enabled', 'current_drift', 'level_done', 'input_noise_magnitude', 'input_noise_on',
+                        'visible_obstacles', 'visible_drift_tiles']
         # 'visible_walls'
         self.data = pd.DataFrame(columns=self.columns)
 
@@ -91,6 +91,10 @@ class Level:
             # add both walls to sprite group
             self.walls.add(left_wall, right_wall)
 
+        # determine level_size_y based on walls
+        last_wall_tile = self.walls.sprites()[-1]
+        self.level_size_y = last_wall_tile.rect.y + wall_size * scaling
+
         for key in obstacles_list:
             comet_sprite = Comet((key['x'], key['y']), key['size'])  # arguments in Comet(): x-pos, y-pos, tile_size
             self.comets.add(comet_sprite)
@@ -112,7 +116,7 @@ class Level:
 
         for _ in range(N_particles):
             x_pos = np.random.uniform(low=edge * scaling, high=level_size_x * scaling + edge * scaling, size=1)
-            y_pos = np.random.uniform(low=0, high=level_size_y * scaling, size=1)
+            y_pos = np.random.uniform(low=0, high=self.level_size_y, size=1)
             particle_tile = Particle((x_pos[0], y_pos[0]), random.choice(particle_sizes), scaling)
             self.particles.add(particle_tile)
 
@@ -121,7 +125,7 @@ class Level:
                                 [(level_size_x + 2*edge) * scaling, bottom_edge*scaling])
         self.bottom_edge.add(bottom_edge_tile)
 
-        last_wall_tile = self.walls.sprites()[-1]
+        # last_wall_tile = self.walls.sprites()[-1]  # already defined
         finish_line_tile = Line(pos=[edge*scaling, last_wall_tile.rect.y],
                                 size=[level_size_x * scaling, scaling], col="seagreen")
         self.finish_line.add(finish_line_tile)
@@ -229,6 +233,7 @@ class Level:
         frame_data.time_played = self.time_played
         frame_data.trial = self.trial
         frame_data.attempt = self.attempt
+        frame_data.level_size_y = self.level_size_y
 
         # walls
         # There has to be a better alternative instead of simply inserting all wall tiles into a list.

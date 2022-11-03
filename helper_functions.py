@@ -64,8 +64,12 @@ def get_wall_positions(filename: str):
     complete_path = os.getcwd() + '/logs/' + filename
     with open(complete_path, mode="r") as file:
         for i, line in enumerate(file):
-            wall_dict = ast.literal_eval(line)
+            wall_dict = ast.literal_eval(line[1:-2])  # indexing due to preceding and ending '"' which prohibits literal_eval to generate dict
     return wall_dict
+
+
+#wall_list = get_wall_positions('walls_dict.csv')
+#print(type(wall_list))
 
 
 def get_drift_ranges(filename: str, level=0):
