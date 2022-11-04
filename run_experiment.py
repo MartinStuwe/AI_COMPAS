@@ -20,7 +20,7 @@ screen = pygame.display.set_mode(((observation_space_size_x + (2 * edge)) * scal
                                   observation_space_size_y * scaling))
 
 # initialize experimental procedure
-N_trials = 1  # for each trial there must be a drift_ranges & obstacles_list file in the logs folder
+N_trials = 6  # for each trial there must be a drift_ranges & obstacles_list file in the logs folder
 trials = list(range(1, N_trials + 1))  # end +1 due to python stopping before processing last entry
 
 # drift enabled

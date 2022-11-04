@@ -9,7 +9,6 @@ level_size_x = observation_space_size_x  # level_size_y determined by walls (las
 wall_size = 1
 drift_tile_x_size = 1
 particle_sizes = (2/16, 3/16, 4/16)
-N_particles = 1000
 
 # drift mapping
 # drift = 0: leftwards drift

@@ -114,7 +114,7 @@ class Level:
                 drift_tile = DriftTile(drift_info[0], drift_info[1], drift_info[2], scaling)
                 self.drift_tiles.add(drift_tile)
 
-        for _ in range(N_particles):
+        for _ in range(int(last_wall_tile.rect.y / scaling * 2.5)):
             x_pos = np.random.uniform(low=edge * scaling, high=level_size_x * scaling + edge * scaling, size=1)
             y_pos = np.random.uniform(low=0, high=self.level_size_y, size=1)
             particle_tile = Particle((x_pos[0], y_pos[0]), random.choice(particle_sizes), scaling)
@@ -259,14 +259,14 @@ class Level:
         # obstacles
         visible_obstacles = []
         for sprite in self.comets.sprites():
-            if 0 <= sprite.rect.y <= observation_space_size_y * scaling:
+            if 0 <= sprite.rect.y <= (observation_space_size_y - bottom_edge) * scaling:
                 visible_obstacles.append([sprite.rect.x, sprite.rect.y])
         frame_data.at[0, 'visible_obstacles'] = visible_obstacles
 
         # drift
         visible_drift_tiles = []
         for sprite in self.drift_tiles.sprites():
-            if 0 <= sprite.rect.y <= observation_space_size_y * scaling:
+            if 0 <= sprite.rect.y <= (observation_space_size_y - bottom_edge) * scaling:
                 visible_drift_tiles.append([sprite.rect.x, sprite.rect.y])
         frame_data.at[0, 'visible_drift_tiles'] = visible_drift_tiles
 
@@ -327,8 +327,9 @@ class Level:
         self.comets.draw(self.display_surface)
         self.walls.draw(self.display_surface)
         self.drift_tiles.draw(self.display_surface)
-        self.bottom_edge.draw(self.display_surface)
         self.finish_line.draw(self.display_surface)
+        self.bottom_edge.draw(self.display_surface)
+        # to display finish line when on screen but under bottom edge, simply call draw method of buttom_edge.draw()
 
         # draw agent
         self.player.draw(self.display_surface)
