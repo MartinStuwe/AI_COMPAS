@@ -110,6 +110,7 @@ while not quit:
                                                    keyboard_input=True,
                                                    obstacles_lists_file=f'obstacles_list_0.csv',
                                                    drift_ranges_file=f'drift_ranges_0.csv',
+                                                   wall_list_file=f'walls_dict_0.csv',
                                                    input_noise_magnitude=None,
                                                    drift_enabled=False,
                                                    trial=0, attempt=0, n_run=n_run, code=code)
@@ -123,6 +124,7 @@ while not quit:
                                                    keyboard_input=True,
                                                    obstacles_lists_file=f'obstacles_list_{trial[0]}.csv',
                                                    drift_ranges_file=f'drift_ranges_{trial[0]}.csv',
+                                                   wall_list_file=f'walls_dict_{trial[0]}.csv',
                                                    input_noise_magnitude=trial[2],  # input_noise_magnitude
                                                    drift_enabled=trial[1],  # drift_enabled
                                                    trial=trial[0], attempt=attempt_dict[trial]+1, n_run=n_run, code=code)

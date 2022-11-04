@@ -13,7 +13,7 @@ from config import *
 
 from draw_transparent_shapes import draw_rect_alpha, draw_polygon_alpha, draw_circle_alpha
 
-display_keys = True
+display_keys = False
 
 
 class Level:
