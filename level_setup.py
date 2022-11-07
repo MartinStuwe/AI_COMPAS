@@ -9,6 +9,7 @@ from walls import Wall
 from drift_tiles import DriftTile
 from particles import Particle
 from lines import Line
+from displays import display_soc_question
 from config import *
 
 from draw_transparent_shapes import draw_rect_alpha, draw_polygon_alpha, draw_circle_alpha
@@ -303,7 +304,14 @@ class Level:
 
         # check for level done: if last sprite is in observation_space => level_done
         finish_line = self.finish_line.sprites()[-1]
-        if finish_line.rect.bottom < player.rect.top:  # (observation_space_size_y - bottom_edge) * scaling:
+        #if finish_line.rect.bottom < player.rect.top:  # (observation_space_size_y - bottom_edge) * scaling:
+        if 10 < player.rect.top:
+            # ask for control
+            display_soc_question(self.display_surface)
+            keys = pygame.key.get_pressed()
+            if keys[pygame.K_1, pygame.K_2, pygame.K_3, pygame.K_4, pygame.K_5, pygame.K_6, pygame.K_7]:
+                soc = pygame.key.key_code()
+                print(soc)
             self.level_done = True
             self.quit = True
             # write data of all frames to csv
