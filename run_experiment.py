@@ -17,7 +17,7 @@ FPS = 30
 # pygame general setup
 pygame.init()
 screen = pygame.display.set_mode(((observation_space_size_x + (2 * edge)) * scaling,
-                                  observation_space_size_y * scaling))
+                                  observation_space_size_y * scaling))  # pygame.FULLSCREEN
 
 # initialize experimental procedure
 N_trials = 6  # for each trial there must be a drift_ranges & obstacles_list file in the logs folder
@@ -25,10 +25,12 @@ trials = list(range(1, N_trials + 1))  # end +1 due to python stopping before pr
 
 # drift enabled
 drift_enabled_args = [True, False]
+# drift_enabled_args = [True]
 # drift_enabled = random.choice(drift_enabled_args)
 
 # input noise
 input_noise_args = [None, "weak", "strong"]
+# input_noise_args = [None]
 # input_noise_magnitude = random.choice(input_noise_args)
 
 # create list of all possible combinations of level and control manipulations
