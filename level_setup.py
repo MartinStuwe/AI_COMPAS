@@ -295,8 +295,8 @@ class Level:
 
         # check for level done: if last sprite is in observation_space => level_done
         finish_line = self.finish_line.sprites()[-1]
-        # if finish_line.rect.bottom < player.rect.top:  # (observation_space_size_y - bottom_edge) * scaling:
-        if 10 < player.rect.top:
+        if finish_line.rect.bottom < player.rect.top:  # (observation_space_size_y - bottom_edge) * scaling:
+        # if 10 < player.rect.top:
             # ask for SoC:
             display_soc_question(self.display_surface)
             response = self.get_soc_response()
@@ -371,6 +371,6 @@ class Level:
                 draw_polygon_alpha(self.display_surface, (255, 255, 255, self.transparency_left),
                                    [(70, 105), (140, 70), (140, 140)])
 
-            # self.get_data(scaling)
+            self.get_data(scaling)
 
         return self.quit, self.level_done
