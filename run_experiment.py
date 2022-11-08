@@ -21,8 +21,8 @@ screen = pygame.display.set_mode(((observation_space_size_x + (2 * edge)) * scal
                                   observation_space_size_y * scaling))  # ,pygame.FULLSCREEN vs. pygame.RESIZABLE
 
 # initialize experimental procedure
-N_trials = 6  # for each trial there must be a drift_ranges & obstacles_list file in the logs folder
-trials = list(range(1, N_trials + 1))  # end +1 due to python stopping before processing last entry
+N_trials = 3  # for each trial there must be a drift_ranges & obstacles_list file in the logs folder
+trials = list(range(3, N_trials + 1))  # end +1 due to python stopping before processing last entry
 
 # drift enabled
 drift_enabled_args = [True, False]

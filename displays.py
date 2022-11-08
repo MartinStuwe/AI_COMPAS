@@ -1,5 +1,5 @@
 import pygame
-from config import observation_space_size_x, scaling, edge
+from config import observation_space_size_x, observation_space_size_y, scaling, edge
 
 
 pygame.init()
@@ -44,7 +44,7 @@ def display_intertrial_screen_after_crash(surface):
             surface.blit(instruction_text, text_rect)
 
 
-def display_soc_question(surface):
+def display_soc_question(surface, answered=False):
     surface.fill('black')
 
     # questionnaire test
@@ -72,3 +72,11 @@ def display_soc_question(surface):
             questionnaire_instr_text_rect.centerx = (observation_space_size_x * scaling + 2 * edge * scaling) // 2
             questionnaire_instr_text_rect.centery = n * 50 + 450
             surface.blit(questionnaire_instr_text, questionnaire_instr_text_rect)
+
+    # display continue button when answer provided
+    if answered:
+        title_lable = title_font.render('Press SPACEBAR to continue', 1, WHITE)
+        title_rect = title_lable.get_rect()
+        title_rect.centerx = (observation_space_size_x * scaling + 2 * edge * scaling) // 2
+        title_rect.centery = ((observation_space_size_y * scaling) // 2) + 150
+        surface.blit(title_lable, title_rect)
