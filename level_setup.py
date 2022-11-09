@@ -195,7 +195,7 @@ class Level:
         frames_collision_threshold = 3
         if self.frames_with_collision > frames_collision_threshold:
             player.crashed = True
-            self.quit = True
+            # self.quit = True
 
     def check_for_drift(self):
         player = self.player.sprite
@@ -308,10 +308,12 @@ class Level:
                 self.data.to_csv(f'data/{self.code}_output_{self.n_run:0>2}.csv', sep=',')
 
         elif player.crashed:
+            # ask for SoC:
             display_soc_question(self.display_surface)
             response = self.get_soc_response()
             if response is not None:
                 self.get_data(scaling)
+                self.quit = True
                 # write data of all frames to csv
                 self.data.to_csv(f'data/{self.code}_output_{self.n_run:0>2}.csv', sep=',')
 

@@ -13,7 +13,7 @@ code = input('Enter code: ')
 
 # initialize pygame
 # how many frames per second
-FPS = 30
+FPS = 60
 
 # pygame general setup
 pygame.init()
@@ -22,15 +22,18 @@ screen = pygame.display.set_mode(((observation_space_size_x + (2 * edge)) * scal
 
 # initialize experimental procedure
 N_trials = 3  # for each trial there must be a drift_ranges & obstacles_list file in the logs folder
-trials = list(range(3, N_trials + 1))  # end +1 due to python stopping before processing last entry
+#trials = list(range(3, N_trials + 1))  # end +1 due to python stopping before processing last entry
+trials = [1, 3, 5]
 
 # drift enabled
-drift_enabled_args = [True, False]
+#drift_enabled_args = [True, False]
 # drift_enabled = random.choice(drift_enabled_args)
+drift_enabled_args = [True]
 
 # input noise
-input_noise_args = [None, "weak", "strong"]
+#input_noise_args = [None, "weak", "strong"]
 # input_noise_magnitude = random.choice(input_noise_args)
+input_noise_args = [None]
 
 # create list of all possible combinations of level and control manipulations
 args_list = [trials, drift_enabled_args, input_noise_args]
@@ -50,7 +53,7 @@ max_attempts = 3  # maximum number of attempts given to solve trial
 # start experimental procedure
 quit = False
 level_done = False
-instructions = True
+instructions = False
 n_run = 0
 while not quit:
 
