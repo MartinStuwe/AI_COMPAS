@@ -157,7 +157,12 @@ class Level:
 
         keys = pygame.key.get_pressed()
 
-        if keys[pygame.K_m]:  # K_m vs. K_RIGHT
+        if keys[pygame.K_m] and keys[pygame.K_y]:  # pressing both keys
+            self.transparency_right = 150
+            self.transparency_left = 150
+            self.current_input = None  # maybe we have to flag pressing both keys here
+            self.direction.x = 0
+        elif keys[pygame.K_m]:  # K_m vs. K_RIGHT
             self.current_input = 'Right'
             self.direction.x = -1 + input_noise
             self.transparency_right = 150
@@ -175,27 +180,21 @@ class Level:
 
     def check_for_collision(self):
         player = self.player.sprite
-        # player.image.fill('green')  # for debugging
 
         # obstacles
         for sprite in self.comets.sprites():
             if sprite.rect.colliderect(player.rect):  # check for player-comet collision
                 self.frames_with_collision += 1
-                # player.crashed = True
-                # player.image.fill('red')  # for debugging
 
         # walls
         for sprite in self.walls.sprites():
             if sprite.rect.colliderect(player.rect):  # check for player-wall collision
                 self.frames_with_collision += 1
-                # player.crashed = True
-                # player.image.fill('red')  # for debugging
 
         # Collision threshold; number of frames with player colliding to stop game
         frames_collision_threshold = 3
         if self.frames_with_collision > frames_collision_threshold:
             player.crashed = True
-            self.quit = True
 
     def check_for_drift(self):
         player = self.player.sprite
@@ -204,17 +203,13 @@ class Level:
             if sprite.rect.left > player.rect.right:  # if drift.tile is right from player.tile than drift to left
                 if player.rect.top in range(sprite.rect.top, sprite.rect.bottom):
                     self.drift.x = 1 / 2  # - imposes drift to the left that is 1/2 of normal movement
-                    # player.image.fill("blue")  # for debugging
                 elif player.rect.bottom in range(sprite.rect.top, sprite.rect.bottom):
                     self.drift.x = 1 / 2
-                    # player.image.fill("yellow")  # for debugging
             elif sprite.rect.right < player.rect.left:  # if drift.tile is left from player.tile than drift to right
                 if player.rect.top in range(sprite.rect.top, sprite.rect.bottom):
                     self.drift.x = -1 / 2  # imposes drift to the right that is 1/2 of normal movement
-                    # player.image.fill("blue")  # for debugging
                 elif player.rect.bottom in range(sprite.rect.top, sprite.rect.bottom):
                     self.drift.x = -1 / 2
-                    # player.image.fill("yellow")  # for debugging
 
     def get_data(self, scaling):
 
@@ -318,6 +313,7 @@ class Level:
             self.check_for_drift()
 
         if player.crashed:
+            self.quit = True
             # write data of all frames to csv
             self.data.to_csv(f'data/{self.code}_output_{self.n_run:0>2}.csv', sep=',')
 
