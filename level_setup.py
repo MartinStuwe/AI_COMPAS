@@ -162,7 +162,12 @@ class Level:
 
         keys = pygame.key.get_pressed()
 
-        if keys[pygame.K_m]:  # K_m vs. K_RIGHT
+        if keys[pygame.K_m] and keys[pygame.K_y]:  # pressing both keys
+            self.transparency_right = 150
+            self.transparency_left = 150
+            self.current_input = None  # maybe we have to flag pressing both keys here
+            self.direction.x = 0
+        elif keys[pygame.K_m]:  # K_m vs. K_RIGHT
             self.current_input = 'Right'
             self.direction.x = -1 + input_noise
             self.transparency_right = 150
