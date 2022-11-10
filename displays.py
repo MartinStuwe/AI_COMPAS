@@ -47,7 +47,7 @@ def display_intertrial_screen_after_crash(surface):
 def display_soc_question(surface, answered=False):
     surface.fill('black')
 
-    # questionnaire test
+    # questionnaire text
     with open("assets/questionnaires/questionnaire_text.txt") as f:
         for n, line in enumerate(f):
             questionnaire_text = text_font.render(line.rstrip('\r\n'), True, WHITE)
@@ -57,6 +57,9 @@ def display_soc_question(surface, answered=False):
             surface.blit(questionnaire_text, questionnaire_text_rect)
 
     # number keys
+    # levels_of_control_scale = 7
+    # for i in levels_of_control_scale:
+    #     pass
     scale_text = "no control   1   2   3   4   5   6   7   full control"
     scale_text = text_font.render(scale_text, True, BLACK, WHITE)
     scale_text_rect = scale_text.get_rect()
@@ -64,7 +67,7 @@ def display_soc_question(surface, answered=False):
     scale_text_rect.centery = n * 50 + 300
     surface.blit(scale_text, scale_text_rect)
 
-    # questionnaire_instruction test
+    # questionnaire_instruction text
     with open("assets/questionnaires/questionnaire_instruction.txt") as f:
         for n, line in enumerate(f):
             questionnaire_instr_text = annotations_font.render(line.rstrip('\r\n'), True, WHITE)
