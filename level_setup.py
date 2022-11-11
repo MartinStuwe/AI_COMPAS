@@ -14,7 +14,7 @@ from config import *
 
 from draw_transparent_shapes import draw_rect_alpha, draw_polygon_alpha, draw_circle_alpha
 
-display_keys = False
+display_keys = True
 question_soc = True
 
 
