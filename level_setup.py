@@ -19,7 +19,7 @@ question_soc = True
 
 
 class Level:
-    def __init__(self, wall_list, obstacles_list, player_starting_position, drift_ranges, screen, scaling, code,
+    def __init__(self, wall_list, obstacles_list, player_starting_position, drift_ranges, screen, scaling, code, FPS=30,
                  n_run=0, tiny_vis=False, keyboard_input=False, trial=0, attempt=0, input_noise_magnitude=None,
                  drift_enabled=False):
 
@@ -63,6 +63,7 @@ class Level:
         self.frames_with_collision = 0
 
         self.time_played = 0
+        self.FPS = FPS
         self.level_done = False
         self.quit = False
 
@@ -186,21 +187,29 @@ class Level:
     def check_for_collision(self):
         player = self.player.sprite
 
-        # obstacles
-        for sprite in self.comets.sprites():
-            if sprite.rect.colliderect(player.rect):  # check for player-comet collision
-                self.frames_with_collision += 1
+        # checking for general collision with any obstacles or walls
+        if player.rect.collidelist(self.comets.sprites()) > -1 or player.rect.collidelist(self.walls.sprites()) > -1:
+            # collidelist will return index if collision and -1 if not
+            self.frames_with_collision += 1
+        else:
+            self.frames_with_collision = 0
 
-        # walls
-        for sprite in self.walls.sprites():
-            if sprite.rect.colliderect(player.rect):  # check for player-wall collision
-                self.frames_with_collision += 1
+        # checking for individual collisions:
+        # # with obstacles
+        # for sprite in self.comets.sprites():
+        #     if sprite.rect.colliderect(player.rect):  # check for player-comet collision
+        #         self.frames_with_collision += 1
+        #
+        # # wih walls
+        # for sprite in self.walls.sprites():
+        #     if sprite.rect.colliderect(player.rect):  # check for player-wall collision
+        #         self.currently_colliding = True
+        #         self.frames_with_collision += 1
 
         # Collision threshold; number of frames with player colliding to stop game
-        frames_collision_threshold = 3
+        frames_collision_threshold = self.FPS/10
         if self.frames_with_collision > frames_collision_threshold:
             player.crashed = True
-            # self.quit = True
 
     def check_for_drift(self):
         player = self.player.sprite
@@ -307,9 +316,9 @@ class Level:
             response = self.get_soc_response()
             if response is not None:
                 self.level_done = True
-                self.get_data(scaling)
                 self.quit = True
                 # write data of all frames to csv
+                self.get_data(scaling)
                 self.data.to_csv(f'data/{self.code}_output_{self.n_run:0>2}.csv', sep=',')
 
         elif player.crashed:
@@ -317,9 +326,9 @@ class Level:
             display_soc_question(self.display_surface)
             response = self.get_soc_response()
             if response is not None:
-                self.get_data(scaling)
                 self.quit = True
                 # write data of all frames to csv
+                self.get_data(scaling)
                 self.data.to_csv(f'data/{self.code}_output_{self.n_run:0>2}.csv', sep=',')
 
         else:

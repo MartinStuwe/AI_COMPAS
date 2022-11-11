@@ -109,5 +109,5 @@ while not quit:
                     if len(list_of_attempt_dict_keys) < 1:  # if no level are left to play -> quit
                         quit = True
 
-print(attempt_dict)
+# print(attempt_dict)
 pygame.quit()
