@@ -22,15 +22,15 @@ screen_height = observation_space_size_y * scaling
 screen = pygame.display.set_mode((screen_width, screen_height))  # ,pygame.FULLSCREEN vs. pygame.RESIZABLE
 
 # initialize experimental procedure
-N_trials = 3  # for each trial there must be a drift_ranges & obstacles_list file in the logs folder
-#trials = list(range(3, N_trials + 1))  # end +1 due to python stopping before processing last entry
+N_trials = 6  # for each trial there must be a drift_ranges & obstacles_list file in the logs folder
+trials = list(range(3, N_trials + 1))  # end +1 due to python stopping before processing last entry
 # trials = [2, 4, 6]
-trials = [4]
+# trials = [4]
 
 # drift enabled
 #drift_enabled_args = [True, False]
 # drift_enabled = random.choice(drift_enabled_args)
-drift_enabled_args = [True]
+drift_enabled_args = [False]
 
 # input noise
 # input_noise_args = [None, "weak", "strong"]
@@ -109,5 +109,5 @@ while not quit:
                     if len(list_of_attempt_dict_keys) < 1:  # if no level are left to play -> quit
                         quit = True
 
-# print(attempt_dict)
+print(attempt_dict)
 pygame.quit()

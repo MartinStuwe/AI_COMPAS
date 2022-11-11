@@ -306,8 +306,8 @@ class Level:
             display_soc_question(self.display_surface)
             response = self.get_soc_response()
             if response is not None:
-                self.get_data(scaling)
                 self.level_done = True
+                self.get_data(scaling)
                 self.quit = True
                 # write data of all frames to csv
                 self.data.to_csv(f'data/{self.code}_output_{self.n_run:0>2}.csv', sep=',')
