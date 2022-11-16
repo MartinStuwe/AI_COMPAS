@@ -372,6 +372,7 @@ class Level:
             self.finish_line.draw(self.display_surface)
             self.bottom_edge.draw(self.display_surface)
             # to display finish line when on screen but under bottom edge, simply call draw method of buttom_edge.draw()
+            # AFTER finish_line.draw()
 
             # draw agent
             self.player.draw(self.display_surface)
