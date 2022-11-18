@@ -30,12 +30,15 @@ trials = [4]
 # drift enabled
 # drift_enabled_args = [True, False]
 # drift_enabled = random.choice(drift_enabled_args)
-drift_enabled_args = [True]
+drift_enabled_args = [False]
 
 # input noise
 # input_noise_args = [None, "weak", "strong"]
 # input_noise_magnitude = random.choice(input_noise_args)
 input_noise_args = ['strong']
+
+# drift intention
+drift_intention_args = ['random', 'malignant', 'malignant_sensitivity', 'benevolent_sensitivity']
 
 # create list of all possible combinations of level and control manipulations
 args_list = [trials, drift_enabled_args, input_noise_args]
@@ -82,6 +85,7 @@ while not quit:
                                                    wall_list_file=f'walls_dict_0.csv',
                                                    input_noise_magnitude=None,
                                                    drift_enabled=False,
+                                                   drift_intention=drift_intention_args[0],
                                                    trial=0, attempt=0, n_run=n_run, code=code)
                     if level_done:
                         instructions = False

@@ -12,7 +12,7 @@ from level_setup import *
 def run_visualization(surface, scaling=1, tiny_visualization=False, FPS=30, keyboard_input=False,
                       obstacles_lists_file='obstacles_list.csv', drift_ranges_file='drift_ranges.csv',
                       wall_list_file='walls_dict.csv', input_noise_magnitude=None, drift_enabled=True,
-                      trial=0, attempt=0, n_run=0, code='test'):
+                      drift_intention=None, trial=0, attempt=0, n_run=0, code='test'):
     """
     :param surface: argument for specifying pygame.display object
     :param scaling: int (or float) to scale up on-screen visualization
@@ -24,6 +24,7 @@ def run_visualization(surface, scaling=1, tiny_visualization=False, FPS=30, keyb
     :param wall_list_file: file with wall positions on every y position in level
     :param input_noise_magnitude: input noise imposed on player throughout level
     :param drift_enabled: drift tiles in level vs. no drift tiles
+    :param drift_intention: drift having no (random) vs. malignant vs. benevolent intention
     :param trial: player movements of which trial (.csv file in logs) to be visualized
     :param attempt: attempts for this specific trial
     :param n_run: total number of runs in this specific experiment / visualization
@@ -55,8 +56,9 @@ def run_visualization(surface, scaling=1, tiny_visualization=False, FPS=30, keyb
     if keyboard_input:
         level = Level(wall_list=wall_list, obstacles_list=obstacles_list,
                       player_starting_position=player_starting_position, input_noise_magnitude=input_noise_magnitude,
-                      drift_ranges=drift_ranges, drift_enabled=drift_enabled, screen=surface, scaling=scaling, 
-                      n_run=n_run, keyboard_input=keyboard_input, trial=trial, attempt=attempt, code=code, FPS=FPS)
+                      drift_ranges=drift_ranges, drift_enabled=drift_enabled, drift_intention=drift_intention,
+                      screen=surface, scaling=scaling, n_run=n_run, keyboard_input=keyboard_input, trial=trial,
+                      attempt=attempt, code=code, FPS=FPS)
 
         level_done = run_pygame(surface=surface, scaling=scaling, FPS=FPS, keyboard_input=keyboard_input,
                                 player_positions=player_positions, level=level, tiny_visualization=tiny_visualization)
