@@ -25,7 +25,7 @@ screen = pygame.display.set_mode((screen_width, screen_height))  # ,pygame.FULLS
 N_trials = 6  # for each trial there must be a drift_ranges & obstacles_list file in the logs folder
 # trials = list(range(3, N_trials + 1))  # end +1 due to python stopping before processing last entry
 # trials = [2, 4, 6]
-trials = [4]
+trials = [2]
 
 # drift enabled
 # drift_enabled_args = [True, False]
@@ -35,7 +35,7 @@ drift_enabled_args = [False]
 # input noise
 # input_noise_args = [None, "weak", "strong"]
 # input_noise_magnitude = random.choice(input_noise_args)
-input_noise_args = ['strong']
+input_noise_args = [None]
 
 # drift intention
 drift_intention_args = ['random', 'malignant', 'malignant_sensitivity', 'benevolent_sensitivity']
