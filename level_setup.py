@@ -59,6 +59,8 @@ class Level:
         # n_run indicating the number of trials after starting the program (used to differentiate data files)
         self.n_run = n_run
 
+        # Collision threshold; number of frames with player colliding to stop game
+        self.frames_collision_threshold = FPS / 10
         # frames with player colliding
         self.frames_with_collision = 0
 
@@ -206,9 +208,8 @@ class Level:
         #         self.currently_colliding = True
         #         self.frames_with_collision += 1
 
-        # Collision threshold; number of frames with player colliding to stop game
-        frames_collision_threshold = self.FPS/10
-        if self.frames_with_collision > frames_collision_threshold:
+        # check for collision threshold of consecutive frames with collision
+        if self.frames_with_collision > self.frames_collision_threshold:
             player.crashed = True
 
     def check_for_drift(self):
@@ -310,11 +311,17 @@ class Level:
         # check for level done: if last sprite is in observation_space => level_done
         finish_line = self.finish_line.sprites()[-1]
         if finish_line.rect.bottom < player.rect.top:  # (observation_space_size_y - bottom_edge) * scaling:
-        # if 10 < player.rect.top:
-            # ask for SoC:
-            display_soc_question(self.display_surface)
-            response = self.get_soc_response()
-            if response is not None:
+            if question_soc:
+                # ask for SoC:
+                display_soc_question(self.display_surface)
+                response = self.get_soc_response()
+                if response is not None:
+                    self.level_done = True
+                    self.quit = True
+                    # write data of all frames to csv
+                    self.get_data(scaling)
+                    self.data.to_csv(f'data/{self.code}_output_{self.n_run:0>2}.csv', sep=',')
+            else:
                 self.level_done = True
                 self.quit = True
                 # write data of all frames to csv
@@ -322,10 +329,16 @@ class Level:
                 self.data.to_csv(f'data/{self.code}_output_{self.n_run:0>2}.csv', sep=',')
 
         elif player.crashed:
-            # ask for SoC:
-            display_soc_question(self.display_surface)
-            response = self.get_soc_response()
-            if response is not None:
+            if question_soc:
+                # ask for SoC:
+                display_soc_question(self.display_surface)
+                response = self.get_soc_response()
+                if response is not None:
+                    self.quit = True
+                    # write data of all frames to csv
+                    self.get_data(scaling)
+                    self.data.to_csv(f'data/{self.code}_output_{self.n_run:0>2}.csv', sep=',')
+            else:
                 self.quit = True
                 # write data of all frames to csv
                 self.get_data(scaling)
