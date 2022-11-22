@@ -55,8 +55,9 @@ def run_visualization(surface, scaling=1, tiny_visualization=False, FPS=30, keyb
     if keyboard_input:
         level = Level(wall_list=wall_list, obstacles_list=obstacles_list,
                       player_starting_position=player_starting_position, input_noise_magnitude=input_noise_magnitude,
-                      drift_ranges=drift_ranges, drift_enabled=drift_enabled, screen=surface, scaling=scaling, 
-                      n_run=n_run, keyboard_input=keyboard_input, trial=trial, attempt=attempt, code=code, FPS=FPS)
+                      drift_ranges=drift_ranges, drift_enabled=drift_enabled,
+                      screen=surface, scaling=scaling, n_run=n_run, keyboard_input=keyboard_input, trial=trial,
+                      attempt=attempt, code=code, FPS=FPS)
 
         level_done = run_pygame(surface=surface, scaling=scaling, FPS=FPS, keyboard_input=keyboard_input,
                                 player_positions=player_positions, level=level, tiny_visualization=tiny_visualization)

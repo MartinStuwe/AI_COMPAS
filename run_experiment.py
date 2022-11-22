@@ -4,6 +4,7 @@ import random
 import os
 import itertools
 from main import run_visualization
+from displays import *
 from config import observation_space_size_x, observation_space_size_y, scaling, edge
 
 
@@ -16,23 +17,25 @@ FPS = 60
 
 # pygame general setup
 pygame.init()
-screen = pygame.display.set_mode(((observation_space_size_x + (2 * edge)) * scaling,
-                                  observation_space_size_y * scaling))  # pygame.FULLSCREEN
+
+# initialize pygame display
+screen_width = (observation_space_size_x + (2 * edge)) * scaling
+screen_height = observation_space_size_y * scaling
+screen = pygame.display.set_mode((screen_width, screen_height))  # ,pygame.FULLSCREEN vs. pygame.RESIZABLE
 
 # initialize experimental procedure
 N_trials = 6  # for each trial there must be a drift_ranges & obstacles_list file in the logs folder
-# trials = list(range(1, N_trials + 1))  # end +1 due to python stopping before processing last entry
-trials = [1, 3, 5]  # list of specific level
+# trials = list(range(3, N_trials + 1))  # end +1 due to python stopping before processing last entry
+# trials = [2, 4, 6]
+trials = [2]
 
 # drift enabled
 # drift_enabled_args = [True, False]
-drift_enabled_args = [True]
-# drift_enabled = random.choice(drift_enabled_args)
+drift_enabled_args = [False]
 
 # input noise
 # input_noise_args = [None, "weak", "strong"]
 input_noise_args = [None]
-# input_noise_magnitude = random.choice(input_noise_args)
 
 # create list of all possible combinations of level and control manipulations
 args_list = [trials, drift_enabled_args, input_noise_args]
@@ -48,48 +51,11 @@ list_of_attempt_dict_keys = list(attempt_dict.keys())
 
 max_attempts = 3  # maximum number of attempts given to solve trial
 
-# features of displayed text
-WHITE = (255, 255, 255)
-
-title_font = pygame.font.SysFont('Calibri', 70, bold=True)
-text_font = pygame.font.SysFont('Calibri', 35, bold=True)
-
-
-def display_instructions(surface):
-    surface.fill('black')
-    with open("assets/instructions/instructions_text.txt") as f:
-        for n, line in enumerate(f):
-            instruction_text = text_font.render(line.rstrip('\r\n'), True, WHITE)  # rstrip gets rid of trailing newline characters
-            text_rect = instruction_text.get_rect()
-            text_rect.centerx = (observation_space_size_x * scaling + 2 * edge * scaling) // 2
-            text_rect.centery = n * 50 + 100
-            surface.blit(instruction_text, text_rect)
-
-
-def display_intertrial_screen(surface):
-    surface.fill('black')
-    title_lable = title_font.render('Press SPACEBAR to start', 1, WHITE)
-    title_rect = title_lable.get_rect()
-    title_rect.centerx = (observation_space_size_x * scaling + 2 * edge * scaling) // 2
-    title_rect.centery = (observation_space_size_y * scaling) // 2
-    surface.blit(title_lable, title_rect)
-
-
-def display_intertrial_screen_after_crashed(surface):
-    surface.fill('black')
-    with open("assets/instructions/crashed_text.txt") as f:
-        for n, line in enumerate(f):
-            instruction_text = text_font.render(line.rstrip('\r\n'), True, WHITE)
-            text_rect = instruction_text.get_rect()
-            text_rect.centerx = (observation_space_size_x * scaling + 2 * edge * scaling) // 2
-            text_rect.centery = n * 50 + 100
-            surface.blit(instruction_text, text_rect)
-
 
 # start experimental procedure
 quit = False
 level_done = False
-instructions = True
+instructions = False
 n_run = 0
 while not quit:
 
@@ -100,7 +66,7 @@ while not quit:
         if level_done:
             display_intertrial_screen(screen)
         else:
-            display_intertrial_screen_after_crashed(screen)
+            display_intertrial_screen_after_crash(screen)
 
     pygame.display.update()
     for event in pygame.event.get():
@@ -128,8 +94,8 @@ while not quit:
                                                    obstacles_lists_file=f'obstacles_list_{trial[0]}.csv',
                                                    drift_ranges_file=f'drift_ranges_{trial[0]}.csv',
                                                    wall_list_file=f'walls_dict_{trial[0]}.csv',
-                                                   input_noise_magnitude=trial[2],  # input_noise_magnitude
-                                                   drift_enabled=trial[1],  # drift_enabled
+                                                   input_noise_magnitude=trial[2],
+                                                   drift_enabled=trial[1],
                                                    trial=trial[0], attempt=attempt_dict[trial]+1, n_run=n_run, code=code)
                     n_run += 1
                     attempt_dict[trial] += 1

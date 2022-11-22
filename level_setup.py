@@ -9,11 +9,13 @@ from walls import Wall
 from drift_tiles import DriftTile
 from particles import Particle
 from lines import Line
+from displays import display_soc_question
 from config import *
 
 from draw_transparent_shapes import draw_rect_alpha, draw_polygon_alpha, draw_circle_alpha
 
-display_keys = False
+display_keys = True
+question_soc = True
 
 
 class Level:
@@ -23,6 +25,9 @@ class Level:
 
         # experiment information
         self.code = code
+
+        # sense of control during level
+        self.SoC = None
 
         # level_setup
         self.trial = trial
@@ -43,6 +48,9 @@ class Level:
         self.transparency_left = 90
         self.transparency_right = 90
 
+        # listing visible obstacles in every instance
+        self.visible_obstacles = []
+
         # Whether drift tiles appear and actually impose drift depends on this variable
         self.drift_enabled = drift_enabled
 
@@ -54,6 +62,8 @@ class Level:
         # n_run indicating the number of trials after starting the program (used to differentiate data files)
         self.n_run = n_run
 
+        # Collision threshold; number of frames with player colliding to stop game
+        self.frames_collision_threshold = FPS / 10
         # frames with player colliding
         self.frames_with_collision = 0
 
@@ -65,8 +75,8 @@ class Level:
         # pandas Dataframe in which data of each frame will be stored
         self.columns = ['trial', 'attempt', 'time_played', 'level_size_y', 'player_pos', 'collision', 'current_input',
                         'drift_enabled', 'current_drift', 'level_done', 'input_noise_magnitude', 'input_noise_on',
-                        'visible_obstacles', 'visible_drift_tiles']
-        # 'visible_walls'
+                        'visible_obstacles', 'visible_drift_tiles', 'SoC']  # 'visible_walls'
+
         self.data = pd.DataFrame(columns=self.columns)
 
     def setup_level(self, wall_list, obstacles_list, player_starting_position, drift_ranges, drift_enabled, scaling,
@@ -122,12 +132,12 @@ class Level:
             self.particles.add(particle_tile)
 
         # grey edge at bottom of screen limiting observation window (do NOT update in .run)
-        bottom_edge_tile = Line([0, (observation_space_size_y - bottom_edge)*scaling],
-                                [(level_size_x + 2*edge) * scaling, bottom_edge*scaling])
+        bottom_edge_tile = Line([0, (observation_space_size_y - bottom_edge) * scaling],
+                                [(level_size_x + 2 * edge) * scaling, bottom_edge * scaling])
         self.bottom_edge.add(bottom_edge_tile)
 
         # last_wall_tile = self.walls.sprites()[-1]  # already defined
-        finish_line_tile = Line(pos=[edge*scaling, last_wall_tile.rect.y],
+        finish_line_tile = Line(pos=[edge * scaling, last_wall_tile.rect.y],
                                 size=[level_size_x * scaling, scaling], col="seagreen")
         self.finish_line.add(finish_line_tile)
 
@@ -188,26 +198,27 @@ class Level:
             self.frames_with_collision += 1
         else:
             self.frames_with_collision = 0
-        
-        # checking for general collisions:
-        # obstacles
+
+        # checking for individual collisions:
+        # # with obstacles
         # for sprite in self.comets.sprites():
         #     if sprite.rect.colliderect(player.rect):  # check for player-comet collision
         #         self.frames_with_collision += 1
-        # 
-        # # walls
+        #
+        # # with walls
         # for sprite in self.walls.sprites():
         #     if sprite.rect.colliderect(player.rect):  # check for player-wall collision
+        #         self.currently_colliding = True
         #         self.frames_with_collision += 1
 
-        # Collision threshold; number of frames with player colliding to stop game
-        frames_collision_threshold = self.FPS/10
-        if self.frames_with_collision > frames_collision_threshold:
+        # check for collision threshold of consecutive frames with collision
+        if self.frames_with_collision > self.frames_collision_threshold:
             player.crashed = True
 
     def check_for_drift(self):
         player = self.player.sprite
         self.drift.x = 0
+
         for sprite in self.drift_tiles.sprites():
             if sprite.rect.left > player.rect.right:  # if drift.tile is right from player.tile than drift to left
                 if player.rect.top in range(sprite.rect.top, sprite.rect.bottom):
@@ -220,10 +231,28 @@ class Level:
                 elif player.rect.bottom in range(sprite.rect.top, sprite.rect.bottom):
                     self.drift.x = -1 / 2
 
+    def get_soc_response(self):
+        keys = pygame.key.get_pressed()
+        if keys[pygame.K_1]:
+            self.SoC = 1
+        if keys[pygame.K_2]:
+            self.SoC = 2
+        if keys[pygame.K_3]:
+            self.SoC = 3
+        if keys[pygame.K_4]:
+            self.SoC = 4
+        if keys[pygame.K_5]:
+            self.SoC = 5
+        if keys[pygame.K_6]:
+            self.SoC = 6
+        if keys[pygame.K_7]:
+            self.SoC = 7
+        return self.SoC
+
     def get_data(self, scaling):
 
         frame_data = pd.DataFrame(columns=self.columns)
-        
+
         player = self.player.sprite
         frame_data.at[0, 'player_pos'] = [player.rect.x, player.rect.y]  # player position will stay the same throughout
         frame_data.collision = player.crashed
@@ -238,6 +267,7 @@ class Level:
         frame_data.trial = self.trial
         frame_data.attempt = self.attempt
         frame_data.level_size_y = self.level_size_y
+        frame_data.SoC = self.SoC
 
         # walls
         # There has to be a better alternative instead of simply inserting all wall tiles into a list.
@@ -261,11 +291,11 @@ class Level:
         # frame_data.at[0, 'visible_walls'] = visible_walls
 
         # obstacles
-        visible_obstacles = []
-        for sprite in self.comets.sprites():
-            if 0 <= sprite.rect.y <= (observation_space_size_y - bottom_edge) * scaling:
-                visible_obstacles.append([sprite.rect.x, sprite.rect.y])
-        frame_data.at[0, 'visible_obstacles'] = visible_obstacles
+        # visible_obstacles = []
+        # for sprite in self.comets.sprites():
+        #     if 0 <= sprite.rect.y <= (observation_space_size_y - bottom_edge) * scaling:
+        #         visible_obstacles.append([sprite.rect.x, sprite.rect.y])
+        frame_data.at[0, 'visible_obstacles'] = self.visible_obstacles
 
         # drift
         visible_drift_tiles = []
@@ -282,76 +312,105 @@ class Level:
         self.time_played = time_played
         player = self.player.sprite
 
-        if not tiny_visualization and keyboard_input:
-            player.animate(self.current_input)
+        # updating visible obstacles
+        self.visible_obstacles = []
+        for sprite in self.comets.sprites():
+            if 0 <= sprite.rect.y <= (observation_space_size_y - bottom_edge) * scaling:
+                self.visible_obstacles.append([sprite.rect.x, sprite.rect.y])
 
-        if keyboard_input:
-            self.update()
-        else:
-            self.player.update(player_position, scaling, keyboard_input)
-
-        if keyboard_input and player.rect.y < player_position[1]:
-            player.approach(velocity, scaling)
-            pass
-        if not tiny_visualization and player.rect.y >= player_position[1]:
-            # update sprite positions
-            # update level tiles
-            self.comets.update(velocity, scaling, self.horizontal_movement)
-            self.walls.update(velocity, scaling, self.horizontal_movement)
-            self.drift_tiles.update(velocity, scaling, self.horizontal_movement)
-            self.particles.update(velocity, scaling, self.horizontal_movement)
-            self.finish_line.update(velocity, scaling, self.horizontal_movement)
-
-            # update input_noise threshold
-            self.input_noise_threshold -= 1 * scaling * velocity  # same updating as for all in-game objects
-
-        # check for level done: if last sprite is in observation_space => level_done
+        # check for level done: if player went over finish line => level_done
         finish_line = self.finish_line.sprites()[-1]
         if finish_line.rect.bottom < player.rect.top:  # (observation_space_size_y - bottom_edge) * scaling:
-            self.level_done = True
-            self.quit = True
-            # write data of all frames to csv
-            self.get_data(scaling)
-            self.data.to_csv(f'data/{self.code}_output_{self.n_run:0>2}.csv', sep=',')
+            if question_soc:
+                # ask for SoC:
+                display_soc_question(self.display_surface)
+                response = self.get_soc_response()
+                if response is not None:
+                    self.level_done = True
+                    self.quit = True
+                    # write data of all frames to csv
+                    self.get_data(scaling)
+                    self.data.to_csv(f'data/{self.code}_output_{self.n_run:0>2}.csv', sep=',')
+            else:
+                self.level_done = True
+                self.quit = True
+                # write data of all frames to csv
+                self.get_data(scaling)
+                self.data.to_csv(f'data/{self.code}_output_{self.n_run:0>2}.csv', sep=',')
+
+        elif player.crashed:
+            if question_soc:
+                # ask for SoC:
+                display_soc_question(self.display_surface)
+                response = self.get_soc_response()
+                if response is not None:
+                    self.quit = True
+                    # write data of all frames to csv
+                    self.get_data(scaling)
+                    self.data.to_csv(f'data/{self.code}_output_{self.n_run:0>2}.csv', sep=',')
+            else:
+                self.quit = True
+                # write data of all frames to csv
+                self.get_data(scaling)
+                self.data.to_csv(f'data/{self.code}_output_{self.n_run:0>2}.csv', sep=',')
+
         else:
             self.level_done = False
 
-        if keyboard_input:  # only needed if player is controlling spaceship
-            # check for collision
-            self.check_for_collision()
-            # check for drift
-            self.check_for_drift()
+            if not tiny_visualization and keyboard_input:
+                player.animate(self.current_input)
 
-        if player.crashed:
-            self.quit = True
-            # write data of all frames to csv
+            if keyboard_input:
+                self.update()
+            else:
+                self.player.update(player_position, scaling, keyboard_input)
+
+            if keyboard_input and player.rect.y < player_position[1]:
+                player.approach(velocity, scaling)
+                pass
+            if not tiny_visualization and player.rect.y >= player_position[1]:
+                # update sprite positions
+                # update level tiles
+                self.comets.update(velocity, scaling, self.horizontal_movement)
+                self.walls.update(velocity, scaling, self.horizontal_movement)
+                self.drift_tiles.update(velocity, scaling, self.horizontal_movement)
+                self.particles.update(velocity, scaling, self.horizontal_movement)
+                self.finish_line.update(velocity, scaling, self.horizontal_movement)
+
+                # update input_noise threshold
+                # self.input_noise_threshold -= 1 * scaling * velocity  # same updating as for all in-game objects
+
+            if keyboard_input:  # only needed if player is controlling spaceship
+                # check for collision
+                self.check_for_collision()
+                # check for drift
+                self.check_for_drift()
+
+            # draw sprites
+            # draw comets and tiles
+            self.particles.draw(self.display_surface)
+            self.comets.draw(self.display_surface)
+            self.walls.draw(self.display_surface)
+            self.drift_tiles.draw(self.display_surface)
+            self.finish_line.draw(self.display_surface)
+            self.bottom_edge.draw(self.display_surface)
+            # to display finish line when on screen but under bottom edge, simply call draw method of buttom_edge.draw()
+            # AFTER finish_line.draw()
+
+            # draw agent
+            self.player.draw(self.display_surface)
+
+            # draw keys
+            if display_keys:
+                # right key
+                draw_rect_alpha(self.display_surface, (124, 252, 0, self.transparency_right), (160, 60, 90, 90))
+                draw_polygon_alpha(self.display_surface, (255, 255, 255, self.transparency_right),
+                                   [(240, 105), (170, 70), (170, 140)])
+                # left key
+                draw_rect_alpha(self.display_surface, (124, 252, 0, self.transparency_left), (60, 60, 90, 90))
+                draw_polygon_alpha(self.display_surface, (255, 255, 255, self.transparency_left),
+                                   [(70, 105), (140, 70), (140, 140)])
+
             self.get_data(scaling)
-            self.data.to_csv(f'data/{self.code}_output_{self.n_run:0>2}.csv', sep=',')
-
-        # draw sprites
-        # draw comets and tiles
-        self.particles.draw(self.display_surface)
-        self.comets.draw(self.display_surface)
-        self.walls.draw(self.display_surface)
-        self.drift_tiles.draw(self.display_surface)
-        self.finish_line.draw(self.display_surface)
-        self.bottom_edge.draw(self.display_surface)
-        # to display finish line when on screen but under bottom edge, simply call draw method of buttom_edge.draw()
-
-        # draw agent
-        self.player.draw(self.display_surface)
-
-        # draw keys
-        if display_keys:
-            # right key
-            draw_rect_alpha(self.display_surface, (124, 252, 0, self.transparency_right), (160, 60, 90, 90))
-            draw_polygon_alpha(self.display_surface, (255, 255, 255, self.transparency_right),
-                               [(240, 105), (170, 70), (170, 140)])
-            # left key
-            draw_rect_alpha(self.display_surface, (124, 252, 0, self.transparency_left), (60, 60, 90, 90))
-            draw_polygon_alpha(self.display_surface, (255, 255, 255, self.transparency_left),
-                               [(70, 105), (140, 70), (140, 140)])
-
-        self.get_data(scaling)
 
         return self.quit, self.level_done
