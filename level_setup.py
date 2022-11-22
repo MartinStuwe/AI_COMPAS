@@ -21,7 +21,7 @@ question_soc = True
 class Level:
     def __init__(self, wall_list, obstacles_list, player_starting_position, drift_ranges, screen, scaling, code, FPS=30,
                  n_run=0, tiny_vis=False, keyboard_input=False, trial=0, attempt=0, input_noise_magnitude=None,
-                 drift_enabled=False, drift_intention=None):
+                 drift_enabled=False):
 
         # experiment information
         self.code = code
@@ -53,10 +53,6 @@ class Level:
 
         # Whether drift tiles appear and actually impose drift depends on this variable
         self.drift_enabled = drift_enabled
-        # drift having no vs. malignant vs. benevolent intention
-        self.drift_intention = drift_intention
-        if self.drift_intention is not None:
-            self.drift_enabled = False
 
         # threshold and magnitude for imposing input noise on agent (is updated by subtracting step size)
         self.input_noise_threshold = input_noise_threshold
@@ -223,32 +219,17 @@ class Level:
         player = self.player.sprite
         self.drift.x = 0
 
-        target_obstacle = None  # [x , y]
-        for visible_obstacle in self.visible_obstacles:
-            if visible_obstacle[1] > player.rect.bottom:
-                target_obstacle = visible_obstacle
-                if target_obstacle is not None:
-                    break
-
-        if target_obstacle is not None:
-            if target_obstacle[0] + scaling < player.rect.left:
-                self.drift.x = 1 / 2
-            elif target_obstacle[0] + 2 * scaling > player.rect.right:
-                self.drift.x = - 1 / 2
-            else:
-                self.drift.x = 0
-
-        # for sprite in self.drift_tiles.sprites():
-        #     if sprite.rect.left > player.rect.right:  # if drift.tile is right from player.tile than drift to left
-        #         if player.rect.top in range(sprite.rect.top, sprite.rect.bottom):
-        #             self.drift.x = 1 / 2  # - imposes drift to the left that is 1/2 of normal movement
-        #         elif player.rect.bottom in range(sprite.rect.top, sprite.rect.bottom):
-        #             self.drift.x = 1 / 2
-        #     elif sprite.rect.right < player.rect.left:  # if drift.tile is left from player.tile than drift to right
-        #         if player.rect.top in range(sprite.rect.top, sprite.rect.bottom):
-        #             self.drift.x = -1 / 2  # imposes drift to the right that is 1/2 of normal movement
-        #         elif player.rect.bottom in range(sprite.rect.top, sprite.rect.bottom):
-        #             self.drift.x = -1 / 2
+        for sprite in self.drift_tiles.sprites():
+            if sprite.rect.left > player.rect.right:  # if drift.tile is right from player.tile than drift to left
+                if player.rect.top in range(sprite.rect.top, sprite.rect.bottom):
+                    self.drift.x = 1 / 2  # - imposes drift to the left that is 1/2 of normal movement
+                elif player.rect.bottom in range(sprite.rect.top, sprite.rect.bottom):
+                    self.drift.x = 1 / 2
+            elif sprite.rect.right < player.rect.left:  # if drift.tile is left from player.tile than drift to right
+                if player.rect.top in range(sprite.rect.top, sprite.rect.bottom):
+                    self.drift.x = -1 / 2  # imposes drift to the right that is 1/2 of normal movement
+                elif player.rect.bottom in range(sprite.rect.top, sprite.rect.bottom):
+                    self.drift.x = -1 / 2
 
     def get_soc_response(self):
         keys = pygame.key.get_pressed()
@@ -337,7 +318,7 @@ class Level:
             if 0 <= sprite.rect.y <= (observation_space_size_y - bottom_edge) * scaling:
                 self.visible_obstacles.append([sprite.rect.x, sprite.rect.y])
 
-        # check for level done: if last sprite is in observation_space => level_done
+        # check for level done: if player went over finish line => level_done
         finish_line = self.finish_line.sprites()[-1]
         if finish_line.rect.bottom < player.rect.top:  # (observation_space_size_y - bottom_edge) * scaling:
             if question_soc:
