@@ -21,21 +21,21 @@ pygame.init()
 # initialize pygame display
 screen_width = (observation_space_size_x + (2 * edge)) * scaling
 screen_height = observation_space_size_y * scaling
-screen = pygame.display.set_mode((screen_width, screen_height))  # ,pygame.FULLSCREEN vs. pygame.RESIZABLE
+screen = pygame.display.set_mode((screen_width, screen_height), pygame.FULLSCREEN)  # ,pygame.FULLSCREEN vs. pygame.RESIZABLE
 
 # initialize experimental procedure
 N_trials = 6  # for each trial there must be a drift_ranges & obstacles_list file in the logs folder
-# trials = list(range(3, N_trials + 1))  # end +1 due to python stopping before processing last entry
+trials = list(range(1, N_trials + 1))  # end +1 due to python stopping before processing last entry
 # trials = [2, 4, 6]
-trials = [2]
+# trials = [2]
 
 # drift enabled
-# drift_enabled_args = [True, False]
-drift_enabled_args = [False]
+drift_enabled_args = [True, False]
+# drift_enabled_args = [False]
 
 # input noise
-# input_noise_args = [None, "weak", "strong"]
-input_noise_args = [None]
+input_noise_args = [None, "weak", "strong"]
+# input_noise_args = [None]
 
 # create list of all possible combinations of level and control manipulations
 args_list = [trials, drift_enabled_args, input_noise_args]
