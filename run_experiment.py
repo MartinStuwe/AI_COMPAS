@@ -21,7 +21,7 @@ pygame.init()
 # initialize pygame display
 screen_width = (observation_space_size_x + (2 * edge)) * scaling
 screen_height = observation_space_size_y * scaling
-screen = pygame.display.set_mode((screen_width, screen_height), pygame.FULLSCREEN)  # ,pygame.FULLSCREEN vs. pygame.RESIZABLE
+screen = pygame.display.set_mode((screen_width, screen_height))  # ,pygame.FULLSCREEN vs. pygame.RESIZABLE
 
 # initialize experimental procedure
 N_trials = 6  # for each trial there must be a drift_ranges & obstacles_list file in the logs folder

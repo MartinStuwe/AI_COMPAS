@@ -136,7 +136,6 @@ class Level:
                                 [(level_size_x + 2 * edge) * scaling, bottom_edge * scaling])
         self.bottom_edge.add(bottom_edge_tile)
 
-        # last_wall_tile = self.walls.sprites()[-1]  # already defined
         finish_line_tile = Line(pos=[edge * scaling, last_wall_tile.rect.y],
                                 size=[level_size_x * scaling, scaling], col="seagreen")
         self.finish_line.add(finish_line_tile)
