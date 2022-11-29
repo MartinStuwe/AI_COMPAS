@@ -25,17 +25,17 @@ screen = pygame.display.set_mode((screen_width, screen_height))  # ,pygame.FULLS
 
 # initialize experimental procedure
 N_trials = 6  # for each trial there must be a drift_ranges & obstacles_list file in the logs folder
-trials = list(range(1, N_trials + 1))  # end +1 due to python stopping before processing last entry
+# trials = list(range(1, N_trials + 1))  # end +1 due to python stopping before processing last entry
 # trials = [2, 4, 6]
-# trials = [2]
+trials = [5, 6]
 
 # drift enabled
-drift_enabled_args = [True, False]
-# drift_enabled_args = [False]
+# drift_enabled_args = [True, False]
+drift_enabled_args = [True]
 
 # input noise
-input_noise_args = [None, "weak", "strong"]
-# input_noise_args = [None]
+# input_noise_args = [None, "weak", "strong"]
+input_noise_args = ["weak", "strong"]
 
 # create list of all possible combinations of level and control manipulations
 args_list = [trials, drift_enabled_args, input_noise_args]
@@ -49,7 +49,7 @@ list_of_attempt_dict_keys = list(attempt_dict.keys())
 # list_of_attempt_dict_keys is our loop object. We will remove trials from here when they are attempted 3 times already
 # or have been solved completely
 
-max_attempts = 3  # maximum number of attempts given to solve trial
+max_attempts = 5  # maximum number of attempts given to solve trial
 
 
 # start experimental procedure
