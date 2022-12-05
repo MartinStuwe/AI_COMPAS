@@ -122,7 +122,7 @@ class Level:
         if drift_enabled:
             for i in range(len(drift_ranges)):
                 drift_info = drift_ranges[i]  # drift_info[0]: y_start, [1]: y_end, [2]: direction
-                drift_tile = DriftTile(drift_info[0], drift_info[1], drift_info[2], scaling)
+                drift_tile = DriftTile(drift_info[0], drift_info[1], drift_info[2], drift_info[3], scaling)
                 self.drift_tiles.add(drift_tile)
 
         for _ in range(int(last_wall_tile.rect.y / scaling * 2.5)):
@@ -221,14 +221,14 @@ class Level:
         for sprite in self.drift_tiles.sprites():
             if sprite.rect.left > player.rect.right:  # if drift.tile is right from player.tile than drift to left
                 if player.rect.top in range(sprite.rect.top, sprite.rect.bottom):
-                    self.drift.x = 1 / 2  # - imposes drift to the left that is 1/2 of normal movement
+                    self.drift.x = -1 / sprite.direction  # - imposes drift to the left that is 1/2 of normal movement
                 elif player.rect.bottom in range(sprite.rect.top, sprite.rect.bottom):
-                    self.drift.x = 1 / 2
+                    self.drift.x = -1 / sprite.direction
             elif sprite.rect.right < player.rect.left:  # if drift.tile is left from player.tile than drift to right
                 if player.rect.top in range(sprite.rect.top, sprite.rect.bottom):
-                    self.drift.x = -1 / 2  # imposes drift to the right that is 1/2 of normal movement
+                    self.drift.x = -1 / sprite.direction  # imposes drift to the right that is 1/2 of normal movement
                 elif player.rect.bottom in range(sprite.rect.top, sprite.rect.bottom):
-                    self.drift.x = -1 / 2
+                    self.drift.x = -1 / sprite.direction
 
     def get_soc_response(self):
         keys = pygame.key.get_pressed()
