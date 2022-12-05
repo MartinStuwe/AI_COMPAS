@@ -4,13 +4,15 @@ from helper_functions import get_wall_positions, get_obstacles_lists, get_drift_
 from config import level_size_x
 
 
-wall_list_file = 'walls_dict_8.csv'
+trial = 6
+
+wall_list_file = f'walls_dict_{trial}.csv'
 wall_list = get_wall_positions(wall_list_file)
 
-obstacles_lists_file = 'obstacles_list_8.csv'
+obstacles_lists_file = f'obstacles_list_{trial}.csv'
 obstacles_list, flag_multiple_obstacle_lists = get_obstacles_lists(obstacles_lists_file)
 
-drift_ranges_file = 'drift_ranges_8.csv'
+drift_ranges_file = f'drift_ranges_{trial}.csv'
 drift_ranges = get_drift_ranges(drift_ranges_file)
 
 plt.figure(figsize=(3, 12), dpi=80)
