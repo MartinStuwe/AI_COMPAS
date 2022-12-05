@@ -4,7 +4,7 @@ from helper_functions import get_wall_positions, get_obstacles_lists, get_drift_
 from config import level_size_x
 
 
-trial = 6
+trial = 3
 
 wall_list_file = f'walls_dict_{trial}.csv'
 wall_list = get_wall_positions(wall_list_file)

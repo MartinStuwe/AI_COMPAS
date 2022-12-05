@@ -26,9 +26,9 @@ class DriftTile(pygame.sprite.Sprite):
         self.y_pos = y_start
         # x_pos depends on direction (drift to right=tile is visualized to the left and vice versa)
         # scaling is used to compute final x_pos
-        if self.direction == -2:  # leftwards drift visualized on right edge
+        if self.direction < 0:  # leftwards drift visualized on right edge
             self.x_pos = observation_space_size_x*scaling + edge*scaling + (1/6*edge*scaling) - drift_tile_x_size*scaling
-        elif self.direction == 2:  # rightwards drift visualized on left edge
+        elif self.direction > 0:  # rightwards drift visualized on left edge
             self.x_pos = edge*scaling - (1/6*edge*scaling)
         pos = [self.x_pos, self.y_pos]
         self.rect = self.image.get_rect(topleft=pos)
