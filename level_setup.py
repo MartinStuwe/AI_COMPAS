@@ -14,7 +14,7 @@ from config import *
 
 from draw_transparent_shapes import draw_rect_alpha, draw_polygon_alpha, draw_circle_alpha
 
-display_keys = True
+display_keys = False
 question_soc = True
 
 
@@ -289,7 +289,7 @@ class Level:
         #         visible_walls.append([sprite.rect.x, sprite.rect.y])
         # frame_data.at[0, 'visible_walls'] = visible_walls
 
-        # obstacles
+        # obstacles  # visible obstacles now being updated in run()
         # visible_obstacles = []
         # for sprite in self.comets.sprites():
         #     if 0 <= sprite.rect.y <= (observation_space_size_y - bottom_edge) * scaling:

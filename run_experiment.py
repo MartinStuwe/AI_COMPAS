@@ -35,7 +35,7 @@ drift_enabled_args = [True]
 
 # input noise
 # input_noise_args = [None, "weak", "strong"]
-input_noise_args = ["weak", "strong"]
+input_noise_args = ["strong"]
 
 # create list of all possible combinations of level and control manipulations
 args_list = [trials, drift_enabled_args, input_noise_args]
@@ -49,7 +49,7 @@ list_of_attempt_dict_keys = list(attempt_dict.keys())
 # list_of_attempt_dict_keys is our loop object. We will remove trials from here when they are attempted 3 times already
 # or have been solved completely
 
-max_attempts = 5  # maximum number of attempts given to solve trial
+max_attempts = 3  # maximum number of attempts given to solve trial
 
 
 # start experimental procedure
