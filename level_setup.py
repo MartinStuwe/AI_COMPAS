@@ -15,7 +15,7 @@ from config import *
 from draw_transparent_shapes import draw_rect_alpha, draw_polygon_alpha, draw_circle_alpha
 
 display_keys = False
-question_soc = True
+question_soc = False
 
 
 class Level:
