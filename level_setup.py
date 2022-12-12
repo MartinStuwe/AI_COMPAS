@@ -48,8 +48,9 @@ class Level:
         self.transparency_left = 90
         self.transparency_right = 90
 
-        # listing visible obstacles in every instance
+        # listing visible obstacles in every instance, as well as adjacent wall tiles
         self.visible_obstacles = []
+        self.adjacent_wall_tiles_x_pos = []
 
         # Whether drift tiles appear and actually impose drift depends on this variable
         self.drift_enabled = drift_enabled
@@ -75,7 +76,7 @@ class Level:
         # pandas Dataframe in which data of each frame will be stored
         self.columns = ['trial', 'attempt', 'time_played', 'level_size_y', 'player_pos', 'collision', 'current_input',
                         'drift_enabled', 'current_drift', 'level_done', 'input_noise_magnitude', 'input_noise_on',
-                        'visible_obstacles', 'visible_drift_tiles', 'SoC']  # 'visible_walls'
+                        'visible_obstacles', 'adjacent_wall_tiles_x_pos', 'visible_drift_tiles', 'SoC']
 
         self.data = pd.DataFrame(columns=self.columns)
 
@@ -316,6 +317,9 @@ class Level:
         for sprite in self.comets.sprites():
             if 0 <= sprite.rect.y <= (observation_space_size_y - bottom_edge) * scaling:
                 self.visible_obstacles.append([sprite.rect.x, sprite.rect.y])
+
+        # updating adjacent wall tiles y pos (left wall, right wall)
+        self.adjacent_wall_tiles_x_pos = [self.walls.sprites()[0].rect.x, self.walls.sprites()[1].rect.x]
 
         # check for level done: if player went over finish line => level_done
         finish_line = self.finish_line.sprites()[-1]

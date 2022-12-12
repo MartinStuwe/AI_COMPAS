@@ -5,4 +5,5 @@ __pycache__
 logs_*
 logs/old
 data/*
+eye_data/*
 .Rhistory
