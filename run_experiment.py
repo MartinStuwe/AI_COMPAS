@@ -27,7 +27,7 @@ screen = pygame.display.set_mode((screen_width, screen_height))  # ,pygame.FULLS
 N_trials = 6  # for each trial there must be a drift_ranges & obstacles_list file in the logs folder
 # trials = list(range(1, N_trials + 1))  # end +1 due to python stopping before processing last entry
 # trials = [2, 4, 6]
-trials = [5, 6]
+trials = [1]
 
 # drift enabled
 # drift_enabled_args = [True, False]
@@ -80,7 +80,8 @@ while not quit:
                                                    obstacles_lists_file=f'obstacles_list_0.csv',
                                                    drift_ranges_file=f'drift_ranges_0.csv',
                                                    wall_list_file=f'walls_dict_0.csv',
-                                                   input_noise_magnitude="weak",
+                                                   input_noise_magnitude="strong",
+                                                   input_noise_threshold=1400,
                                                    drift_enabled=True,
                                                    trial=0, attempt=0, n_run=n_run, code=code)
                     if level_done:

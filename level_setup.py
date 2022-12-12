@@ -21,7 +21,7 @@ question_soc = False
 class Level:
     def __init__(self, wall_list, obstacles_list, player_starting_position, drift_ranges, screen, scaling, code, FPS=30,
                  n_run=0, tiny_vis=False, keyboard_input=False, trial=0, attempt=0, input_noise_magnitude=None,
-                 drift_enabled=False):
+                 input_noise_threshold=0, drift_enabled=False):
 
         # experiment information
         self.code = code
@@ -56,7 +56,7 @@ class Level:
         self.drift_enabled = drift_enabled
 
         # threshold and magnitude for imposing input noise on agent (is updated by subtracting step size)
-        self.input_noise_threshold = input_noise_threshold
+        self.input_noise_threshold = input_noise_threshold*scaling
         self.input_noise_magnitude = input_noise_magnitude
         self.input_noise_on = False
 
@@ -381,7 +381,7 @@ class Level:
                 self.finish_line.update(velocity, scaling, self.horizontal_movement)
 
                 # update input_noise threshold
-                # self.input_noise_threshold -= 1 * scaling * velocity  # same updating as for all in-game objects
+                self.input_noise_threshold -= 1 * scaling * velocity  # same updating as for all in-game objects
 
             if keyboard_input:  # only needed if player is controlling spaceship
                 # check for collision

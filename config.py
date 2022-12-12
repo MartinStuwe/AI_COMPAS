@@ -32,6 +32,3 @@ scaling_tiny_vis = 2
 # edge size for screen beyond walls and bottom
 edge = 28  # 28 perfect for large screen with scaling = 20
 bottom_edge = 15  # leaving 45 for visible observation window
-
-# input noise threshold for piloting
-input_noise_threshold = 0  # starting at beginning of trial  # level_size_y*scaling / 2  # for starting in second half
