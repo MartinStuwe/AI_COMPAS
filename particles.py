@@ -11,6 +11,6 @@ class Particle(pygame.sprite.Sprite):
 
     def update(self, speed, scaling, horizontal_movement):
         # vertical movement
-        self.rect.y -= (1*scaling) * speed
+        self.rect.y -= (1*scaling) * speed / 2  # /2 will lead to a distortion effect in which the background moves slower
         # horizontal movement
-        self.rect.x += horizontal_movement * scaling * speed
+        self.rect.x += horizontal_movement * scaling * speed  # how to create distortion without particles leaving level bounds
