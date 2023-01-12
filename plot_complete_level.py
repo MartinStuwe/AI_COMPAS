@@ -60,7 +60,7 @@ ax.invert_yaxis()
 # add time axis
 sec_y_axis = ax.secondary_yaxis('right', functions=(lambda x: x/(level_size_y/time_complete_in_s), lambda x: x/(level_size_y/time_complete_in_s)))
 sec_y_axis.set_ylabel('time in seconds')
-sec_y_axis.set_yticks(np.arange(0, time_complete_in_s, step=5))
+sec_y_axis.set_yticks(np.arange(0, time_complete_in_s, step=2))
 sec_y_axis.invert_yaxis()
 
 # plt.grid(True)
