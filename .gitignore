@@ -3,6 +3,7 @@
 __pycache__
 **/.DS_Store
 logs_*
+plots/*
 logs/old
 data/*
 eye_data/*

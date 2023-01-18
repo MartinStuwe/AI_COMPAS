@@ -64,4 +64,6 @@ sec_y_axis.set_yticks(np.arange(0, time_complete_in_s, step=2))
 sec_y_axis.invert_yaxis()
 
 # plt.grid(True)
+
+plt.savefig(f'complete_design_level_{trial}.png')
 plt.show()
