@@ -7,4 +7,5 @@ plots/*
 logs/old
 data/*
 eye_data/*
+complete_design_level_*.png
 .Rhistory
