@@ -76,7 +76,8 @@ class Level:
         # pandas Dataframe in which data of each frame will be stored
         self.columns = ['trial', 'attempt', 'time_played', 'level_size_y', 'player_pos', 'collision', 'current_input',
                         'drift_enabled', 'current_drift', 'level_done', 'input_noise_magnitude', 'input_noise_on',
-                        'visible_obstacles', 'adjacent_wall_tiles_x_pos', 'visible_drift_tiles', 'SoC']
+                        'visible_obstacles', 'last_walls_tile', 'adjacent_wall_tiles_x_pos', 'visible_drift_tiles',
+                        'SoC']
 
         self.data = pd.DataFrame(columns=self.columns)
 
@@ -289,6 +290,8 @@ class Level:
         #     if 0 <= sprite.rect.y <= observation_space_size_y * scaling:
         #         visible_walls.append([sprite.rect.x, sprite.rect.y])
         # frame_data.at[0, 'visible_walls'] = visible_walls
+        last_wall_tile = self.walls.sprites()[-1]
+        frame_data.at[0, 'last_walls_tile'] = [last_wall_tile.rect.x, last_wall_tile.rect.y]
 
         # obstacles  # visible obstacles now being updated in run()
         # visible_obstacles = []
