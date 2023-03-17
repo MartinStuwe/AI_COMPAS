@@ -35,7 +35,8 @@ drift_enabled_args = [True]
 
 # input noise
 # input_noise_args = [None, "weak", "strong"]
-input_noise_args = ["strong"]
+# input_noise_args = [0, 0.5, 1]
+input_noise_args = [1]
 
 # create list of all possible combinations of level and control manipulations
 args_list = [trials, drift_enabled_args, input_noise_args]
@@ -80,7 +81,7 @@ while not quit:
                                                    obstacles_lists_file=f'obstacles_list_0.csv',
                                                    drift_ranges_file=f'drift_ranges_0.csv',
                                                    wall_list_file=f'walls_dict_0.csv',
-                                                   input_noise_magnitude="strong",
+                                                   input_noise_magnitude=1,
                                                    input_noise_threshold=1400,
                                                    drift_enabled=True,
                                                    trial=0, attempt=0, n_run=n_run, code=code)

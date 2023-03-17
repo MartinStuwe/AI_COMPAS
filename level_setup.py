@@ -15,12 +15,12 @@ from config import *
 from draw_transparent_shapes import draw_rect_alpha, draw_polygon_alpha, draw_circle_alpha
 
 display_keys = False
-question_soc = False
+question_soc = True
 
 
 class Level:
     def __init__(self, wall_list, obstacles_list, player_starting_position, drift_ranges, screen, scaling, code, FPS=30,
-                 n_run=0, tiny_vis=False, keyboard_input=False, trial=0, attempt=0, input_noise_magnitude=None,
+                 n_run=0, tiny_vis=False, keyboard_input=False, trial=0, attempt=0, input_noise_magnitude=0,
                  input_noise_threshold=0, drift_enabled=False):
 
         # experiment information
@@ -146,20 +146,14 @@ class Level:
         # input noise
         player = self.player.sprite
         input_noise = 0
-        # input noise magnitude can be None = 0 vs. weak vs. strong which reflects the magnitude of actual displacement
+        # input noise magnitude can be any float which reflects the magnitude of actual displacement
         # at the end of the left or right step. The magnitude directly translates to the sd of the normal distribution
         # the displacement is sampled from.
         if player.rect.y > self.input_noise_threshold:
             self.input_noise_on = True
             mu = 0
-            if self.input_noise_magnitude is None:
-                pass
-            elif self.input_noise_magnitude == "weak":
-                sigma = 0.5  # mean and standard deviation
-                input_noise = np.random.normal(mu, sigma, 1)
-            elif self.input_noise_magnitude == "strong":
-                sigma = 1
-                input_noise = np.random.normal(mu, sigma, 1)
+            sigma = self.input_noise_magnitude
+            input_noise = np.random.normal(mu, sigma, 1)
         else:
             self.input_noise_on = False
         #############################
@@ -268,7 +262,6 @@ class Level:
         frame_data.trial = self.trial
         frame_data.attempt = self.attempt
         frame_data.level_size_y = self.level_size_y
-        frame_data.SoC = self.SoC
 
         # walls
         # There has to be a better alternative instead of simply inserting all wall tiles into a list.
@@ -309,6 +302,7 @@ class Level:
 
         # append everything to pandas DataFrame
         self.data = pd.concat([self.data, frame_data], ignore_index=True)
+        self.data.SoC = self.SoC
 
     def run(self, time_played, player_position, scaling, tiny_visualization=False, keyboard_input=False):
 
