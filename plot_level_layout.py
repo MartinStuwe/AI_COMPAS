@@ -48,7 +48,7 @@ def plot_level_layout(trial=1, FPS=60, pixel_move_y_direction=6, safe_plot=False
 
     for drift_info in drift_ranges:
         for i in range(drift_info[0], drift_info[1]+1):
-            ax.plot(20 + drift_info[2]*12.5, i, color='red', marker='s', markersize=1)
+            ax.plot(20 + drift_info[2]*(-12.5), i, color='red', marker='s', markersize=1)
 
     # scale and invert axes
     ax = plt.gca()
