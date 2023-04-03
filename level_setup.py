@@ -16,6 +16,7 @@ from draw_transparent_shapes import draw_rect_alpha, draw_polygon_alpha, draw_ci
 
 display_keys = False
 question_soc = True
+replay_threshold = 25
 
 
 class Level:
@@ -344,11 +345,15 @@ class Level:
                 display_soc_question(self.display_surface)
                 response = self.get_soc_response()
                 if response is not None:
+                    if self.time_played > replay_threshold:
+                        self.level_done = True
                     self.quit = True
                     # write data of all frames to csv
                     self.get_data(scaling)
                     self.data.to_csv(f'data/{self.code}_output_{self.n_run:0>2}.csv', sep=',', index=False)
             else:
+                if self.time_played > replay_threshold:
+                    self.level_done = True
                 self.quit = True
                 # write data of all frames to csv
                 self.get_data(scaling)

@@ -26,16 +26,15 @@ screen = pygame.display.set_mode((screen_width, screen_height))  # ,pygame.FULLS
 # initialize experimental procedure
 N_trials = 6  # for each trial there must be a drift_ranges & obstacles_list file in the logs folder
 # trials = list(range(1, N_trials + 1))  # end +1 due to python stopping before processing last entry
-#trials = [2, 4, 6]
-trials = [3]
+# trials = [2, 4, 6]
+trials = [2]
 
 # drift enabled
 # drift_enabled_args = [True, False]
-drift_enabled_args = [True]
+drift_enabled_args = [False]
 
 # input noise
-# input_noise_args = [None, "weak", "strong"]
-# input_noise_args = [0, 0.5, 1]
+# input_noise_args = [0, 0.5, 1, 1.5, 2]
 input_noise_args = [1]
 
 # create list of all possible combinations of level and control manipulations
@@ -78,7 +77,7 @@ while not quit:
                 if instructions:
                     level_done = run_visualization(surface=screen, scaling=scaling, tiny_visualization=False, FPS=FPS,
                                                    keyboard_input=True,
-                                                   obstacles_lists_file=f'obstacles_list_0.csv',
+                                                   obstacles_lists_file=f'object_list_0.csv',
                                                    drift_ranges_file=f'drift_ranges_0.csv',
                                                    wall_list_file=f'walls_dict_0.csv',
                                                    input_noise_magnitude=1,
@@ -93,7 +92,7 @@ while not quit:
 
                     level_done = run_visualization(surface=screen, scaling=scaling, tiny_visualization=False, FPS=FPS,
                                                    keyboard_input=True,
-                                                   obstacles_lists_file=f'obstacles_list_{trial[0]}.csv',
+                                                   obstacles_lists_file=f'object_list_{trial[0]}.csv',
                                                    drift_ranges_file=f'drift_ranges_{trial[0]}.csv',
                                                    wall_list_file=f'walls_dict_{trial[0]}.csv',
                                                    input_noise_magnitude=trial[2],
