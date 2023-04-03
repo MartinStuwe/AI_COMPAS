@@ -6,16 +6,13 @@ from config import scaling, level_size_x
 
 def plot_level_layout(trial=1, FPS=60, pixel_move_y_direction=6, safe_plot=False):
 
-    time_step = 1000/FPS
-
-    player_starting_pos = get_player_positions('0_vis.csv')[0]
-
     wall_list_file = f'walls_dict_{trial}.csv'
     wall_list = get_wall_positions(wall_list_file)
 
-    distance = len(wall_list)*scaling - player_starting_pos[1]*scaling
-    steps = distance / pixel_move_y_direction
-    time_complete_in_s = (steps*time_step) / 1000
+    level_size_y = len(wall_list)
+    level_size_y_in_pixel = level_size_y*scaling
+    N_steps = level_size_y_in_pixel / pixel_move_y_direction
+    time_complete_in_s = N_steps / FPS
 
     obstacles_lists_file = f'obstacles_list_{trial}.csv'
     obstacles_list, flag_multiple_obstacle_lists = get_obstacles_lists(obstacles_lists_file)
@@ -46,7 +43,6 @@ def plot_level_layout(trial=1, FPS=60, pixel_move_y_direction=6, safe_plot=False
     ax.set_xticks(np.arange(0, 41, step=40))
     # ax.set_xticklabels(['0', '360', '720'], fontsize=12)
 
-    level_size_y = len(wall_list)
     ax.set_ylim(0, level_size_y)
     ax.set_yticks(np.arange(0, level_size_y+1, step=level_size_y/2))
     # ax.set_yticklabels(['0', '4500', '9000'], fontsize=12)
@@ -76,7 +72,7 @@ def plot_level_layout(trial=1, FPS=60, pixel_move_y_direction=6, safe_plot=False
     # add time axis
     sec_y_axis = ax.secondary_yaxis('right', functions=(lambda x: x/(level_size_y/time_complete_in_s), lambda x: x/(level_size_y/time_complete_in_s)))
     sec_y_axis.set_ylabel('time in seconds', size=22)
-    sec_y_axis.set_yticks(np.arange(0, time_complete_in_s, step=3))
+    sec_y_axis.set_yticks(np.linspace(0, time_complete_in_s, 5))
     sec_y_axis.invert_yaxis()
 
     # plt.grid(True)

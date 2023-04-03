@@ -10,7 +10,7 @@ from level_setup import *
 
 
 def run_visualization(surface, scaling=1, tiny_visualization=False, FPS=30, keyboard_input=False,
-                      obstacles_lists_file='obstacles_list.csv', drift_ranges_file='drift_ranges.csv',
+                      obstacles_lists_file='object_list.csv', drift_ranges_file='drift_ranges.csv',
                       wall_list_file='walls_dict.csv', input_noise_magnitude=0, input_noise_threshold=0,
                       drift_enabled=True, trial=0, attempt=0, n_run=0, code='test'):
     """
