@@ -25,13 +25,31 @@ def plot_level_layout(trial=1, FPS=60, pixel_move_y_direction=6, safe_plot=False
 
     fig, ax = plt.subplots(figsize=(3, 12), dpi=80)
 
+    plt.rcParams.update({'font.size': 16})
+    # plt.tick_params(
+    #     axis='y',  # changes apply to the x-axis
+    #     which='both',  # both major and minor ticks are affected
+    #     left=False,  # ticks along the bottom edge are off
+    #     labelleft=False)  # labels along the bottom edge are off
+    plt.tick_params(
+        axis='y',  # changes apply to the x-axis
+        which='both',  # both major and minor ticks are affected
+        labelsize=16)  # labels along the bottom edge are off
+
+    plt.tick_params(
+        axis='x',  # changes apply to the x-axis
+        which='both',  # both major and minor ticks are affected
+        labelsize=16)  # labels along the bottom edge are off
+
     ax.set_title('level setup')
     ax.set_xlim(-10, level_size_x+10)
-    ax.set_xticks(np.arange(0, 41, step=20))
+    ax.set_xticks(np.arange(0, 41, step=40))
+    # ax.set_xticklabels(['0', '360', '720'], fontsize=12)
 
     level_size_y = len(wall_list)
     ax.set_ylim(0, level_size_y)
-    ax.set_yticks(np.arange(0, level_size_y+1, step=50))
+    ax.set_yticks(np.arange(0, level_size_y+1, step=level_size_y/2))
+    # ax.set_yticklabels(['0', '4500', '9000'], fontsize=12)
 
     for key in obstacles_list:
         plt.plot(key['x'], key['y'], color='green', marker='o', markersize=key['size'])  # arguments in Comet(): x-pos, y-pos, tile_size
@@ -57,8 +75,8 @@ def plot_level_layout(trial=1, FPS=60, pixel_move_y_direction=6, safe_plot=False
 
     # add time axis
     sec_y_axis = ax.secondary_yaxis('right', functions=(lambda x: x/(level_size_y/time_complete_in_s), lambda x: x/(level_size_y/time_complete_in_s)))
-    sec_y_axis.set_ylabel('time in seconds')
-    sec_y_axis.set_yticks(np.arange(0, time_complete_in_s, step=2))
+    sec_y_axis.set_ylabel('time in seconds', size=22)
+    sec_y_axis.set_yticks(np.arange(0, time_complete_in_s, step=3))
     sec_y_axis.invert_yaxis()
 
     # plt.grid(True)
