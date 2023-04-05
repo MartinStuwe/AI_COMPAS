@@ -16,7 +16,6 @@ from draw_transparent_shapes import draw_rect_alpha, draw_polygon_alpha, draw_ci
 
 display_keys = False
 question_soc = True
-replay_threshold = 25
 
 
 class Level:
@@ -73,6 +72,10 @@ class Level:
         self.FPS = FPS
         self.level_done = False
         self.quit = False
+        # threshold for replaying trial - if time_played above threshold => no replay
+        self.replay_threshold = 25
+        if trial == 0:
+            self.replay_threshold = 1000  # arbitrarily high threshold that is never reached
 
         # pandas Dataframe in which data of each frame will be stored
         self.columns = ['trial', 'attempt', 'time_played', 'level_size_y', 'player_pos', 'collision', 'current_input',
@@ -345,14 +348,14 @@ class Level:
                 display_soc_question(self.display_surface)
                 response = self.get_soc_response()
                 if response is not None:
-                    if self.time_played > replay_threshold:
+                    if self.time_played > self.replay_threshold:
                         self.level_done = True
                     self.quit = True
                     # write data of all frames to csv
                     self.get_data(scaling)
                     self.data.to_csv(f'data/{self.code}_output_{self.n_run:0>2}.csv', sep=',', index=False)
             else:
-                if self.time_played > replay_threshold:
+                if self.time_played > self.replay_threshold:
                     self.level_done = True
                 self.quit = True
                 # write data of all frames to csv

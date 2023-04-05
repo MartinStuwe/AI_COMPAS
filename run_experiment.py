@@ -80,8 +80,8 @@ while not quit:
                                                    obstacles_lists_file=f'object_list_0.csv',
                                                    drift_ranges_file=f'drift_ranges_0.csv',
                                                    wall_list_file=f'walls_dict_0.csv',
-                                                   input_noise_magnitude=1,
-                                                   input_noise_threshold=1000,
+                                                   input_noise_magnitude=0,
+                                                   input_noise_threshold=0,
                                                    drift_enabled=False,
                                                    trial=0, attempt=0, n_run=n_run, code=code)
                     if level_done:
