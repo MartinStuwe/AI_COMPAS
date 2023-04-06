@@ -74,7 +74,7 @@ class Level:
         self.quit = False
         # threshold for replaying trial - if time_played above threshold => no replay
         self.replay_threshold = 25
-        if trial == 0:
+        if 'training' in str(self.trial):
             self.replay_threshold = 1000  # arbitrarily high threshold that is never reached
 
         # pandas Dataframe in which data of each frame will be stored

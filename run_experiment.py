@@ -23,6 +23,15 @@ screen_width = (observation_space_size_x + (2 * edge)) * scaling
 screen_height = observation_space_size_y * scaling
 screen = pygame.display.set_mode((screen_width, screen_height))  # ,pygame.FULLSCREEN vs. pygame.RESIZABLE
 
+# initialize practice procedure
+practice_trials = ['training1', 'training2', 'training3']
+practice_drift_enabled_args = [False]
+practice_input_noise_args = [0]
+practice_args_list = [practice_trials, practice_drift_enabled_args, practice_input_noise_args]
+practice_arg_combs = list(itertools.product(*practice_args_list))
+practice_attempt_dict = dict.fromkeys(practice_arg_combs, 0)  # every trial at 0 attempts
+practice_list_of_attempt_dict_keys = list(practice_attempt_dict.keys())
+
 # initialize experimental procedure
 N_trials = 3  # for each trial there must be a drift_ranges & obstacles_list file in the logs folder
 # trials = list(range(1, N_trials + 1))  # end +1 due to python stopping before processing last entry
@@ -55,7 +64,7 @@ max_attempts = 3  # maximum number of attempts given to solve trial
 # start experimental procedure
 quit = False
 level_done = False
-instructions = True
+instructions = False
 n_run = 0
 while not quit:
 
@@ -75,16 +84,21 @@ while not quit:
         if event.type == pygame.KEYDOWN:
             if event.key == pygame.K_SPACE:
                 if instructions:
+                    practice_trial = practice_list_of_attempt_dict_keys[0]
                     level_done = run_visualization(surface=screen, scaling=scaling, tiny_visualization=False, FPS=FPS,
                                                    keyboard_input=True,
-                                                   obstacles_lists_file=f'object_list_0.csv',
-                                                   drift_ranges_file=f'drift_ranges_0.csv',
-                                                   wall_list_file=f'walls_dict_0.csv',
-                                                   input_noise_magnitude=0,
+                                                   obstacles_lists_file=f'object_list_{practice_trial[0]}.csv',
+                                                   drift_ranges_file=f'drift_ranges_{practice_trial[0]}.csv',
+                                                   wall_list_file=f'walls_dict_{practice_trial[0]}.csv',
+                                                   input_noise_magnitude=practice_trial[2],
                                                    input_noise_threshold=0,
-                                                   drift_enabled=False,
-                                                   trial=0, attempt=0, n_run=n_run, code=code)
+                                                   drift_enabled=practice_trial[1],
+                                                   trial=practice_trial[0],
+                                                   attempt=practice_attempt_dict[practice_trial]+1,
+                                                   n_run=n_run, code=code)
                     if level_done:
+                        practice_list_of_attempt_dict_keys.remove(practice_trial)
+                    if len(practice_list_of_attempt_dict_keys) < 1:
                         instructions = False
                 else:
                     random.shuffle(list_of_attempt_dict_keys)
