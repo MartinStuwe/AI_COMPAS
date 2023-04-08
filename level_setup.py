@@ -48,9 +48,10 @@ class Level:
         self.transparency_left = 90
         self.transparency_right = 90
 
-        # listing visible obstacles in every instance, as well as adjacent wall tiles
+        # listing visible obstacles in every instance, as well as adjacent wall tiles and last wall tile positions
         self.visible_obstacles = []
         self.adjacent_wall_tiles_x_pos = []
+        self.last_wall_pos = []
 
         # Whether drift tiles appear and actually impose drift depends on this variable
         self.drift_enabled = drift_enabled
@@ -74,7 +75,7 @@ class Level:
         self.quit = False
         # threshold for replaying trial - if time_played above threshold => no replay
         self.replay_threshold = 25
-        if 'training' in str(self.trial):
+        if 'training' in str(self.trial):  # TRY CONTAIN
             self.replay_threshold = 1000  # arbitrarily high threshold that is never reached
 
         # pandas Dataframe in which data of each frame will be stored
@@ -190,10 +191,11 @@ class Level:
 
     def check_for_collision(self):
         player = self.player.sprite
+        self.last_wall_pos = [self.walls.sprites()[-2].rect.x, self.walls.sprites()[-1].rect.x]
 
-        # checking for general collision with any obstacles or walls
-        if player.rect.collidelist(self.comets.sprites()) > -1 or player.rect.collidelist(self.walls.sprites()) > -1:
-            # collidelist will return index if collision and -1 if not
+        # checking for general collision with any obstacles or walls or if spaceship jumped outside of game boarders;
+        # collidelist will return index if collision and -1 if not
+        if player.rect.collidelist(self.comets.sprites()) > -1 or player.rect.collidelist(self.walls.sprites()) > -1 or player.rect.left < self.last_wall_pos[0] or player.rect.right > self.last_wall_pos[1]:
             self.frames_with_collision += 1
         else:
             self.frames_with_collision = 0

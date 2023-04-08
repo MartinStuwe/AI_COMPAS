@@ -25,18 +25,19 @@ screen = pygame.display.set_mode((screen_width, screen_height))  # ,pygame.FULLS
 
 # initialize practice procedure
 practice_trials = ['training1', 'training2', 'training3']
-practice_drift_enabled_args = [False]
-practice_input_noise_args = [0]
+practice_drift_enabled_args = [False]  # [False, False, False]
+practice_input_noise_args = [0]  # [0, 0, 0]
 practice_args_list = [practice_trials, practice_drift_enabled_args, practice_input_noise_args]
 practice_arg_combs = list(itertools.product(*practice_args_list))
+# COMING: HAVE all args combined only with the exact iterable to have more control over subsequent practice trials
 practice_attempt_dict = dict.fromkeys(practice_arg_combs, 0)  # every trial at 0 attempts
 practice_list_of_attempt_dict_keys = list(practice_attempt_dict.keys())
 
 # initialize experimental procedure
 N_trials = 3  # for each trial there must be a drift_ranges & obstacles_list file in the logs folder
 # trials = list(range(1, N_trials + 1))  # end +1 due to python stopping before processing last entry
-trials = [1, 2, 3]
-# trials = [1]
+# trials = [1, 2, 3]
+trials = [1]
 
 # drift enabled
 # drift_enabled_args = [True, False]
@@ -44,7 +45,7 @@ drift_enabled_args = [False]
 
 # input noise
 # input_noise_args = [0, 0.5, 1, 1.5, 2]
-input_noise_args = [1]
+input_noise_args = [2]
 
 # create list of all possible combinations of level and control manipulations
 args_list = [trials, drift_enabled_args, input_noise_args]
