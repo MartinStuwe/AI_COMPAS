@@ -112,7 +112,9 @@ while not quit:
                                                    wall_list_file=f'walls_dict_{trial[0]}.csv',
                                                    input_noise_magnitude=trial[2],
                                                    drift_enabled=trial[1],
-                                                   trial=trial[0], attempt=attempt_dict[trial]+1, n_run=n_run, code=code)
+                                                   trial=trial[0],
+                                                   attempt=attempt_dict[trial]+1,
+                                                   n_run=n_run, code=code)
                     n_run += 1
                     attempt_dict[trial] += 1
 
