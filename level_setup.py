@@ -74,7 +74,7 @@ class Level:
         self.level_done = False
         self.quit = False
         # threshold for replaying trial - if time_played above threshold => no replay
-        self.replay_threshold = 25
+        self.replay_threshold = 1000  # 25; in s
         if 'training' in str(self.trial):  # TRY CONTAIN
             self.replay_threshold = 1000  # arbitrarily high threshold that is never reached
 
