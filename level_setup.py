@@ -48,9 +48,10 @@ class Level:
         self.transparency_left = 90
         self.transparency_right = 90
 
-        # listing visible obstacles in every instance, as well as adjacent wall tiles
+        # listing visible obstacles in every instance, as well as adjacent wall tiles and last wall tile positions
         self.visible_obstacles = []
         self.adjacent_wall_tiles_x_pos = []
+        self.last_wall_pos = []
 
         # Whether drift tiles appear and actually impose drift depends on this variable
         self.drift_enabled = drift_enabled
@@ -72,6 +73,10 @@ class Level:
         self.FPS = FPS
         self.level_done = False
         self.quit = False
+        # threshold for replaying trial - if time_played above threshold => no replay
+        self.replay_threshold = 25
+        if 'training' in str(self.trial):  # TRY CONTAIN
+            self.replay_threshold = 1000  # arbitrarily high threshold that is never reached
 
         # pandas Dataframe in which data of each frame will be stored
         self.columns = ['trial', 'attempt', 'time_played', 'level_size_y', 'player_pos', 'collision', 'current_input',
@@ -186,10 +191,11 @@ class Level:
 
     def check_for_collision(self):
         player = self.player.sprite
+        self.last_wall_pos = [self.walls.sprites()[-2].rect.x, self.walls.sprites()[-1].rect.x]
 
-        # checking for general collision with any obstacles or walls
-        if player.rect.collidelist(self.comets.sprites()) > -1 or player.rect.collidelist(self.walls.sprites()) > -1:
-            # collidelist will return index if collision and -1 if not
+        # checking for general collision with any obstacles or walls or if spaceship jumped outside of game boarders;
+        # collidelist will return index if collision and -1 if not
+        if player.rect.collidelist(self.comets.sprites()) > -1 or player.rect.collidelist(self.walls.sprites()) > -1 or player.rect.left < self.last_wall_pos[0] or player.rect.right > self.last_wall_pos[1]:
             self.frames_with_collision += 1
         else:
             self.frames_with_collision = 0
@@ -217,14 +223,14 @@ class Level:
         for sprite in self.drift_tiles.sprites():
             if sprite.rect.left > player.rect.right:  # if drift.tile is right from player.tile than drift to left
                 if player.rect.top in range(sprite.rect.top, sprite.rect.bottom):
-                    self.drift.x = -1 / sprite.direction  # - imposes drift to the left that is 1/2 of normal movement
+                    self.drift.x = -1/2 * sprite.direction  # - imposes drift to the left that is 1/2 of normal movement
                 elif player.rect.bottom in range(sprite.rect.top, sprite.rect.bottom):
-                    self.drift.x = -1 / sprite.direction
+                    self.drift.x = -1/2 * sprite.direction
             elif sprite.rect.right < player.rect.left:  # if drift.tile is left from player.tile than drift to right
                 if player.rect.top in range(sprite.rect.top, sprite.rect.bottom):
-                    self.drift.x = -1 / sprite.direction  # imposes drift to the right that is 1/2 of normal movement
+                    self.drift.x = -1/2 * sprite.direction  # imposes drift to the right that is 1/2 of normal movement
                 elif player.rect.bottom in range(sprite.rect.top, sprite.rect.bottom):
-                    self.drift.x = -1 / sprite.direction
+                    self.drift.x = -1/2 * sprite.direction
 
     def get_soc_response(self):
         keys = pygame.key.get_pressed()
@@ -344,11 +350,15 @@ class Level:
                 display_soc_question(self.display_surface)
                 response = self.get_soc_response()
                 if response is not None:
+                    if self.time_played > self.replay_threshold:
+                        self.level_done = True
                     self.quit = True
                     # write data of all frames to csv
                     self.get_data(scaling)
                     self.data.to_csv(f'data/{self.code}_output_{self.n_run:0>2}.csv', sep=',', index=False)
             else:
+                if self.time_played > self.replay_threshold:
+                    self.level_done = True
                 self.quit = True
                 # write data of all frames to csv
                 self.get_data(scaling)
