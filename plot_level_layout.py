@@ -14,7 +14,7 @@ def plot_level_layout(trial=1, FPS=60, pixel_move_y_direction=6, safe_plot=False
     N_steps = level_size_y_in_pixel / pixel_move_y_direction
     time_complete_in_s = N_steps / FPS
 
-    obstacles_lists_file = f'obstacles_list_{trial}.csv'
+    obstacles_lists_file = f'object_list_{trial}.csv'
     obstacles_list, flag_multiple_obstacle_lists = get_obstacles_lists(obstacles_lists_file)
 
     drift_ranges_file = f'drift_ranges_{trial}.csv'
@@ -62,7 +62,7 @@ def plot_level_layout(trial=1, FPS=60, pixel_move_y_direction=6, safe_plot=False
 
     for drift_info in drift_ranges:
         for i in range(drift_info[0], drift_info[1]+1):
-            ax.plot(20 + drift_info[2]*(-12.5), i, color='red', marker='s', markersize=1)
+            ax.plot(20 + drift_info[2]*(-22.5), i, color='red', marker='s', markersize=1)
 
     # scale and invert axes
     ax = plt.gca()
