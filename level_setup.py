@@ -223,14 +223,14 @@ class Level:
         for sprite in self.drift_tiles.sprites():
             if sprite.rect.left > player.rect.right:  # if drift.tile is right from player.tile than drift to left
                 if player.rect.top in range(sprite.rect.top, sprite.rect.bottom):
-                    self.drift.x = -1/2 * sprite.direction  # - imposes drift to the left that is 1/2 of normal movement
+                    self.drift.x = -drift_magnitude * sprite.direction
                 elif player.rect.bottom in range(sprite.rect.top, sprite.rect.bottom):
-                    self.drift.x = -1/2 * sprite.direction
+                    self.drift.x = -drift_magnitude * sprite.direction
             elif sprite.rect.right < player.rect.left:  # if drift.tile is left from player.tile than drift to right
                 if player.rect.top in range(sprite.rect.top, sprite.rect.bottom):
-                    self.drift.x = -1/2 * sprite.direction  # imposes drift to the right that is 1/2 of normal movement
+                    self.drift.x = -drift_magnitude * sprite.direction
                 elif player.rect.bottom in range(sprite.rect.top, sprite.rect.bottom):
-                    self.drift.x = -1/2 * sprite.direction
+                    self.drift.x = -drift_magnitude * sprite.direction
 
     def get_soc_response(self):
         keys = pygame.key.get_pressed()
@@ -336,13 +336,13 @@ class Level:
                     self.quit = True
                     # write data of all frames to csv
                     self.get_data(scaling)
-                    self.data.to_csv(f'data/{self.code}_output_{self.n_run:0>2}.csv', sep=',', index=False)
+                    self.data.to_csv(f'data/{self.code}_output_{self.trial}_{self.n_run:0>2}.csv', sep=',', index=False)
             else:
                 self.level_done = True
                 self.quit = True
                 # write data of all frames to csv
                 self.get_data(scaling)
-                self.data.to_csv(f'data/{self.code}_output_{self.n_run:0>2}.csv', sep=',', index=False)
+                self.data.to_csv(f'data/{self.code}_output_{self.trial}_{self.n_run:0>2}.csv', sep=',', index=False)
 
         elif player.crashed:
             if question_soc:
@@ -355,14 +355,14 @@ class Level:
                     self.quit = True
                     # write data of all frames to csv
                     self.get_data(scaling)
-                    self.data.to_csv(f'data/{self.code}_output_{self.n_run:0>2}.csv', sep=',', index=False)
+                    self.data.to_csv(f'data/{self.code}_output_{self.trial}_{self.n_run:0>2}.csv', sep=',', index=False)
             else:
                 if self.time_played > self.replay_threshold:
                     self.level_done = True
                 self.quit = True
                 # write data of all frames to csv
                 self.get_data(scaling)
-                self.data.to_csv(f'data/{self.code}_output_{self.n_run:0>2}.csv', sep=',', index=False)
+                self.data.to_csv(f'data/{self.code}_output_{self.trial}_{self.n_run:0>2}.csv', sep=',', index=False)
 
         else:
             self.level_done = False

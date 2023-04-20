@@ -10,7 +10,9 @@ wall_size = 1
 drift_tile_x_size = 1
 particle_sizes = (2/16, 3/16, 4/16)
 
-# drift mapping
+# drift 
+drift_magnitude = 1/2  # imposed drift in fraction of normal sidewards movement 
+# mapping
 # drift = 0: leftwards drift
 # drift = 2: rightwards drift
 
