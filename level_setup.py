@@ -223,16 +223,10 @@ class Level:
         self.drift.x = 0
 
         for sprite in self.drift_tiles.sprites():
-            #if sprite.rect.left > player.rect.right:  # if drift.tile is right from player.tile than drift to left
             if player.rect.top in range(sprite.rect.top, sprite.rect.bottom):
                 self.drift.x = -sprite.direction
             elif player.rect.bottom in range(sprite.rect.top, sprite.rect.bottom):
                 self.drift.x = -sprite.direction
-            #elif sprite.rect.right < player.rect.left:  # if drift.tile is left from player.tile than drift to right
-            #    if player.rect.top in range(sprite.rect.top, sprite.rect.bottom):
-            #        self.drift.x = -sprite.direction
-            #    elif player.rect.bottom in range(sprite.rect.top, sprite.rect.bottom):
-            #        self.drift.x = -sprite.direction
 
     def get_soc_response(self):
         keys = pygame.key.get_pressed()
