@@ -35,9 +35,9 @@ practice_attempt_dict = dict.fromkeys(practice_arg_combs, 0)  # every trial at 0
 practice_list_of_attempt_dict_keys = list(practice_attempt_dict.keys())
 
 # initialize experimental procedure
-N_trials = 3  # for each trial there must be a drift_ranges & obstacles_list file in the logs folder
+# N_trials = 3  # for each trial there must be a drift_ranges, object_list, and walls_dict file in the logs folder
 # trials = list(range(1, N_trials + 1))  # end +1 due to python stopping before processing last entry
-# trials = [1, 2, 3]
+# trials = [1, 2, 3]  # simply stating every level in a list is also possible
 trials = [1]
 
 # drift enabled
@@ -52,7 +52,7 @@ input_noise_args = [2]
 args_list = [trials, drift_enabled_args, input_noise_args]
 arg_combs = list(itertools.product(*args_list))
 # order of args:
-# 0: trial; 1: drift; 2: input noise
+# [0]: trial; [1]: drift; [2]: input noise
 
 # attempts_dict for monitoring attempts per trial
 attempt_dict = dict.fromkeys(arg_combs, 0)  # every trial at 0 attempts
