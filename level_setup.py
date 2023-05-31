@@ -3,12 +3,12 @@ import time
 import numpy as np
 import pandas as pd
 import random
-from comets import Comet
-from player import Player
-from walls import Wall
-from drift_tiles import DriftTile
-from particles import Particle
-from lines import Line
+from ingame_objects.comets import Comet
+from ingame_objects.player import Player
+from ingame_objects.walls import Wall
+from ingame_objects.drift_tiles import DriftTile
+from ingame_objects.particles import Particle
+from ingame_objects.lines import Line
 from displays import display_soc_question
 from config import *
 
@@ -128,7 +128,8 @@ class Level:
 
         if drift_enabled:
             for i in range(len(drift_ranges)):
-                drift_info = drift_ranges[i]  # drift_info[0]: y_start, [1]: y_end, [2]: direction
+                drift_info = drift_ranges[i]
+                # drift_info[0]: y_start, [1]: y_end, [2]: direction+magnitude, [3]: visibility
                 drift_tile = DriftTile(drift_info[0], drift_info[1], drift_tile_size_x, observation_space_size_x, edge,
                                        drift_info[2], drift_info[3], scaling)
                 self.drift_tiles.add(drift_tile)
@@ -222,16 +223,16 @@ class Level:
         self.drift.x = 0
 
         for sprite in self.drift_tiles.sprites():
-            if sprite.rect.left > player.rect.right:  # if drift.tile is right from player.tile than drift to left
-                if player.rect.top in range(sprite.rect.top, sprite.rect.bottom):
-                    self.drift.x = -drift_magnitude * sprite.direction
-                elif player.rect.bottom in range(sprite.rect.top, sprite.rect.bottom):
-                    self.drift.x = -drift_magnitude * sprite.direction
-            elif sprite.rect.right < player.rect.left:  # if drift.tile is left from player.tile than drift to right
-                if player.rect.top in range(sprite.rect.top, sprite.rect.bottom):
-                    self.drift.x = -drift_magnitude * sprite.direction
-                elif player.rect.bottom in range(sprite.rect.top, sprite.rect.bottom):
-                    self.drift.x = -drift_magnitude * sprite.direction
+            #if sprite.rect.left > player.rect.right:  # if drift.tile is right from player.tile than drift to left
+            if player.rect.top in range(sprite.rect.top, sprite.rect.bottom):
+                self.drift.x = -sprite.direction
+            elif player.rect.bottom in range(sprite.rect.top, sprite.rect.bottom):
+                self.drift.x = -sprite.direction
+            #elif sprite.rect.right < player.rect.left:  # if drift.tile is left from player.tile than drift to right
+            #    if player.rect.top in range(sprite.rect.top, sprite.rect.bottom):
+            #        self.drift.x = -sprite.direction
+            #    elif player.rect.bottom in range(sprite.rect.top, sprite.rect.bottom):
+            #        self.drift.x = -sprite.direction
 
     def get_soc_response(self):
         keys = pygame.key.get_pressed()

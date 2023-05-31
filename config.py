@@ -11,7 +11,7 @@ drift_tile_size_x = 1
 particle_sizes = (2/16, 3/16, 4/16)
 
 # drift 
-drift_magnitude = 1/2  # imposed drift in fraction of normal sidewards movement 
+# drift_magnitude = 1/2  # in case of using old level csv's that do not account for magnitude and simply state 1
 # mapping
 # drift = 0: leftwards drift
 # drift = 2: rightwards drift

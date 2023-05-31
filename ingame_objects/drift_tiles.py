@@ -8,7 +8,7 @@ class DriftTile(pygame.sprite.Sprite):
         """
         :param y_start: position on level y-axis of drift tile
         :param y_end: end position on level y_axis of drift tile
-        :param direction: direction of imposed drift
+        :param direction: direction of imposed drift; as well as magnitude. The higher the value the weaker the drift
         :param scaling: scaling variable to compute final
         """
         super().__init__()
@@ -20,7 +20,7 @@ class DriftTile(pygame.sprite.Sprite):
         else:
             self.image.fill('black')
         # imposed drift by tile
-        self.direction = direction
+        self.direction = 1/direction
         # position of drift sprite
         self.y_pos = y_start
         # x_pos depends on direction (drift to right=tile is visualized to the left and vice versa)
