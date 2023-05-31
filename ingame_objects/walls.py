@@ -1,11 +1,10 @@
 import pygame
-from config import wall_size
 
 
 class Wall(pygame.sprite.Sprite):
-    def __init__(self, pos, scaling):
+    def __init__(self, pos, size, scaling):
         super().__init__()
-        self.image = pygame.Surface((wall_size * scaling, wall_size * scaling))
+        self.image = pygame.Surface((size * scaling, size * scaling))
         self.image.fill('white')
         self.rect = self.image.get_rect(topleft=pos)
 

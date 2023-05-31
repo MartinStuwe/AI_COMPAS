@@ -1,10 +1,9 @@
 import pygame
 import os
-from config import agent_size_x, agent_size_y
 
 
 class Player(pygame.sprite.Sprite):
-    def __init__(self, starting_pos, scaling, tiny_vis=False):
+    def __init__(self, starting_pos, size_x, size_y, scaling, tiny_vis=False):
         super().__init__()
 
         # agent animations
@@ -13,15 +12,15 @@ class Player(pygame.sprite.Sprite):
             'left': pygame.image.load(os.path.join('assets/spaceship/left', 'spaceship_master_left_turn.png')).convert_alpha(),
             'right': pygame.image.load(os.path.join('assets/spaceship/right', 'spaceship_master_right_turn.png')).convert_alpha()
         }
-        self.animations['idle'] = pygame.transform.scale(self.animations['idle'], (agent_size_x*scaling, agent_size_y*scaling))
-        self.animations['left'] = pygame.transform.scale(self.animations['left'], (agent_size_x*scaling, agent_size_y*scaling))
-        self.animations['right'] = pygame.transform.scale(self.animations['right'], (agent_size_x*scaling, agent_size_y*scaling))
+        self.animations['idle'] = pygame.transform.scale(self.animations['idle'], (size_x*scaling, size_y*scaling))
+        self.animations['left'] = pygame.transform.scale(self.animations['left'], (size_x*scaling, size_y*scaling))
+        self.animations['right'] = pygame.transform.scale(self.animations['right'], (size_x*scaling, size_y*scaling))
         # actual image which will be drawn on player rectangle
         self.image = self.animations['idle']
         # self.image = pygame.image.load(os.path.join('assets/spaceship/idle', 'spaceship_master.png')).convert_alpha()
         # self.image = pygame.transform.scale(self.image, (agent_size_x*scaling, agent_size_y*scaling))
         if tiny_vis:
-            self.image = pygame.Surface((agent_size_x*scaling, agent_size_y*scaling))
+            self.image = pygame.Surface((size_x*scaling, size_y*scaling))
             self.image.fill('green')
         # rectangular surface of the player
         self.rect = self.image.get_rect(topleft=starting_pos)

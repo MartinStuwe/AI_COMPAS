@@ -99,12 +99,12 @@ class Level:
         for i in range(1, len(wall_list) + 1):
             # left wall
             left_wall_x_pos = (wall_list[str(i)][0])
-            left_wall = Wall((left_wall_x_pos, i * scaling), scaling)
+            left_wall = Wall((left_wall_x_pos, i * scaling), wall_size, scaling)
             # i*scaling will result in the correct y-coord of the wall
 
             # right wall
             right_wall_x_pos = (wall_list[str(i)][1])
-            right_wall = Wall((right_wall_x_pos, i * scaling), scaling)
+            right_wall = Wall((right_wall_x_pos, i * scaling), wall_size, scaling)
 
             # add both walls to sprite group
             self.walls.add(left_wall, right_wall)
@@ -119,17 +119,18 @@ class Level:
 
         if keyboard_input:
             player_appearance = [player_starting_position[0], (player_starting_position[1] - pre_trial_steps * scaling)]
-            player_sprite = Player(player_appearance, scaling, tiny_vis)
+            player_sprite = Player(player_appearance, agent_size_x, agent_size_y, scaling, tiny_vis)
             self.player.add(player_sprite)
 
         else:
-            player_sprite = Player(player_starting_position, scaling, tiny_vis)
+            player_sprite = Player(player_starting_position, agent_size_x, agent_size_y, scaling, tiny_vis)
             self.player.add(player_sprite)
 
         if drift_enabled:
             for i in range(len(drift_ranges)):
                 drift_info = drift_ranges[i]  # drift_info[0]: y_start, [1]: y_end, [2]: direction
-                drift_tile = DriftTile(drift_info[0], drift_info[1], drift_info[2], drift_info[3], scaling)
+                drift_tile = DriftTile(drift_info[0], drift_info[1], drift_tile_size_x, observation_space_size_x, edge,
+                                       drift_info[2], drift_info[3], scaling)
                 self.drift_tiles.add(drift_tile)
 
         for _ in range(int(last_wall_tile.rect.y / scaling * 2.5)):

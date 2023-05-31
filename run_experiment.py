@@ -42,7 +42,7 @@ trials = [1]
 
 # drift enabled
 # drift_enabled_args = [True, False]
-drift_enabled_args = [False]
+drift_enabled_args = [True]
 
 # input noise
 # input_noise_args = [0, 0.5, 1, 1.5, 2]
