@@ -38,7 +38,7 @@ practice_list_of_attempt_dict_keys = list(practice_attempt_dict.keys())
 # N_trials = 3  # for each trial there must be a drift_ranges, object_list, and walls_dict file in the logs folder
 # trials = list(range(1, N_trials + 1))  # end +1 due to python stopping before processing last entry
 # trials = [1, 2, 3]  # simply stating every level in a list is also possible
-trials = [1]
+trials = [0]
 
 # drift enabled
 # drift_enabled_args = [True, False]
