@@ -4,15 +4,12 @@ from helper_functions import get_wall_positions, get_player_positions, get_obsta
 from config import scaling, level_size_x
 
 
-def plot_level_layout(trial=1, FPS=60, pixel_move_y_direction=6, safe_plot=False):
+def plot_level_layout(trial=1, safe_plot=False):
 
     wall_list_file = f'walls_dict_{trial}.csv'
     wall_list = get_wall_positions(wall_list_file)
 
     level_size_y = len(wall_list)
-    level_size_y_in_pixel = level_size_y*scaling
-    N_steps = level_size_y_in_pixel / pixel_move_y_direction
-    time_complete_in_s = N_steps / FPS
 
     obstacles_lists_file = f'object_list_{trial}.csv'
     obstacles_list, flag_multiple_obstacle_lists = get_obstacles_lists(obstacles_lists_file)
@@ -20,7 +17,7 @@ def plot_level_layout(trial=1, FPS=60, pixel_move_y_direction=6, safe_plot=False
     drift_ranges_file = f'drift_ranges_{trial}.csv'
     drift_ranges = get_drift_ranges(drift_ranges_file)
 
-    fig, ax = plt.subplots(figsize=(3, 12), dpi=80)
+    fig, ax = plt.subplots(figsize=(5, 12), dpi=80)
 
     plt.rcParams.update({'font.size': 16})
     # plt.tick_params(
@@ -44,7 +41,7 @@ def plot_level_layout(trial=1, FPS=60, pixel_move_y_direction=6, safe_plot=False
     # ax.set_xticklabels(['0', '360', '720'], fontsize=12)
 
     ax.set_ylim(0, level_size_y)
-    ax.set_yticks(np.arange(0, level_size_y+1, step=level_size_y/2))
+    ax.set_yticks(np.arange(0, level_size_y+1, step=level_size_y/20))
     # ax.set_yticklabels(['0', '4500', '9000'], fontsize=12)
 
     for key in obstacles_list:
@@ -61,8 +58,11 @@ def plot_level_layout(trial=1, FPS=60, pixel_move_y_direction=6, safe_plot=False
         ax.plot(right_wall_x_pos, i, color='black', marker='s', markersize=1)
 
     for drift_info in drift_ranges:
+        # drift of any magnitude to the left (negative drift value) is displayed right outside of the right side of
+        # the level and vice versa
         for i in range(drift_info[0], drift_info[1]+1):
-            ax.plot(20 + drift_info[2]*(-12), i, color='red', marker='s', markersize=1)
+            drift_pos = 1 if drift_info[2] > 0 else -1
+            ax.plot(20 + drift_pos*(-24), i, color='red', marker='s', markersize=1)
 
     # scale and invert axes
     ax = plt.gca()
@@ -70,9 +70,12 @@ def plot_level_layout(trial=1, FPS=60, pixel_move_y_direction=6, safe_plot=False
     ax.invert_yaxis()
 
     # add time axis
-    sec_y_axis = ax.secondary_yaxis('right', functions=(lambda x: x/(level_size_y/time_complete_in_s), lambda x: x/(level_size_y/time_complete_in_s)))
+    # conversion functions
+    y_to_t = lambda step: step*0.05 + 0.7
+    t_to_y = lambda t_: t_/0.05 - 0.7
+
+    sec_y_axis = ax.secondary_yaxis('right', functions=(y_to_t, t_to_y))
     sec_y_axis.set_ylabel('time in seconds', size=22)
-    sec_y_axis.set_yticks(np.linspace(0, time_complete_in_s, 5))
     sec_y_axis.invert_yaxis()
 
     # plt.grid(True)

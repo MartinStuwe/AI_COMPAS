@@ -46,7 +46,7 @@ drift_enabled_args = [True]
 
 # input noise
 # input_noise_args = [0, 0.5, 1, 1.5, 2]
-input_noise_args = [2]
+input_noise_args = [0]
 
 # create list of all possible combinations of level and control manipulations
 args_list = [trials, drift_enabled_args, input_noise_args]
