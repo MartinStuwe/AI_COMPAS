@@ -8,7 +8,6 @@ import json
 
 loop = None
 
-global_id_counter = 0
 
 def start_async_loop():
     global loop
@@ -21,6 +20,8 @@ asyncio_thread.start()
 asyncio_thread.join(0.1)  # Give the thread some time to set up the loop
 
 class Comet(pygame.sprite.Sprite):
+    global_id_counter = 0
+
     def __init__(self, pos, size):
         super().__init__()
         self.image = pygame.image.load(os.path.join('assets/comets', 'comet_master.png')).convert_alpha()
@@ -29,8 +30,9 @@ class Comet(pygame.sprite.Sprite):
         self.rect = self.image.get_rect(topleft=pos)
         self.last_sent = pygame.time.get_ticks()  # Initialize last_sent properly
         self.update_freq = 1000  # Increase frequency if needed (ms)
-        self.id = global_id_counter + 1
-        global_id_counter += 1
+        global global_id_counter
+        self.id = Comet.global_id_counter + 1
+        Comet.global_id_counter += 1
 
     def update(self, speed, scaling, horizontal_movement):
         self.rect.y -= int(1 * scaling * speed)
@@ -44,7 +46,7 @@ class Comet(pygame.sprite.Sprite):
 
     def update_visicon(self):
         #message = f"{{\"method\": \"evaluate\", \"params\": [\"add-visicon-features\", \"compas-model\", [\"screen-x\", {self.rect.x}, \"screen-y\", {self.rect.y}], \"id\": 1}}"
-        message = f"{{\"method\": \"evaluate\", \"params\":[\"add-visicon-features\", \"compas-model\", [\"screen-x\", 2, \"screen-y\", 2]], \"id\": 1}}"
+        message = f"{{\"method\": \"evaluate\", \"params\":[\"add-visicon-features\", \"compas-model\", [\"screen-x\", {self.rect.x}, \"screen-y\", {self.rect.y}]], \"id\": 1}}"
         #message2 = '{"method": "evaluate", "params":["add-visicon-features", "compas-model", ["screen-x", 2, "screen-y", 2]], "id": 1}'
         #print("message2 is: " + message2)
         asyncio.run_coroutine_threadsafe(actr.rpc_interface.communicate(message=message), loop)
