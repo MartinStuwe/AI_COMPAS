@@ -1,12 +1,10 @@
 import pygame
 import os
 import random
-import  actr.rpc_interface
+import actr.rpc_interface
 import asyncio
-import threading
 import json
-
-loop = None
+from actr.socket_manager import comet_socket, move_socket
 
 
 def start_async_loop():
@@ -14,10 +12,6 @@ def start_async_loop():
     loop = asyncio.new_event_loop()
     asyncio.set_event_loop(loop)
     loop.run_forever()
-
-asyncio_thread = threading.Thread(target=start_async_loop, daemon=True)
-asyncio_thread.start()
-asyncio_thread.join(0.1)  # Give the thread some time to set up the loop
 
 class Comet(pygame.sprite.Sprite):
     global_id_counter = 0
@@ -45,11 +39,24 @@ class Comet(pygame.sprite.Sprite):
             self.last_sent = current_time
 
     def update_visicon(self):
-        #message = f"{{\"method\": \"evaluate\", \"params\": [\"add-visicon-features\", \"compas-model\", [\"screen-x\", {self.rect.x}, \"screen-y\", {self.rect.y}], \"id\": 1}}"
-        message = f"{{\"method\": \"evaluate\", \"params\":[\"add-visicon-features\", \"compas-model\", [\"screen-x\", {self.rect.x}, \"screen-y\", {self.rect.y}]], \"id\": 1}}"
-        #message2 = '{"method": "evaluate", "params":["add-visicon-features", "compas-model", ["screen-x", 2, "screen-y", 2]], "id": 1}'
-        #print("message2 is: " + message2)
-        asyncio.run_coroutine_threadsafe(actr.rpc_interface.communicate(message=message), loop)
+        message = f"{{\"method\": \"evaluate\", \"params\":[\"add-visicon-features\", \"compas-model\", [\"screen-x\", {self.rect.x}, \"screen-y\", {self.rect.y}, \"comet-id\", {self.id}]], \"id\": 1}}"
 
+        actr.rpc_interface.communicate_socket(sock=comet_socket, message=message)
 
-    #await send(sock,'{"method": "evaluate", "params":["add-visicon-features", "compas-model", ["screen-x", 2, "screen-y", 2]], "id": 1}')
+        message = {
+        "method": "monitor",
+        "params": ["output-key", "handle-output-key"]
+        }
+
+        message = actr.rpc_interface.receive(socket=move_socket)
+        if message is not None and 'method' in message.keys() and 'params'in message.keys() and 'id' in message.keys():
+            if message['method'] == 'evaluate':
+                if message['params'][0] == "moveleft":
+                    print("KEY PRESSED")
+                    response_message = {
+                    "result": ["result"],
+                    "error": None,
+                    "id": message['id']
+                    }
+                    actr.rpc_interface.send(move_socket, json.dumps(response_message))
+    
