@@ -6,8 +6,11 @@ import itertools
 from main import run_visualization
 from displays import *
 from config import observation_space_size_x, observation_space_size_y, scaling, edge
+from actr import rpc_interface
+from actr.socket_manager import comet_socket, move_socket
+import threading
 
-
+import asyncio
 # participant code
 code = input('Enter code: ')
 
@@ -48,6 +51,7 @@ drift_enabled_args = [True]
 # input_noise_args = [0, 0.5, 1, 1.5, 2]
 input_noise_args = [0]
 
+
 # create list of all possible combinations of level and control manipulations
 args_list = [trials, drift_enabled_args, input_noise_args]
 arg_combs = list(itertools.product(*args_list))
@@ -68,8 +72,26 @@ quit = False
 level_done = False
 instructions = False
 n_run = 0
-while not quit:
 
+
+    # Send move-left
+message2 = '{"method": "add", "params":["moveleft", "moveleft", "this documents moveleft"], "id": 1}'
+
+print(f"message2: {message2}")
+#socket.setblocking(False)
+received = rpc_interface.communicate_socket(move_socket, message2)
+print(f"received: {received}")
+
+# Send move-right
+message2 = '{"method": "add", "params":["moveright", "moveright", "this documents moveright"], "id": 2}'
+print(message2)
+received = rpc_interface.communicate_socket(move_socket, message2)
+print(f"received: {received}")
+
+
+
+
+while not quit:
     if instructions:
         display_instructions(screen)
 
@@ -80,6 +102,7 @@ while not quit:
             display_intertrial_screen_after_crash(screen)
 
     pygame.display.update()
+
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             quit = True
