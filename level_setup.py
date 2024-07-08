@@ -13,10 +13,24 @@ from displays import display_soc_question
 from config import *
 
 from draw_transparent_shapes import draw_rect_alpha, draw_polygon_alpha, draw_circle_alpha
+from actr import rpc_interface
+import asyncio
 
 display_keys = False
 question_soc = True
 
+#import threading
+
+import warnings
+warnings.filterwarnings(action="ignore", category=FutureWarning)
+
+"""
+def start_async_loop():
+    loop = asyncio.new_event_loop()
+    asyncio.set_event_loop(loop)
+    loop.run_forever()
+asyncio_thread = threading.Thread(target=start_async_loop, daemon=True)
+"""
 
 class Level:
     def __init__(self, wall_list, obstacles_list, player_starting_position, drift_ranges, screen, scaling, code, FPS=30,
