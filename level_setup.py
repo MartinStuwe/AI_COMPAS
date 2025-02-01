@@ -1,5 +1,4 @@
 import pygame
-import time
 import numpy as np
 import pandas as pd
 import random
@@ -9,32 +8,99 @@ from ingame_objects.walls import Wall
 from ingame_objects.drift_tiles import DriftTile
 from ingame_objects.particles import Particle
 from ingame_objects.lines import Line
-from displays import display_soc_question
 from config import *
 
-from draw_transparent_shapes import draw_rect_alpha, draw_polygon_alpha, draw_circle_alpha
-from actr import rpc_interface
-import asyncio
-
-display_keys = False
-question_soc = True
-
-#import threading
+### Both used in same line
+from helper_functions import degree_to_pixel #NOTE: used in repo
+from draw_transparent_shapes import draw_rect_alpha, draw_polygon_alpha, draw_circle_alpha #NOTE: used in repo, see other notes
+###
 
 import warnings
 warnings.filterwarnings(action="ignore", category=FutureWarning)
 
-"""
-def start_async_loop():
-    loop = asyncio.new_event_loop()
-    asyncio.set_event_loop(loop)
-    loop.run_forever()
-asyncio_thread = threading.Thread(target=start_async_loop, daemon=True)
-"""
 
+import os
+import datetime
+
+import actr.rpc_interface
+import json
+from actr.socket_manager import move_socket
+
+#SHM
+import ctypes
+import mmap
+
+
+libc = ctypes.CDLL("libc.so.6") 
+shm_open = libc.shm_open # CDLL function to create/open POSIX shared memory objects 
+shm_open.argtypes = [ctypes.c_char_p, ctypes.c_int, ctypes.c_int]
+shm_open.restype = ctypes.c_int
+
+shm_unlink = libc.shm_unlink
+shm_unlink.argtypes = [ctypes.c_char_p]                     
+shm_unlink.restype = ctypes.c_int
+O_CREAT = os.O_CREAT
+O_RDWR = os.O_RDWR
+S_IRWXU = 0o700                         
+
+
+# Shared Memory for pixels of environment
+shm_name = b"/compas_shared_memory"
+size1 = 840 * 1334  # Size of the memory to be mapped
+
+# Create or open the shared memory object
+fd = shm_open(shm_name, O_CREAT | O_RDWR, S_IRWXU)
+if fd < 0:
+    raise OSError("Failed to create shared memory object")
+
+# Set the size of the shared memory object
+if libc.ftruncate(fd, size1) != 0:
+    raise OSError("Failed to set size of shared memory object")
+
+# Memory map the shared memory object
+mm = mmap.mmap(fd, size1)
+
+
+# Shared Memory for player sprite rect x
+shm_name2 = b"/compas_shared_memory_player"
+size2 = 4  # Size of the memory to be mapped
+
+
+# Create or open the shared memory object
+fd2 = shm_open(shm_name2, O_CREAT | O_RDWR, S_IRWXU)
+if fd2 < 0:
+    raise OSError("Failed to create shared memory object")
+
+# Set the size of the shared memory object
+if libc.ftruncate(fd2, size2) != 0:
+    raise OSError("Failed to set size of shared memory object")
+
+# Memory map the shared memory object
+mm2 = mmap.mmap(fd2, size2)
+
+
+# Shared memory for reference point tuple
+shm_name3 = b"/compas_shared_memory_reference"
+size3 = 16
+# Create or open the shared memory object
+fd3 = shm_open(shm_name3, O_CREAT | O_RDWR, S_IRWXU)
+if fd3 < 0:
+    raise OSError("Failed to create shared memory object")
+
+# Set the size of the shared memory object
+if libc.ftruncate(fd3, size3) != 0:
+    raise OSError("Failed to set size of shared memory object")
+# Memory map the shared memory object
+mm3 = mmap.mmap(fd3, size3)
+
+
+
+
+display_keys = True
+#NOTE: keyboard_input kann weg, ist auch im repo nicht mehr vorhanden, da agent autonom agieren soll.
 class Level:
     def __init__(self, wall_list, obstacles_list, player_starting_position, drift_ranges, screen, scaling, code, FPS=30,
-                 n_run=0, tiny_vis=False, keyboard_input=False, trial=0, attempt=0, input_noise_magnitude=0,
+                 n_run=0, trial=0, attempt=0, tiny_vis=False, keyboard_input=False, input_noise_magnitude=0,
                  input_noise_threshold=0, drift_enabled=False):
 
         # experiment information
@@ -72,7 +138,7 @@ class Level:
 
         # threshold and magnitude for imposing input noise on agent (is updated by subtracting step size)
         self.input_noise_threshold = input_noise_threshold*scaling
-        self.input_noise_magnitude = input_noise_magnitude
+        self.input_noise_magnitude = input_noise_magnitude # 0.5 or 1 
         self.input_noise_on = False
 
         # n_run indicating the number of trials after starting the program (used to differentiate data files)
@@ -99,6 +165,7 @@ class Level:
                         'SoC']
 
         self.data = pd.DataFrame(columns=self.columns)
+
 
     def setup_level(self, wall_list, obstacles_list, player_starting_position, drift_ranges, drift_enabled, scaling,
                     tiny_vis, keyboard_input):
@@ -131,14 +198,15 @@ class Level:
             comet_sprite = Comet((key['x'], key['y']), key['size'])  # arguments in Comet(): x-pos, y-pos, tile_size
             self.comets.add(comet_sprite)
 
-        if keyboard_input:
-            player_appearance = [player_starting_position[0], (player_starting_position[1] - pre_trial_steps * scaling)]
-            player_sprite = Player(player_appearance, agent_size_x, agent_size_y, scaling, tiny_vis)
-            self.player.add(player_sprite)
+        #if keyboard_input:
+        player_appearance = [player_starting_position[0], (player_starting_position[1] - pre_trial_steps * scaling)]
+        player_sprite = Player(player_appearance, agent_size_x, agent_size_y, scaling, tiny_vis)
+        self.player.add(player_sprite)
 
-        else:
-            player_sprite = Player(player_starting_position, agent_size_x, agent_size_y, scaling, tiny_vis)
-            self.player.add(player_sprite)
+        #NOTE: Im Repo ist if und else nicht vorhanden, sondern wie hier
+        #else:
+        #    player_sprite = Player(player_starting_position, agent_size_x, agent_size_y, scaling, tiny_vis)
+        #    self.player.add(player_sprite)
 
         if drift_enabled:
             for i in range(len(drift_ranges)):
@@ -162,11 +230,28 @@ class Level:
         finish_line_tile = Line(pos=[edge * scaling, last_wall_tile.rect.y],
                                 size=[level_size_x * scaling, scaling], col="seagreen")
         self.finish_line.add(finish_line_tile)
+            
+        #NOTE: Here the code uses Action Planner i.e.
+        #NOTE: probably just initialization, this is Level.setup_level(...) 
+        #self.agent = ActionPlanner(free_parameters=parameters,
+        #                           initial_position_x=self.player.sprite.rect.x + scaling,
+        #                           observation_space_in_pixel=[observation_space_size_x*scaling, observation_space_size_y*scaling])
+        #self.convolutionGranularity = int(self.agent.parameters['convolutionGranularity'])
+        #NOTE: Approach to solve
+        rect_x = np.array([player_sprite.rect.x], dtype=np.int32)  # rect.x as an array
+        rect_x_bytes = rect_x.tobytes()  # Convert to bytes
+        mm2[0:4] = rect_x_bytes
 
     def get_input(self):
         # input noise
         player = self.player.sprite
         input_noise = 0
+        #NOTE: Here repo has:
+        #self.agent.apply_motor_control()
+        #self.current_input = self.agent.action
+
+
+
         # input noise magnitude can be any float which reflects the magnitude of actual displacement
         # at the end of the left or right step. The magnitude directly translates to the sd of the normal distribution
         # the displacement is sampled from.
@@ -182,28 +267,89 @@ class Level:
         self.transparency_left = 90
         self.transparency_right = 90
 
-        keys = pygame.key.get_pressed()
+        message = actr.rpc_interface.receive(socket=move_socket)
 
-        if keys[pygame.K_m] and keys[pygame.K_y]:  # pressing both keys
-            self.transparency_right = 150
-            self.transparency_left = 150
-            self.current_input = None  # maybe we have to flag pressing both keys here
-            self.direction.x = 0
-        elif keys[pygame.K_m]:  # K_m vs. K_RIGHT
-            self.current_input = 'Right'
-            self.direction.x = -1 + input_noise
-            self.transparency_right = 150
-        elif keys[pygame.K_y]:  # K_y vs. K_LEFT
-            self.current_input = 'Left'
-            self.direction.x = 1 + input_noise
-            self.transparency_left = 150
-        else:
-            self.current_input = None
-            self.direction.x = 0
+        # Receive and post the appropriate key press events
+        if message is not None and 'method' in message.keys() and 'params' in message.keys() and 'id' in message.keys():
+            if message['method'] == 'evaluate':
+                if message['params'][0] == "moveleft":
+                    #pygame.event.post(pygame.event.Event(key=pygame.K_y))
+                    self.direction.x = 1 + input_noise
+                    print(f"Move left with: {self.direction.x}")
+                    print("Should move left")
+                    #pygame.event.post(pygame.event.Event(pygame.KEYUP, key=pygame.K_y))
+                    response_message = {
+                        "result": ["result"],
+                        "error": None,
+                        "id": message['id']
+                    }
+                    #print(response_message)
+                    actr.rpc_interface.send(move_socket, json.dumps(response_message))
+
+                elif message['params'][0] == "moveright":
+                    #pygame.event.post(pygame.event.Event(key=pygame.K_m))
+                    #pygame.event.post(pygame.event.Event(pygame.KEYUP, key=pygame.K_m))
+                    self.direction = -1 + input_noise
+                    response_message = {
+                        "result": ["result"],
+                        "error": None,
+                        "id": message['id']
+                    }
+                    actr.rpc_interface.send(move_socket, json.dumps(response_message))
+                else:
+                    self.direction.x = 0
+                    print(f"Reset direction self.direction.x")
+
+        # Handle the event loop
+        """if self.agent.action == 'Right':
+        self.direction.x = -1 + input_noise
+        self.transparency_right = 150
+        elif self.agent.action == 'Left':
+        self.direction.x = 1 + input_noise
+        self.transparency_left = 150
+        else:  # self.agent.action is None
+        self.direction.x = 0
+        """
 
     def update(self):
+
+        reference_point = (self.walls.sprites()[-2].rect.x + scaling, 208)
+        
+        # 532 * 394
+        observation_space = reference_point[0], reference_point[1], 532, 394
+        surface_subsection = self.display_surface.subsurface(observation_space)
+        surface_array = np.transpose(pygame.surfarray.array_green(surface_subsection))
+        surface_array[surface_array > 1] = 1
+        
+
+        # 
+        size1 = 532 * 394
+
+
+        # Convert the 2D array to bytes
+        # green_array = green_array.flatten()
+        green_bytes = surface_array.tobytes()
+        
+
+        # shm
+        mm[0:len(green_bytes)] = green_bytes[:size1]
+
+        rect_x = np.array([self.player.sprite.rect.x], dtype=np.int32)  # rect.x as an array
+        rect_x_bytes = rect_x.tobytes()  # Convert to bytes
+        mm2[0:4] = rect_x_bytes[0:len(rect_x_bytes)]
+
+
+        #Transfer ref point to shared memory
+        reference_point_bytes = np.array(reference_point).tobytes()
+
+        mm3[0:len(reference_point_bytes)] = reference_point_bytes[:16]
+
         self.get_input()
         self.horizontal_movement = self.direction.x + self.drift.x  # compute horizontal movement with drift
+        print(f"Update Horz. Movement with: {self.direction.x} and {self.drift.x}")
+
+
+
 
     def check_for_collision(self):
         player = self.player.sprite
@@ -329,6 +475,11 @@ class Level:
         for sprite in self.comets.sprites():
             if 0 <= sprite.rect.y <= (observation_space_size_y - bottom_edge) * scaling:
                 self.visible_obstacles.append([sprite.rect.x, sprite.rect.y])
+        # updating visible drift tiles
+        self.visible_drift_tiles = []
+        for sprite in self.drift_tiles.sprites():
+            if 0 <= sprite.rect.y <= (observation_space_size_y - bottom_edge) * scaling:
+                self.visible_drift_tiles.append([sprite.rect.x, sprite.rect.y])
 
         # updating adjacent wall tiles y pos (left wall, right wall)
         self.adjacent_wall_tiles_x_pos = [self.walls.sprites()[0].rect.x, self.walls.sprites()[1].rect.x]
@@ -336,58 +487,29 @@ class Level:
         # check for level done: if player went over finish line => level_done
         finish_line = self.finish_line.sprites()[-1]
         if finish_line.rect.bottom < player.rect.top:  # (observation_space_size_y - bottom_edge) * scaling:
-            if question_soc:
-                # ask for SoC:
-                display_soc_question(self.display_surface)
-                response = self.get_soc_response()
-                if response is not None:
-                    self.level_done = True
-                    self.quit = True
-                    # write data of all frames to csv
-                    self.get_data(scaling)
-                    self.data.to_csv(f'data/{self.code}_output_{self.trial}_{self.n_run:0>2}.csv', sep=',', index=False)
-            else:
-                self.level_done = True
-                self.quit = True
-                # write data of all frames to csv
-                self.get_data(scaling)
-                self.data.to_csv(f'data/{self.code}_output_{self.trial}_{self.n_run:0>2}.csv', sep=',', index=False)
+            self.level_done = True
+            self.quit = True
+            # write data of all frames to csv
+            self.get_data(scaling)
+            #self.data.to_csv(f'data/{self.code}_output_{self.convolutionGranularity}_{self.trial}_{self.n_run:0>2}.csv', sep=',', index=False)
 
         elif player.crashed:
-            if question_soc:
-                # ask for SoC:
-                display_soc_question(self.display_surface)
-                response = self.get_soc_response()
-                if response is not None:
-                    if self.time_played > self.replay_threshold:
-                        self.level_done = True
-                    self.quit = True
-                    # write data of all frames to csv
-                    self.get_data(scaling)
-                    self.data.to_csv(f'data/{self.code}_output_{self.trial}_{self.n_run:0>2}.csv', sep=',', index=False)
-            else:
-                if self.time_played > self.replay_threshold:
-                    self.level_done = True
-                self.quit = True
-                # write data of all frames to csv
-                self.get_data(scaling)
-                self.data.to_csv(f'data/{self.code}_output_{self.trial}_{self.n_run:0>2}.csv', sep=',', index=False)
-
+            if self.time_played > self.replay_threshold:
+                self.level_done = True
+            self.quit = True
+            # write data of all frames to csv
+            self.get_data(scaling)
+            #self.data.to_csv(f'data/{self.code}_output_{self.convolutionGranularity}_{self.trial}_{self.n_run:0>2}.csv', sep=',', index=False)
+            #for every frame for each trial, buffer activity also
         else:
             self.level_done = False
 
-            if not tiny_visualization and keyboard_input:
-                player.animate(self.current_input)
+            player.animate(self.current_input)
 
-            if keyboard_input:
-                self.update()
-            else:
-                self.player.update(player_position, scaling, keyboard_input)
-
-            if keyboard_input and player.rect.y < player_position[1]:
+            if player.rect.y < player_position[1]:
                 player.approach(velocity, scaling)
                 pass
-            if not tiny_visualization and player.rect.y >= player_position[1]:
+            if player.rect.y >= player_position[1]:
                 # update sprite positions
                 # update level tiles
                 self.comets.update(velocity, scaling, self.horizontal_movement)
@@ -395,15 +517,20 @@ class Level:
                 self.drift_tiles.update(velocity, scaling, self.horizontal_movement)
                 self.particles.update(velocity, scaling, self.horizontal_movement)
                 self.finish_line.update(velocity, scaling, self.horizontal_movement)
+                print(self.horizontal_movement)
+                print("Updated objects with horiz. movement")
+                self.horizontal_movement = 0
+                self.direction.x = 0
+                # update action goal
+                #self.agent.update_action_goal(velocity, scaling, self.horizontal_movement)
 
                 # update input_noise threshold
                 self.input_noise_threshold -= 1 * scaling * velocity  # same updating as for all in-game objects
 
-            if keyboard_input:  # only needed if player is controlling spaceship
-                # check for collision
-                self.check_for_collision()
-                # check for drift
-                self.check_for_drift()
+            # check for collision
+            self.check_for_collision()
+            # check for drift
+            self.check_for_drift()
 
             # draw sprites
             # draw comets and tiles
@@ -413,11 +540,27 @@ class Level:
             self.drift_tiles.draw(self.display_surface)
             self.finish_line.draw(self.display_surface)
             self.bottom_edge.draw(self.display_surface)
-            # to display finish line when on screen but under bottom edge, 
+            # to display finish line when on screen but under bottom edge,
             # simply call draw method of buttom_edge.draw() AFTER finish_line.draw()
+
+            self.update()
 
             # draw agent
             self.player.draw(self.display_surface)
+            # draw transparent circle around action goal
+            
+            #NOTE: This happens in the repo
+            #draw_circle_alpha(surface=self.display_surface, color=(255, 0, 0, 100), center=self.agent.action_goal, radius=degree_to_pixel(1))
+            # draw fixated action goal
+            #pygame.draw.circle(self.display_surface, (255, 0, 0), self.agent.action_goal, 2)
+            # draw SoC indicators
+            # low-level
+            #pygame.draw.rect(self.display_surface, (50, 168, 82),
+            #                 (player.rect.x + 2*scaling, player.rect.y - self.agent.LL_SoC * 2*scaling, scaling, self.agent.LL_SoC * 2*scaling))
+            # high-level
+            #pygame.draw.rect(self.display_surface, (232, 137, 12),
+            #                 (player.rect.x + 3.1*scaling, player.rect.y - self.agent.HL_SoC * 2*scaling, scaling, self.agent.HL_SoC * 2*scaling))
+            #NOTE: Previous note until here
 
             # draw keys
             if display_keys:

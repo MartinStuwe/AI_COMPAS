@@ -4,7 +4,7 @@ import pandas as pd
 import scipy.stats as st
 from action_planner.helper_functions import likelihood_function, normalized_posterior, bound, \
     convolutionGranularity_activation_dict
-from action_planner.cognitiveControlLayer_functions import convolve_observation
+from action_planner.CCL_action_selection import pool_observation
 
 
 class ActionPlanner:
@@ -20,7 +20,7 @@ class ActionPlanner:
 
         # sense of control for SCL (LL) & CCL (HL)
         self.LL_SoC = 1.0
-        self.HL_SoC = 1.0
+        self.HL_SoC = 0.1 #0.1 1.0 
 
         # observation in pixel
         self.observation_space_x_in_pixel = np.linspace(0, observation_space_in_pixel[0],
@@ -35,19 +35,21 @@ class ActionPlanner:
         self.visual_acuity = 3  # arbitrarily chosen
 
         uniform_dist = st.uniform.pdf(self.observation_space_x_in_pixel) + 1
-        print(self.observation_space_x_in_pixel)
+        # print(self.observation_space_x_in_pixel)
         self.step_size_prior = uniform_dist / uniform_dist.sum()  # normalized prior
 
         # priors for imposed movement by drift (separate from step size)
         self.drift_prior = self.step_size_prior  # reusing flat prior
-        self.drift_present = False  # True vs. False: inferred state (from visual feedback) of drift applying or not
+        self.drift_applying = False  # True vs. False: inferred state (from visual feedback) of drift applying or not
+        # drift can be on screen but not applying. This variable only refers to the model inferring whether drift
+        # applies not whether it is visible.
 
         # horizontal movement either by own action or by drift
         self.perceived_step_size = None  # likelihood
 
         # history of prediction errors
         self.prediction_errors = []
-        # threshold for when PEs are actually surprising (decrease LL_SoC)
+        # threshold for when PEs are actually considered as PE (decrease LL_SoC)
         self.PE_threshold = 0.0001
 
         # memory content
@@ -83,7 +85,7 @@ class ActionPlanner:
         # currently executed actions; driven by SCL
         self.action = None  # can be None vs. 'Right' vs. 'Left'
 
-    def update_action_goal(self, speed, scaling, horizontal_movement):
+    def update_action_goal(self, speed, scaling, horizontal_movement): #first
         """
         Due to the environment moving around the action planner, the action goal has to be updated in every time step
         """
@@ -96,7 +98,7 @@ class ActionPlanner:
         # horizontal movement
         self.action_goal[0] += (horizontal_movement * scaling * speed) + offset_x
 
-    def assess_action_goal(self, observation_in_pixel, radius=12):  # find number of pixels that are =5° visual angle
+    def assess_action_goal(self, observation_in_pixel, radius=12): # second # find number of pixels that are =5° visual angle
         """
         This function reflects the mental assessment of the situation. The if conditions reflect the conclusions the
         agent might draw. The following conclusions can be drawn:
@@ -109,8 +111,8 @@ class ActionPlanner:
         vision, this will be assessed as the action goal being reached.
         """
         # complexity of instance
-        _, _, convolved_observation, _ = convolve_observation(self.parameters, observation_in_pixel)
-        populated_kernels = list(zip(*np.where(convolved_observation > self.min_percentage_for_rejection)))
+        _, _, pooled_observation, _, _ = pool_observation(self.parameters, observation_in_pixel)
+        populated_kernels = list(zip(*np.where(pooled_observation > self.min_percentage_for_rejection)))
         # did complexity change? if yes, it affects HL_SoC
         new_complexity = len(populated_kernels) / self.parameters["convolutionGranularity"]
         change_in_complexity = new_complexity - self.instance_complexity
@@ -132,7 +134,7 @@ class ActionPlanner:
                 if int(populated_kernel[1]) == self.action_goal_col:
                     self.action_goal = None
 
-    def apply_motor_control(self):
+    def apply_motor_control(self): #third
         """
         regulatory control on sensorimotor control layer
         """
@@ -143,7 +145,7 @@ class ActionPlanner:
         else:
             self.action = None
 
-    def prediction_error(self):
+    def prediction_error(self): #fourth in combination with apply_motor_control
         """
         The agent will always stay at the same position (centered) and because of this what is actually inferred is
         the horizontal movement of the environment.
@@ -178,7 +180,7 @@ class ActionPlanner:
             # if predictions came true, then boost LL SoC with Shannon entropy of prior distribution for step size
             """
             This seems wrong: the boost in LL SoC should be higher if a more precise prediction comes true. Shannon 
-            entropy increases with increasing standard deviation through...
+            entropy increases with increasing standard deviation though...
             """
             self.LL_SoC += st.entropy(pk=self.step_size_prior)
             self.LL_SoC = bound(0, 1, self.LL_SoC)  # LL_SoC bottoms at 0.0 and tops at 1.0

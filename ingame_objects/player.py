@@ -1,7 +1,6 @@
 import pygame
 import os
 
-
 class Player(pygame.sprite.Sprite):
     def __init__(self, starting_pos, size_x, size_y, scaling, tiny_vis=False):
         super().__init__()

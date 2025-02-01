@@ -43,20 +43,5 @@ class Comet(pygame.sprite.Sprite):
 
         actr.rpc_interface.communicate_socket(sock=comet_socket, message=message)
 
-        message = {
-        "method": "monitor",
-        "params": ["output-key", "handle-output-key"]
-        }
 
-        message = actr.rpc_interface.receive(socket=move_socket)
-        if message is not None and 'method' in message.keys() and 'params'in message.keys() and 'id' in message.keys():
-            if message['method'] == 'evaluate':
-                if message['params'][0] == "moveleft":
-                    print("KEY PRESSED")
-                    response_message = {
-                    "result": ["result"],
-                    "error": None,
-                    "id": message['id']
-                    }
-                    actr.rpc_interface.send(move_socket, json.dumps(response_message))
     

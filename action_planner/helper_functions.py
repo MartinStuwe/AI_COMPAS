@@ -67,15 +67,17 @@ def bound(low, high, value):
 
 # dict for mapping granularity to mean activation
 convolutionGranularity_activation_dict = {
-    72: 0.12,
-    42: 0.08,
+    81: 0.08,
+    72: 0.07, #default war 0.07
+    56: 0.05,
+    42: 0.04,
     30: 0.03,
     20: 0.02,
     12: 0.005
 }
 
 HL_SoC_convolutionGranularity_dict = {
-    1: 12,
+    1.0: 12,
     0.9: 12,
     0.8: 20,
     0.7: 20,
@@ -83,7 +85,7 @@ HL_SoC_convolutionGranularity_dict = {
     0.5: 30,
     0.4: 42,
     0.3: 42,
-    0.2: 72,
+    0.2: 56,
     0.1: 72,
     0.0: 72
 }

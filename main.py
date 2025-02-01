@@ -9,6 +9,7 @@ from helper_functions import *
 from level_setup import *
 
 
+
 def run_visualization(surface, scaling=1, tiny_visualization=False, FPS=30, keyboard_input=False,
                       obstacles_lists_file='object_list_0.csv', drift_ranges_file='drift_ranges_0.csv',
                       wall_list_file='walls_dict_0.csv', input_noise_magnitude=0, input_noise_threshold=0,
@@ -42,15 +43,17 @@ def run_visualization(surface, scaling=1, tiny_visualization=False, FPS=30, keyb
         player_positions_filename = '0_vis.csv'
     else:
         player_positions_filename = str(trial) + '_vis.csv'
-    player_starting_position, player_positions = get_player_positions(player_positions_filename)
-    player_starting_position, player_positions = adjust_player_positions(player_starting_position, player_positions,
-                                                                         scaling, tiny_visualization=tiny_visualization)
+    #player_starting_position, player_positions = get_player_positions(player_positions_filename)
+    #player_starting_position, player_positions = adjust_player_positions(player_starting_position, player_positions,
+    #                                                                     scaling, tiny_visualization=tiny_visualization)
+    # player_starting_position = [20.0,16,1]
+    player_starting_position = [(20 + edge - 0.5*agent_size_x)*scaling, 16*scaling]
 
     drift_ranges = get_drift_ranges(drift_ranges_file)
     drift_ranges = adjust_drift_ranges(drift_ranges, scaling)
 
-    if not keyboard_input:
-        player_positions = iter(player_positions)
+    #if not keyboard_input:
+    #    player_positions = iter(player_positions)
 
     # running through game loop
     if keyboard_input:
@@ -61,7 +64,7 @@ def run_visualization(surface, scaling=1, tiny_visualization=False, FPS=30, keyb
                       keyboard_input=keyboard_input, trial=trial, attempt=attempt, code=code, FPS=FPS)
 
         level_done = run_pygame(surface=surface, scaling=scaling, FPS=FPS, keyboard_input=keyboard_input,
-                                player_positions=player_positions, level=level, tiny_visualization=tiny_visualization)
+                                level=level, player_starting_position=player_starting_position, tiny_visualization=tiny_visualization)
         return level_done
     else:
         level = Level(wall_list=wall_list, obstacles_list=obstacles_list,
@@ -70,10 +73,10 @@ def run_visualization(surface, scaling=1, tiny_visualization=False, FPS=30, keyb
                       keyboard_input=keyboard_input, code=code, FPS=FPS)
 
         run_pygame(surface=surface, scaling=scaling, FPS=FPS, keyboard_input=keyboard_input,
-                   player_positions=player_positions, level=level, tiny_visualization=tiny_visualization)
+                   level=level, tiny_visualization=tiny_visualization, player_starting_position=player_starting_position)
 
 
-def run_pygame(surface, scaling, FPS, keyboard_input, player_positions, level, tiny_visualization):
+def run_pygame(surface, player_starting_position, scaling, FPS, keyboard_input, level, tiny_visualization):
     """
     :param surface: pygame surface on which objects are drawn
     :param scaling: integer or float which is used to enlarge visualization
@@ -89,49 +92,30 @@ def run_pygame(surface, scaling, FPS, keyboard_input, player_positions, level, t
     start_time = time.time()
     level_done = False
 
-    if keyboard_input:
-        quit = False
-        while not quit:
-            for event in pygame.event.get():
-                if event.type == pygame.QUIT:
-                    pygame.quit()
-                    sys.exit()
-                # FIXME: resizing not working
-                if event.type == VIDEORESIZE:
-                    surface = pygame.display.set_mode((event.w, event.h), pygame.RESIZABLE)
+    quit = False
 
-            # update time
-            time_played = time.time() - start_time
-            # print(time_played)
 
-            surface.fill('black')
+    while not quit:
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                pygame.quit()
+                sys.exit()
+            # FIXME: resizing not working
+            if event.type == VIDEORESIZE:
+                surface = pygame.display.set_mode((event.w, event.h), pygame.RESIZABLE)
 
-            # update player position
-            current_player_position = player_positions[0]  # not needed but still given in level.run()
-            quit, level_done = level.run(time_played, current_player_position, scaling, tiny_visualization=tiny_visualization, keyboard_input=keyboard_input)
+        # update time
+        time_played = time.time() - start_time
+        # print(time_played)
 
-            pygame.display.update()
-            clock.tick(FPS)
-    else:
-        for player_position in player_positions:
-            for event in pygame.event.get():
-                if event.type == pygame.QUIT:
-                    pygame.quit()
-                    sys.exit()
-                # FIX ME: resizing not working
-                if event.type == VIDEORESIZE:
-                    surface = pygame.display.set_mode((event.w, event.h), pygame.RESIZABLE)
+        surface.fill('black')
 
-            # update time
-            time_played = time.time() - start_time
+        # update player position
+        #current_player_position = player_positions[0]  # not needed but still given in level.run()
+        quit, level_done = level.run(time_played, player_starting_position, scaling, tiny_visualization=tiny_visualization, keyboard_input=keyboard_input)
 
-            surface.fill('black')
+        pygame.display.update()
+        clock.tick(FPS)
 
-            # update player position
-            current_player_position = player_position
-            level.run(time_played, current_player_position, scaling, tiny_visualization=tiny_visualization, keyboard_input=keyboard_input)
-
-            pygame.display.update()
-            clock.tick(FPS)
-
+    
     return level_done

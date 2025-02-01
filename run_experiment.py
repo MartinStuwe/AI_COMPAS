@@ -1,16 +1,12 @@
 import pygame.display
-import time
 import random
-import os
 import itertools
 from main import run_visualization
 from displays import *
 from config import observation_space_size_x, observation_space_size_y, scaling, edge
 from actr import rpc_interface
 from actr.socket_manager import comet_socket, move_socket
-import threading
 
-import asyncio
 # participant code
 code = input('Enter code: ')
 
@@ -21,10 +17,14 @@ FPS = 60
 # pygame general setup
 pygame.init()
 
+
 # initialize pygame display
 screen_width = (observation_space_size_x + (2 * edge)) * scaling
 screen_height = observation_space_size_y * scaling
 screen = pygame.display.set_mode((screen_width, screen_height))  # ,pygame.FULLSCREEN vs. pygame.RESIZABLE
+
+print(screen_width, screen_height)
+
 
 # initialize practice procedure
 # practice_trials = ['training1', 'training2', 'training3', 'training4', 'training5']
@@ -74,21 +74,79 @@ instructions = False
 n_run = 0
 
 
-    # Send move-left
-message2 = '{"method": "add", "params":["moveleft", "moveleft", "this documents moveleft"], "id": 1}'
 
+# Define the chunk description according to the syntax
+import json
+
+# Define the chunk name and attributes correctly
+chunk_name = "game-screen-size"
+chunk_type = "screen-size"
+slots = {
+    "height": screen_height,
+    "width": screen_width
+}
+
+# Create the chunk description
+chunk_description = [
+    chunk_name,
+    "isa", chunk_type,  # The chunk type
+]
+
+# Add the slot-value pairs
+for slot_name, value in slots.items():
+    chunk_description.append(slot_name)
+    chunk_description.append(value)
+
+# Convert the chunk description to a JSON string
+chunk_description_json = json.dumps(chunk_description)
+
+# Construct the final message
+message = f"""
+{{
+    "method": "evaluate",
+    "params": [
+        "add-dm",
+        "compas-model",
+        {chunk_description_json}
+    ],
+    "id": 1
+}}
+"""
+
+# Send the message via the RPC interface
+received = rpc_interface.communicate_socket(sock=comet_socket, message=message)
+
+# Print the received response
+print(f"received: {received}")
+
+# Pass moveleft command
+message2 = '{"method": "add", "params":["moveleft", "moveleft", "this documents moveleft"], "id": 1}'
 print(f"message2: {message2}")
-#socket.setblocking(False)
 received = rpc_interface.communicate_socket(move_socket, message2)
 print(f"received: {received}")
 
-# Send move-right
+
+# Pass moveright command
 message2 = '{"method": "add", "params":["moveright", "moveright", "this documents moveright"], "id": 2}'
 print(message2)
 received = rpc_interface.communicate_socket(move_socket, message2)
 print(f"received: {received}")
 
+import mmap
+import os
 
+filename = "/tmp/compas_mmap_file"
+size = 840 * 1334
+
+# Create the mmap file if not exists
+with open(filename, "wb") as f:
+    f.write(b'\x00' * size)
+
+# Capture the green channel using PyGame
+#screen = pygame.display.set_mode((screen_width, screen_height))
+#reference_point = (self.walls.sprites()[-2].rect.x + scaling, 208)
+#observation_space = reference_point[0], reference_point[1], 532, 394
+#surface_subsection = self.display_surface.subsurface(observation_space)
 
 
 while not quit:
@@ -102,6 +160,16 @@ while not quit:
             display_intertrial_screen_after_crash(screen)
 
     pygame.display.update()
+    # Capture the green channel using PyGame
+    green_array = pygame.surfarray.array_green(screen)
+
+    # Convert the 2D array to bytes
+    # green_array = green_array.flatten()
+    green_bytes = green_array.tobytes()
+
+    # Count the number of green values greater than 0
+    num_greens_greater_than_zero = (green_array > 0).sum()
+
 
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
@@ -153,3 +221,4 @@ while not quit:
 
 # print(attempt_dict)
 pygame.quit()
+
