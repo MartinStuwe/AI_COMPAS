@@ -4,7 +4,7 @@ import random
 import actr.rpc_interface
 import asyncio
 import json
-from actr.socket_manager import comet_socket, move_socket
+from actr.socket_manager import comet_socket
 
 
 def start_async_loop():
@@ -40,6 +40,7 @@ class Comet(pygame.sprite.Sprite):
 
     def update_visicon(self):
         message = f"{{\"method\": \"evaluate\", \"params\":[\"add-visicon-features\", \"compas-model\", [\"screen-x\", {self.rect.x}, \"screen-y\", {self.rect.y}, \"comet-id\", {self.id}]], \"id\": 1}}"
+        # TODO: Remove comets
 
         actr.rpc_interface.communicate_socket(sock=comet_socket, message=message)
 

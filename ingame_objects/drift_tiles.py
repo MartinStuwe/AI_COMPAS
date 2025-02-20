@@ -2,8 +2,12 @@ import pygame
 import os
 import random
 
+import actr.rpc_interface
+from actr.socket_manager import drift_socket
+
 
 class DriftTile(pygame.sprite.Sprite):
+    global_id_counter = 0
     def __init__(self, y_start, y_end, size_x, obs_space_x, edge, direction, visibility, scaling):
         """
         :param y_start: position on level y-axis of drift tile
@@ -32,8 +36,17 @@ class DriftTile(pygame.sprite.Sprite):
         pos = [self.x_pos, self.y_pos]
         self.rect = self.image.get_rect(topleft=pos)
 
+        global global_id_counter
+        self.id = DriftTile.global_id_counter + 1
+        DriftTile.global_id_counter += 1
+
     def update(self, speed, scaling, horizontal_movement):
         # vertical movement
         self.rect.y -= (1*scaling) * speed
         # horizontal movement
         self.rect.x += horizontal_movement * scaling * speed
+
+    def update_visicon(self): 
+        message = f"{{\"method\": \"evaluate\", \"params\":[\"add-visicon-features\", \"compas-model\", [\"screen-x\", {self.rect.x}, \"screen-y\", {self.rect.y}, \"drift-id\", {self.id}]], \"id\": 4}}"
+
+        actr.rpc_interface.communicate_socket(sock=drift_socket, message=message)
