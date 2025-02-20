@@ -8,10 +8,17 @@ sbcl --dynamic-space-size 4096
 
 (load "~/git/ACT-R/load-act-r.lisp")
 
+(load "/home/scifaipy/git/ACT-R/environment/environment-cmds.lisp")
+(load "/home/scifaipy/git/ACT-R/environment/server.lisp")
 (load-act-r-model "./cognitive_model.lisp")
 
-(run 5)
+Now start start-environment-Linux
 
+Now start Dodge Asteroids PyGame:
+conda activate ./conda
+python run_exp*
+
+(run 5) or (run-step)
 
 
 Current problem:

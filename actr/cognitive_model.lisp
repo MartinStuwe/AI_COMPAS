@@ -1,4 +1,7 @@
 (clear-all)
+;(load "/home/scifaipy/quicklisp/setup.lisp")
+
+;(ql:quickload "py4cl")
 
 ;observation_space_size_x = 40
 ;observation_space_size_y = 60

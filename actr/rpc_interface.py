@@ -40,5 +40,5 @@ def receive(socket):
 def communicate_socket(sock, message):
     send(sock, message)
     message = receive(sock)
-
+    print(message)
     return message
