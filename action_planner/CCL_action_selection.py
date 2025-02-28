@@ -137,8 +137,6 @@ def select_action_goal(PAR: dict, HL_SoC: float, observation_in_pixel, reference
     """
 
     # minimizing the amount of control to-be-exerted
-    if not action_possibilities_in_pixel:
-        print("HAPPENED HERE 1")
     action_goal = list(
         min(action_possibilities_in_pixel, key=lambda point: abs(point[0] - (agent_pos_x - reference[0]))))
     # agent_pos_x still in pixel coordinates, therefore subtracting reference
@@ -270,3 +268,8 @@ def select_action_goal(PAR: dict, HL_SoC: float, observation_in_pixel, reference
     HL_SoC = bound(0, 1, HL_SoC)  # HL_SoC bottoms at 0.0 and tops at 1.0
 
     return [highest_activation_x, highest_activation_y], action_goal_col, time, HL_SoC
+
+
+
+# Plot video generation
+def update_frame(frame):
